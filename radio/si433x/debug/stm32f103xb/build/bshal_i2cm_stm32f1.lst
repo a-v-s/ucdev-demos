@@ -1,0 +1,451 @@
+ARM GAS  /tmp/ccb28lZh.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.arch armv7-m
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"bshal_i2cm_stm32f1.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.file 1 "../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c"
+  18              		.section	.bss.m_i2c_handles,"aw",%nobits
+  19              		.align	2
+  22              	m_i2c_handles:
+  23 0000 00000000 		.space	168
+  23      00000000 
+  23      00000000 
+  23      00000000 
+  23      00000000 
+  24              		.section	.text.bshal_stm32_i2cm_init,"ax",%progbits
+  25              		.align	1
+  26              		.global	bshal_stm32_i2cm_init
+  27              		.syntax unified
+  28              		.thumb
+  29              		.thumb_func
+  31              	bshal_stm32_i2cm_init:
+  32              	.LFB67:
+   1:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** /*
+   2:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c ****  * bshal_i2cm_stm32.c
+   3:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c ****  *
+   4:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c ****  *  Created on: 5 aug. 2021
+   5:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c ****  *      Author: andre
+   6:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c ****  */
+   7:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 
+   8:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** #include <stdlib.h>
+   9:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** #include <stdint.h>
+  10:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** #include <stdbool.h>
+  11:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** #include <string.h>
+  12:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 
+  13:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** #include "hal.h"
+  14:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** #include "bshal_i2cm.h"
+  15:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** #include "bshal_gpio_stm32.h"
+  16:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** #include "bshal_i2cm_stm32.h"
+  17:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 
+  18:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** static I2C_HandleTypeDef m_i2c_handles[2];
+  19:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 
+  20:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 
+  21:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** int bshal_stm32_i2cm_init(bshal_i2cm_instance_t *i2c_instance) {
+  33              		.loc 1 21 64
+  34              		.cfi_startproc
+  35              		@ args = 0, pretend = 0, frame = 48
+ARM GAS  /tmp/ccb28lZh.s 			page 2
+
+
+  36              		@ frame_needed = 1, uses_anonymous_args = 0
+  37 0000 80B5     		push	{r7, lr}
+  38              		.cfi_def_cfa_offset 8
+  39              		.cfi_offset 7, -8
+  40              		.cfi_offset 14, -4
+  41 0002 8CB0     		sub	sp, sp, #48
+  42              		.cfi_def_cfa_offset 56
+  43 0004 00AF     		add	r7, sp, #0
+  44              		.cfi_def_cfa_register 7
+  45 0006 7860     		str	r0, [r7, #4]
+  22:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 	i2c_instance->i2cm_isok = bshal_stm32_i2cm_isok;
+  46              		.loc 1 22 26
+  47 0008 7B68     		ldr	r3, [r7, #4]
+  48 000a 4C4A     		ldr	r2, .L11
+  49 000c DA60     		str	r2, [r3, #12]
+  23:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 	i2c_instance->i2cm_recv = bshal_stm32_i2cm_recv;
+  50              		.loc 1 23 26
+  51 000e 7B68     		ldr	r3, [r7, #4]
+  52 0010 4B4A     		ldr	r2, .L11+4
+  53 0012 9A60     		str	r2, [r3, #8]
+  24:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 	i2c_instance->i2cm_send = bshal_stm32_i2cm_send;
+  54              		.loc 1 24 26
+  55 0014 7B68     		ldr	r3, [r7, #4]
+  56 0016 4B4A     		ldr	r2, .L11+8
+  57 0018 5A60     		str	r2, [r3, #4]
+  25:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 
+  26:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 	GPIO_InitTypeDef GPIO_InitStruct;
+  27:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 	// Common configuration for all channels
+  28:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 	GPIO_InitStruct.Pull = GPIO_PULLUP;
+  58              		.loc 1 28 23
+  59 001a 0123     		movs	r3, #1
+  60 001c 7B62     		str	r3, [r7, #36]
+  29:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+  61              		.loc 1 29 24
+  62 001e 0323     		movs	r3, #3
+  63 0020 BB62     		str	r3, [r7, #40]
+  30:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 	GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
+  64              		.loc 1 30 23
+  65 0022 1223     		movs	r3, #18
+  66 0024 3B62     		str	r3, [r7, #32]
+  31:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 	GPIO_TypeDef *port = NULL;
+  67              		.loc 1 31 16
+  68 0026 0023     		movs	r3, #0
+  69 0028 BB61     		str	r3, [r7, #24]
+  32:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 	uint16_t pin = -1;
+  70              		.loc 1 32 11
+  71 002a 4FF6FF73 		movw	r3, #65535
+  72 002e FB82     		strh	r3, [r7, #22]	@ movhi
+  33:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 
+  34:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 	bshal_gpio_port_enable_clock(i2c_instance->scl_pin);
+  73              		.loc 1 34 2
+  74 0030 7B68     		ldr	r3, [r7, #4]
+  75 0032 5B7D     		ldrb	r3, [r3, #21]	@ zero_extendqisi2
+  76 0034 1846     		mov	r0, r3
+  77 0036 FFF7FEFF 		bl	bshal_gpio_port_enable_clock
+  35:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 	bshal_gpio_decode_pin(i2c_instance->scl_pin, &port, &pin);
+  78              		.loc 1 35 2
+ARM GAS  /tmp/ccb28lZh.s 			page 3
+
+
+  79 003a 7B68     		ldr	r3, [r7, #4]
+  80 003c 5B7D     		ldrb	r3, [r3, #21]	@ zero_extendqisi2
+  81 003e 07F11602 		add	r2, r7, #22
+  82 0042 07F11801 		add	r1, r7, #24
+  83 0046 1846     		mov	r0, r3
+  84 0048 FFF7FEFF 		bl	bshal_gpio_decode_pin
+  36:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 	GPIO_InitStruct.Pin = pin;
+  85              		.loc 1 36 22
+  86 004c FB8A     		ldrh	r3, [r7, #22]
+  87 004e FB61     		str	r3, [r7, #28]
+  37:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 
+  38:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 	HAL_GPIO_Init(port, &GPIO_InitStruct);
+  88              		.loc 1 38 2
+  89 0050 BB69     		ldr	r3, [r7, #24]
+  90 0052 07F11C02 		add	r2, r7, #28
+  91 0056 1146     		mov	r1, r2
+  92 0058 1846     		mov	r0, r3
+  93 005a FFF7FEFF 		bl	HAL_GPIO_Init
+  39:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 
+  40:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 	bshal_gpio_port_enable_clock(i2c_instance->sda_pin);
+  94              		.loc 1 40 2
+  95 005e 7B68     		ldr	r3, [r7, #4]
+  96 0060 1B7D     		ldrb	r3, [r3, #20]	@ zero_extendqisi2
+  97 0062 1846     		mov	r0, r3
+  98 0064 FFF7FEFF 		bl	bshal_gpio_port_enable_clock
+  41:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 	bshal_gpio_decode_pin(i2c_instance->sda_pin, &port, &pin);
+  99              		.loc 1 41 2
+ 100 0068 7B68     		ldr	r3, [r7, #4]
+ 101 006a 1B7D     		ldrb	r3, [r3, #20]	@ zero_extendqisi2
+ 102 006c 07F11602 		add	r2, r7, #22
+ 103 0070 07F11801 		add	r1, r7, #24
+ 104 0074 1846     		mov	r0, r3
+ 105 0076 FFF7FEFF 		bl	bshal_gpio_decode_pin
+  42:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 	GPIO_InitStruct.Pin = pin;
+ 106              		.loc 1 42 22
+ 107 007a FB8A     		ldrh	r3, [r7, #22]
+ 108 007c FB61     		str	r3, [r7, #28]
+  43:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 	HAL_GPIO_Init(port, &GPIO_InitStruct);
+ 109              		.loc 1 43 2
+ 110 007e BB69     		ldr	r3, [r7, #24]
+ 111 0080 07F11C02 		add	r2, r7, #28
+ 112 0084 1146     		mov	r1, r2
+ 113 0086 1846     		mov	r0, r3
+ 114 0088 FFF7FEFF 		bl	HAL_GPIO_Init
+  44:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 
+  45:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 	I2C_HandleTypeDef *handle;
+  46:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 	switch (i2c_instance->hw_nr) {
+ 115              		.loc 1 46 22
+ 116 008c 7B68     		ldr	r3, [r7, #4]
+ 117 008e 9B7D     		ldrb	r3, [r3, #22]	@ zero_extendqisi2
+ 118              		.loc 1 46 2
+ 119 0090 012B     		cmp	r3, #1
+ 120 0092 02D0     		beq	.L2
+ 121 0094 022B     		cmp	r3, #2
+ 122 0096 17D0     		beq	.L3
+ 123 0098 2DE0     		b	.L10
+ 124              	.L2:
+ARM GAS  /tmp/ccb28lZh.s 			page 4
+
+
+ 125              	.LBB2:
+  47:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** #ifdef I2C1
+  48:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 	case 1:
+  49:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 		__HAL_RCC_I2C1_CLK_ENABLE();
+ 126              		.loc 1 49 3
+ 127 009a 2B4B     		ldr	r3, .L11+12
+ 128 009c DB69     		ldr	r3, [r3, #28]
+ 129 009e 2A4A     		ldr	r2, .L11+12
+ 130 00a0 43F40013 		orr	r3, r3, #2097152
+ 131 00a4 D361     		str	r3, [r2, #28]
+ 132 00a6 284B     		ldr	r3, .L11+12
+ 133 00a8 DB69     		ldr	r3, [r3, #28]
+ 134 00aa 03F40013 		and	r3, r3, #2097152
+ 135 00ae 3B61     		str	r3, [r7, #16]
+ 136 00b0 3B69     		ldr	r3, [r7, #16]
+ 137              	.LBE2:
+  50:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 		handle = m_i2c_handles+0;
+ 138              		.loc 1 50 10
+ 139 00b2 264B     		ldr	r3, .L11+16
+ 140 00b4 FB62     		str	r3, [r7, #44]
+  51:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 		memset(handle, 0, sizeof(I2C_HandleTypeDef));
+ 141              		.loc 1 51 3
+ 142 00b6 5422     		movs	r2, #84
+ 143 00b8 0021     		movs	r1, #0
+ 144 00ba F86A     		ldr	r0, [r7, #44]
+ 145 00bc FFF7FEFF 		bl	memset
+  52:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 		handle->Instance = I2C1;
+ 146              		.loc 1 52 20
+ 147 00c0 FB6A     		ldr	r3, [r7, #44]
+ 148 00c2 234A     		ldr	r2, .L11+20
+ 149 00c4 1A60     		str	r2, [r3]
+  53:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 		break;
+ 150              		.loc 1 53 3
+ 151 00c6 19E0     		b	.L5
+ 152              	.L3:
+ 153              	.LBB3:
+  54:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** #endif
+  55:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** #ifdef I2C2
+  56:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 	case 2:
+  57:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 		__HAL_RCC_I2C2_CLK_ENABLE();
+ 154              		.loc 1 57 3
+ 155 00c8 1F4B     		ldr	r3, .L11+12
+ 156 00ca DB69     		ldr	r3, [r3, #28]
+ 157 00cc 1E4A     		ldr	r2, .L11+12
+ 158 00ce 43F48003 		orr	r3, r3, #4194304
+ 159 00d2 D361     		str	r3, [r2, #28]
+ 160 00d4 1C4B     		ldr	r3, .L11+12
+ 161 00d6 DB69     		ldr	r3, [r3, #28]
+ 162 00d8 03F48003 		and	r3, r3, #4194304
+ 163 00dc FB60     		str	r3, [r7, #12]
+ 164 00de FB68     		ldr	r3, [r7, #12]
+ 165              	.LBE3:
+  58:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 		handle = m_i2c_handles+1;
+ 166              		.loc 1 58 10
+ 167 00e0 1C4B     		ldr	r3, .L11+24
+ 168 00e2 FB62     		str	r3, [r7, #44]
+  59:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 		memset(handle, 0, sizeof(I2C_HandleTypeDef));
+ARM GAS  /tmp/ccb28lZh.s 			page 5
+
+
+ 169              		.loc 1 59 3
+ 170 00e4 5422     		movs	r2, #84
+ 171 00e6 0021     		movs	r1, #0
+ 172 00e8 F86A     		ldr	r0, [r7, #44]
+ 173 00ea FFF7FEFF 		bl	memset
+  60:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 		handle->Instance = I2C2;
+ 174              		.loc 1 60 20
+ 175 00ee FB6A     		ldr	r3, [r7, #44]
+ 176 00f0 194A     		ldr	r2, .L11+28
+ 177 00f2 1A60     		str	r2, [r3]
+  61:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 		break;
+ 178              		.loc 1 61 3
+ 179 00f4 02E0     		b	.L5
+ 180              	.L10:
+  62:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** #endif
+  63:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 	default:
+  64:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 		return -1;
+ 181              		.loc 1 64 10
+ 182 00f6 4FF0FF33 		mov	r3, #-1
+ 183 00fa 1BE0     		b	.L9
+ 184              	.L5:
+  65:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 	}
+  66:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 
+  67:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 	//handle->Init.ClockSpeed = 400000;
+  68:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 	handle->Init.ClockSpeed = i2c_instance->speed_hz;
+ 185              		.loc 1 68 40
+ 186 00fc 7B68     		ldr	r3, [r7, #4]
+ 187 00fe 1A69     		ldr	r2, [r3, #16]
+ 188              		.loc 1 68 26
+ 189 0100 FB6A     		ldr	r3, [r7, #44]
+ 190 0102 5A60     		str	r2, [r3, #4]
+  69:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 	if (i2c_instance->speed_hz > 100000)
+ 191              		.loc 1 69 18
+ 192 0104 7B68     		ldr	r3, [r7, #4]
+ 193 0106 1B69     		ldr	r3, [r3, #16]
+ 194              		.loc 1 69 5
+ 195 0108 144A     		ldr	r2, .L11+32
+ 196 010a 9342     		cmp	r3, r2
+ 197 010c 04D9     		bls	.L7
+  70:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 		handle->Init.DutyCycle = I2C_DUTYCYCLE_16_9;
+ 198              		.loc 1 70 26
+ 199 010e FB6A     		ldr	r3, [r7, #44]
+ 200 0110 4FF48042 		mov	r2, #16384
+ 201 0114 9A60     		str	r2, [r3, #8]
+ 202 0116 02E0     		b	.L8
+ 203              	.L7:
+  71:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 	else
+  72:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 		handle->Init.DutyCycle = I2C_DUTYCYCLE_2;
+ 204              		.loc 1 72 26
+ 205 0118 FB6A     		ldr	r3, [r7, #44]
+ 206 011a 0022     		movs	r2, #0
+ 207 011c 9A60     		str	r2, [r3, #8]
+ 208              	.L8:
+  73:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 
+  74:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 	handle->Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+ 209              		.loc 1 74 30
+ 210 011e FB6A     		ldr	r3, [r7, #44]
+ARM GAS  /tmp/ccb28lZh.s 			page 6
+
+
+ 211 0120 4FF48042 		mov	r2, #16384
+ 212 0124 1A61     		str	r2, [r3, #16]
+  75:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 
+  76:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 	i2c_instance->drv_specific = handle;
+ 213              		.loc 1 76 29
+ 214 0126 7B68     		ldr	r3, [r7, #4]
+ 215 0128 FA6A     		ldr	r2, [r7, #44]
+ 216 012a 1A60     		str	r2, [r3]
+  77:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 	HAL_I2C_Init(handle);
+ 217              		.loc 1 77 2
+ 218 012c F86A     		ldr	r0, [r7, #44]
+ 219 012e FFF7FEFF 		bl	HAL_I2C_Init
+  78:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 	return 0;
+ 220              		.loc 1 78 9
+ 221 0132 0023     		movs	r3, #0
+ 222              	.L9:
+  79:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** 
+  80:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32f1.c **** }
+ 223              		.loc 1 80 1 discriminator 1
+ 224 0134 1846     		mov	r0, r3
+ 225 0136 3037     		adds	r7, r7, #48
+ 226              		.cfi_def_cfa_offset 8
+ 227 0138 BD46     		mov	sp, r7
+ 228              		.cfi_def_cfa_register 13
+ 229              		@ sp needed
+ 230 013a 80BD     		pop	{r7, pc}
+ 231              	.L12:
+ 232              		.align	2
+ 233              	.L11:
+ 234 013c 00000000 		.word	bshal_stm32_i2cm_isok
+ 235 0140 00000000 		.word	bshal_stm32_i2cm_recv
+ 236 0144 00000000 		.word	bshal_stm32_i2cm_send
+ 237 0148 00100240 		.word	1073876992
+ 238 014c 00000000 		.word	m_i2c_handles
+ 239 0150 00540040 		.word	1073763328
+ 240 0154 54000000 		.word	m_i2c_handles+84
+ 241 0158 00580040 		.word	1073764352
+ 242 015c A0860100 		.word	100000
+ 243              		.cfi_endproc
+ 244              	.LFE67:
+ 246              		.text
+ 247              	.Letext0:
+ 248              		.file 2 "/usr/lib/gcc/arm-none-eabi/12.2.0/include/stddef.h"
+ 249              		.file 3 "/usr/arm-none-eabi/include/machine/_default_types.h"
+ 250              		.file 4 "/usr/arm-none-eabi/include/sys/_stdint.h"
+ 251              		.file 5 "../../../ext/stm32/cmsis_device_f1/Include/stm32f103xb.h"
+ 252              		.file 6 "../../../ext/stm32/stm32f1xx_hal_driver/Inc/stm32f1xx_hal_def.h"
+ 253              		.file 7 "../../../ext/stm32/stm32f1xx_hal_driver/Inc/stm32f1xx_hal_gpio.h"
+ 254              		.file 8 "../../../ext/stm32/stm32f1xx_hal_driver/Inc/stm32f1xx_hal_dma.h"
+ 255              		.file 9 "../../../ext/stm32/stm32f1xx_hal_driver/Inc/stm32f1xx_hal_i2c.h"
+ 256              		.file 10 "../../../lib/libhalglue/bshal/bshal_i2cm.h"
+ 257              		.file 11 "/usr/arm-none-eabi/include/string.h"
+ 258              		.file 12 "../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.h"
+ 259              		.file 13 "../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.h"
+ARM GAS  /tmp/ccb28lZh.s 			page 7
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 bshal_i2cm_stm32f1.c
+     /tmp/ccb28lZh.s:19     .bss.m_i2c_handles:0000000000000000 $d
+     /tmp/ccb28lZh.s:22     .bss.m_i2c_handles:0000000000000000 m_i2c_handles
+     /tmp/ccb28lZh.s:25     .text.bshal_stm32_i2cm_init:0000000000000000 $t
+     /tmp/ccb28lZh.s:31     .text.bshal_stm32_i2cm_init:0000000000000000 bshal_stm32_i2cm_init
+     /tmp/ccb28lZh.s:234    .text.bshal_stm32_i2cm_init:000000000000013c $d
+                           .group:0000000000000000 wm4.0.2a10468dd89b593cd64cc189d36e5bb7
+                           .group:0000000000000000 wm4.ieeefp.h.77.25247dc27dbe3b23bfe98c2dc18f6ac5
+                           .group:0000000000000000 wm4._newlib_version.h.4.529115dae5e4f67702b1de0b6e841f38
+                           .group:0000000000000000 wm4.newlib.h.18.a58e9e86397e11d140a508f2e0db40b7
+                           .group:0000000000000000 wm4.features.h.22.7877b139107948f7dadcf3660cc79cfd
+                           .group:0000000000000000 wm4.config.h.224.18dfb280c62ae4ee788eb67b451eb1a6
+                           .group:0000000000000000 wm4._ansi.h.31.de524f58584151836e90d8620a16f8e8
+                           .group:0000000000000000 wm4.stdlib.h.13.4ed386f5c1a80d71e72172885d946ef2
+                           .group:0000000000000000 wm4.stddef.h.185.882514a1a6169ceba9142f401cbe27c6
+                           .group:0000000000000000 wm4.stddef.h.39.f07083f9b666a9e5c52a336c758fdd72
+                           .group:0000000000000000 wm4._types.h.20.dd0d04dca3800a0d2a6129b87f3adbb2
+                           .group:0000000000000000 wm4.stddef.h.158.5f30652bb2ea05b142c1bbee9108c999
+                           .group:0000000000000000 wm4._default_types.h.6.959254cf5f09734ea7516c89e8bb21bd
+                           .group:0000000000000000 wm4._types.h.127.34941de1b2539d59d5cac00e0dd27a45
+                           .group:0000000000000000 wm4.reent.h.17.e292bf8b0bec6c96e131a54347145a30
+                           .group:0000000000000000 wm4.lock.h.2.1461d1fff82dffe8bfddc23307f6484f
+                           .group:0000000000000000 wm4.reent.h.77.dcd6129ff07fe81bd5636db29abe53b2
+                           .group:0000000000000000 wm4.cdefs.h.49.39045112216f6a021dbdffe3bf5accce
+                           .group:0000000000000000 wm4.alloca.h.8.dfc0c703c47ec3e69746825b17d9e66d
+                           .group:0000000000000000 wm4.stdlib.h.56.f4862cfbf4363a1db01842d5bdf72c18
+                           .group:0000000000000000 wm4._intsup.h.10.48bafbb683905c4daa4565a85aeeb264
+                           .group:0000000000000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:0000000000000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:0000000000000000 wm4.stdbool.h.29.4a1c88fe569adb8d03217dd16982ca34
+                           .group:0000000000000000 wm4.string.h.8.c4b8571ce60dff2817f43fec8b86aecd
+                           .group:0000000000000000 wm4.stddef.h.158.bfed30416c9480cd13bc4a25427d538f
+                           .group:0000000000000000 wm4.stm32f1xx.h.39.e8c98c5ce2cd95856eed179966374e12
+                           .group:0000000000000000 wm4.stm32f103xb.h.38.ec967d5ad9d3269cb0788eebda048e38
+                           .group:0000000000000000 wm4.cmsis_version.h.32.0f826810625204eca22a19868bdc7586
+                           .group:0000000000000000 wm4.core_cm3.h.66.fc46cac19810db8f98d67da7ef88f42c
+                           .group:0000000000000000 wm4.cmsis_gcc.h.26.549e8fd988111c6b396c357ef98aeb59
+                           .group:0000000000000000 wm4.core_cm3.h.127.aaed3d1df272b0aa79c526153017805c
+                           .group:0000000000000000 wm4.stm32f103xb.h.573.10249aa7473ca93be896fed94046a725
+                           .group:0000000000000000 wm4.stm32f1xx.h.162.96b09079a093c34dbd7f0b85cbd0ddee
+                           .group:0000000000000000 wm4.stm32f1xx_hal_conf.h.24.fb218a6cd2ee35d840b3eac0f5fb4119
+                           .group:0000000000000000 wm4.stm32_hal_legacy.h.22.3d81dc02d9b9459e9eac6fdca7f8f18e
+                           .group:0000000000000000 wm4.stm32f1xx_hal_def.h.56.dfe92d4f76983476d27bcb2e4d801fca
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc.h.94.78ba4ec8cedd7ba94683a5fabb61b31e
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc_ex.h.21.8406672c8a3f21f71eb8441fb8ecb4bd
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc.h.1201.89d14cbb1b46fba2de70512ccfd8d5ce
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio.h.21.0099da253a68660e916195d3e8928be3
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio_ex.h.21.93f1f3ec7660fa76375def81b976f73c
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio.h.262.7df79220ec7519ba80c1763e6b4854a6
+                           .group:0000000000000000 wm4.stm32f1xx_hal_exti.h.21.a7f1b393a0c9b2b56b72ccdbb8dee508
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma.h.21.11e5a204ed6aa790b1cdae2e4192bc9d
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma_ex.h.21.d438f745b4c04dc23f9f569190526864
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma.h.408.14794a3f8621230c9ac7fca0cacf3e57
+                           .group:0000000000000000 wm4.stm32f1xx_hal_can.h.21.d1dd4a884a3983bc975efc64fbbd5748
+                           .group:0000000000000000 wm4.stm32f1xx_hal_cortex.h.21.6ab92041a8778f53d2d2d96b3825535a
+                           .group:0000000000000000 wm4.stm32f1xx_hal_adc.h.21.8ae5a06b46334619d54b2469802d6db6
+ARM GAS  /tmp/ccb28lZh.s 			page 8
+
+
+                           .group:0000000000000000 wm4.stm32f1xx_hal_adc_ex.h.21.f5c9ba15472af26c826d75096ae3e02a
+                           .group:0000000000000000 wm4.stm32f1xx_hal_crc.h.21.b5b5d61856236c32a5704a7db1b8c77f
+                           .group:0000000000000000 wm4.stm32f1xx_hal_flash.h.21.6df147ac02cc6dec8c4706cc1a34879c
+                           .group:0000000000000000 wm4.stm32f1xx_hal_flash_ex.h.21.33e24ce7a8607e16d5a38297454fd963
+                           .group:0000000000000000 wm4.stm32f1xx_hal_i2c.h.21.6a947c870feb456d84d10dd871ee01bd
+                           .group:0000000000000000 wm4.stm32f1xx_hal_iwdg.h.21.14afe1e30714751a311b81d0791714c2
+                           .group:0000000000000000 wm4.stm32f1xx_hal_pwr.h.21.ec3e2cfd4c26fffa32fc4ff0a8ac7390
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rtc.h.21.833c91cab3eef49edc59fd371d3c1ce0
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rtc_ex.h.21.b671683f6728965b6d8404d04009ed32
+                           .group:0000000000000000 wm4.stm32f1xx_hal_spi.h.21.59f3c581a47a8dea5d070b46998af27e
+                           .group:0000000000000000 wm4.stm32f1xx_hal_tim.h.21.76f9d96f76cba41ae3b6e27311c6f5ff
+                           .group:0000000000000000 wm4.stm32f1xx_hal_uart.h.21.ffd6508e5e0a88f651472e5c80a9d587
+                           .group:0000000000000000 wm4.stm32f1xx_hal_usart.h.21.0b32d58c93817e5f10bce7603c316c1e
+                           .group:0000000000000000 wm4.stm32f1xx_hal_irda.h.21.b44168150ccb55c331f6e6afe3cf4b88
+                           .group:0000000000000000 wm4.stm32f1xx_hal_smartcard.h.21.d256a98de9ec7b58600da5aa4b29abdb
+                           .group:0000000000000000 wm4.stm32f1xx_hal_wwdg.h.21.ac611fc4089566604f02b81297147d50
+                           .group:0000000000000000 wm4.stm32f1xx_ll_usb.h.21.4cb0f3c145693f977427d01b787de0c7
+                           .group:0000000000000000 wm4.stm32f1xx_hal_pcd.h.160.b1d545af3cea9ada15575c2dedd78cdc
+                           .group:0000000000000000 wm4.stm32f1xx_hal.h.87.60093b86a987865736d7cddecce3c235
+                           .group:0000000000000000 wm4.hal.h.171.2416996228cff7a433489242f7abe7d4
+                           .group:0000000000000000 wm4.bshal_i2cm.h.11.09ce5fde9ee09ba50563c37b9993575a
+
+UNDEFINED SYMBOLS
+bshal_gpio_port_enable_clock
+bshal_gpio_decode_pin
+HAL_GPIO_Init
+memset
+HAL_I2C_Init
+bshal_stm32_i2cm_isok
+bshal_stm32_i2cm_recv
+bshal_stm32_i2cm_send

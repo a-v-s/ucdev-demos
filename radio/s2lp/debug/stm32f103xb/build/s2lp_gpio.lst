@@ -1,0 +1,808 @@
+ARM GAS  /tmp/ccBBXZwO.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.arch armv7-m
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"s2lp_gpio.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.file 1 "S2LP_Driver/s2lp_gpio.c"
+  18              		.section	.text.S2LP_WritePinConfig,"ax",%progbits
+  19              		.align	1
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	S2LP_WritePinConfig:
+  25              	.LFB67:
+   1:S2LP_Driver/s2lp_gpio.c **** /*
+   2:S2LP_Driver/s2lp_gpio.c ****  * s2lp_gpio.c
+   3:S2LP_Driver/s2lp_gpio.c ****  *
+   4:S2LP_Driver/s2lp_gpio.c ****  *  Created on: 11 sie 2021
+   5:S2LP_Driver/s2lp_gpio.c ****  *      Author: steelph0enix
+   6:S2LP_Driver/s2lp_gpio.c ****  */
+   7:S2LP_Driver/s2lp_gpio.c **** 
+   8:S2LP_Driver/s2lp_gpio.c **** #include "s2lp_gpio.h"
+   9:S2LP_Driver/s2lp_gpio.c **** #include "bit_helpers.h"
+  10:S2LP_Driver/s2lp_gpio.c **** 
+  11:S2LP_Driver/s2lp_gpio.c **** // ===== Local helper functions =====
+  12:S2LP_Driver/s2lp_gpio.c **** 
+  13:S2LP_Driver/s2lp_gpio.c **** inline static void S2LP_WritePinConfig(S2LP_Handle* handle, S2LP_Pin pin) {
+  26              		.loc 1 13 75
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 8
+  29              		@ frame_needed = 1, uses_anonymous_args = 0
+  30 0000 80B5     		push	{r7, lr}
+  31              		.cfi_def_cfa_offset 8
+  32              		.cfi_offset 7, -8
+  33              		.cfi_offset 14, -4
+  34 0002 82B0     		sub	sp, sp, #8
+  35              		.cfi_def_cfa_offset 16
+  36 0004 00AF     		add	r7, sp, #0
+  37              		.cfi_def_cfa_register 7
+  38 0006 7860     		str	r0, [r7, #4]
+  39 0008 0B46     		mov	r3, r1
+  40 000a FB70     		strb	r3, [r7, #3]
+  14:S2LP_Driver/s2lp_gpio.c **** 	S2LP_Select(handle);
+  41              		.loc 1 14 2
+  42 000c 7868     		ldr	r0, [r7, #4]
+  43 000e FFF7FEFF 		bl	S2LP_Select
+  15:S2LP_Driver/s2lp_gpio.c **** 	switch (pin) {
+ARM GAS  /tmp/ccBBXZwO.s 			page 2
+
+
+  44              		.loc 1 15 2
+  45 0012 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+  46 0014 032B     		cmp	r3, #3
+  47 0016 23D8     		bhi	.L9
+  48 0018 01A2     		adr	r2, .L4
+  49 001a 52F823F0 		ldr	pc, [r2, r3, lsl #2]
+  50 001e 00BF     		.p2align 2
+  51              	.L4:
+  52 0020 31000000 		.word	.L7+1
+  53 0024 3D000000 		.word	.L6+1
+  54 0028 49000000 		.word	.L5+1
+  55 002c 55000000 		.word	.L3+1
+  56              		.p2align 1
+  57              	.L7:
+  16:S2LP_Driver/s2lp_gpio.c **** 		case S2LP_PIN_GPIO_0: {
+  17:S2LP_Driver/s2lp_gpio.c **** 			S2LP_Write(handle, S2LP_REG_GPIO0_CONF, 1);
+  58              		.loc 1 17 4
+  59 0030 0122     		movs	r2, #1
+  60 0032 0021     		movs	r1, #0
+  61 0034 7868     		ldr	r0, [r7, #4]
+  62 0036 FFF7FEFF 		bl	S2LP_Write
+  18:S2LP_Driver/s2lp_gpio.c **** 			break;
+  63              		.loc 1 18 4
+  64 003a 12E0     		b	.L8
+  65              	.L6:
+  19:S2LP_Driver/s2lp_gpio.c **** 		}
+  20:S2LP_Driver/s2lp_gpio.c **** 		case S2LP_PIN_GPIO_1: {
+  21:S2LP_Driver/s2lp_gpio.c **** 			S2LP_Write(handle, S2LP_REG_GPIO1_CONF, 1);
+  66              		.loc 1 21 4
+  67 003c 0122     		movs	r2, #1
+  68 003e 0121     		movs	r1, #1
+  69 0040 7868     		ldr	r0, [r7, #4]
+  70 0042 FFF7FEFF 		bl	S2LP_Write
+  22:S2LP_Driver/s2lp_gpio.c **** 			break;
+  71              		.loc 1 22 4
+  72 0046 0CE0     		b	.L8
+  73              	.L5:
+  23:S2LP_Driver/s2lp_gpio.c **** 		}
+  24:S2LP_Driver/s2lp_gpio.c **** 		case S2LP_PIN_GPIO_2: {
+  25:S2LP_Driver/s2lp_gpio.c **** 			S2LP_Write(handle, S2LP_REG_GPIO2_CONF, 1);
+  74              		.loc 1 25 4
+  75 0048 0122     		movs	r2, #1
+  76 004a 0221     		movs	r1, #2
+  77 004c 7868     		ldr	r0, [r7, #4]
+  78 004e FFF7FEFF 		bl	S2LP_Write
+  26:S2LP_Driver/s2lp_gpio.c **** 			break;
+  79              		.loc 1 26 4
+  80 0052 06E0     		b	.L8
+  81              	.L3:
+  27:S2LP_Driver/s2lp_gpio.c **** 		}
+  28:S2LP_Driver/s2lp_gpio.c **** 		case S2LP_PIN_GPIO_3: {
+  29:S2LP_Driver/s2lp_gpio.c **** 			S2LP_Write(handle, S2LP_REG_GPIO3_CONF, 1);
+  82              		.loc 1 29 4
+  83 0054 0122     		movs	r2, #1
+  84 0056 0321     		movs	r1, #3
+  85 0058 7868     		ldr	r0, [r7, #4]
+  86 005a FFF7FEFF 		bl	S2LP_Write
+ARM GAS  /tmp/ccBBXZwO.s 			page 3
+
+
+  30:S2LP_Driver/s2lp_gpio.c **** 			break;
+  87              		.loc 1 30 4
+  88 005e 00E0     		b	.L8
+  89              	.L9:
+  31:S2LP_Driver/s2lp_gpio.c **** 		}
+  32:S2LP_Driver/s2lp_gpio.c **** 		case S2LP_PIN_CSN:
+  33:S2LP_Driver/s2lp_gpio.c **** 		case S2LP_PIN_SDN:
+  34:S2LP_Driver/s2lp_gpio.c **** 		default:
+  35:S2LP_Driver/s2lp_gpio.c **** 			break;
+  90              		.loc 1 35 4
+  91 0060 00BF     		nop
+  92              	.L8:
+  36:S2LP_Driver/s2lp_gpio.c **** 	}
+  37:S2LP_Driver/s2lp_gpio.c **** 	S2LP_Deselect(handle);
+  93              		.loc 1 37 2
+  94 0062 7868     		ldr	r0, [r7, #4]
+  95 0064 FFF7FEFF 		bl	S2LP_Deselect
+  38:S2LP_Driver/s2lp_gpio.c **** }
+  96              		.loc 1 38 1
+  97 0068 00BF     		nop
+  98 006a 0837     		adds	r7, r7, #8
+  99              		.cfi_def_cfa_offset 8
+ 100 006c BD46     		mov	sp, r7
+ 101              		.cfi_def_cfa_register 13
+ 102              		@ sp needed
+ 103 006e 80BD     		pop	{r7, pc}
+ 104              		.cfi_endproc
+ 105              	.LFE67:
+ 107              		.section	.text.S2LP_ReadPinConfig,"ax",%progbits
+ 108              		.align	1
+ 109              		.syntax unified
+ 110              		.thumb
+ 111              		.thumb_func
+ 113              	S2LP_ReadPinConfig:
+ 114              	.LFB68:
+  39:S2LP_Driver/s2lp_gpio.c **** 
+  40:S2LP_Driver/s2lp_gpio.c **** inline static void S2LP_ReadPinConfig(S2LP_Handle* handle, S2LP_Pin pin) {
+ 115              		.loc 1 40 74
+ 116              		.cfi_startproc
+ 117              		@ args = 0, pretend = 0, frame = 8
+ 118              		@ frame_needed = 1, uses_anonymous_args = 0
+ 119 0000 80B5     		push	{r7, lr}
+ 120              		.cfi_def_cfa_offset 8
+ 121              		.cfi_offset 7, -8
+ 122              		.cfi_offset 14, -4
+ 123 0002 82B0     		sub	sp, sp, #8
+ 124              		.cfi_def_cfa_offset 16
+ 125 0004 00AF     		add	r7, sp, #0
+ 126              		.cfi_def_cfa_register 7
+ 127 0006 7860     		str	r0, [r7, #4]
+ 128 0008 0B46     		mov	r3, r1
+ 129 000a FB70     		strb	r3, [r7, #3]
+  41:S2LP_Driver/s2lp_gpio.c **** 	S2LP_Select(handle);
+ 130              		.loc 1 41 2
+ 131 000c 7868     		ldr	r0, [r7, #4]
+ 132 000e FFF7FEFF 		bl	S2LP_Select
+  42:S2LP_Driver/s2lp_gpio.c **** 	switch (pin) {
+ARM GAS  /tmp/ccBBXZwO.s 			page 4
+
+
+ 133              		.loc 1 42 2
+ 134 0012 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 135 0014 032B     		cmp	r3, #3
+ 136 0016 23D8     		bhi	.L18
+ 137 0018 01A2     		adr	r2, .L13
+ 138 001a 52F823F0 		ldr	pc, [r2, r3, lsl #2]
+ 139 001e 00BF     		.p2align 2
+ 140              	.L13:
+ 141 0020 31000000 		.word	.L16+1
+ 142 0024 3D000000 		.word	.L15+1
+ 143 0028 49000000 		.word	.L14+1
+ 144 002c 55000000 		.word	.L12+1
+ 145              		.p2align 1
+ 146              	.L16:
+  43:S2LP_Driver/s2lp_gpio.c **** 		case S2LP_PIN_GPIO_0: {
+  44:S2LP_Driver/s2lp_gpio.c **** 			S2LP_Read(handle, S2LP_REG_GPIO0_CONF, 1);
+ 147              		.loc 1 44 4
+ 148 0030 0122     		movs	r2, #1
+ 149 0032 0021     		movs	r1, #0
+ 150 0034 7868     		ldr	r0, [r7, #4]
+ 151 0036 FFF7FEFF 		bl	S2LP_Read
+  45:S2LP_Driver/s2lp_gpio.c **** 			break;
+ 152              		.loc 1 45 4
+ 153 003a 12E0     		b	.L17
+ 154              	.L15:
+  46:S2LP_Driver/s2lp_gpio.c **** 		}
+  47:S2LP_Driver/s2lp_gpio.c **** 		case S2LP_PIN_GPIO_1: {
+  48:S2LP_Driver/s2lp_gpio.c **** 			S2LP_Read(handle, S2LP_REG_GPIO1_CONF, 1);
+ 155              		.loc 1 48 4
+ 156 003c 0122     		movs	r2, #1
+ 157 003e 0121     		movs	r1, #1
+ 158 0040 7868     		ldr	r0, [r7, #4]
+ 159 0042 FFF7FEFF 		bl	S2LP_Read
+  49:S2LP_Driver/s2lp_gpio.c **** 			break;
+ 160              		.loc 1 49 4
+ 161 0046 0CE0     		b	.L17
+ 162              	.L14:
+  50:S2LP_Driver/s2lp_gpio.c **** 		}
+  51:S2LP_Driver/s2lp_gpio.c **** 		case S2LP_PIN_GPIO_2: {
+  52:S2LP_Driver/s2lp_gpio.c **** 			S2LP_Read(handle, S2LP_REG_GPIO2_CONF, 1);
+ 163              		.loc 1 52 4
+ 164 0048 0122     		movs	r2, #1
+ 165 004a 0221     		movs	r1, #2
+ 166 004c 7868     		ldr	r0, [r7, #4]
+ 167 004e FFF7FEFF 		bl	S2LP_Read
+  53:S2LP_Driver/s2lp_gpio.c **** 			break;
+ 168              		.loc 1 53 4
+ 169 0052 06E0     		b	.L17
+ 170              	.L12:
+  54:S2LP_Driver/s2lp_gpio.c **** 		}
+  55:S2LP_Driver/s2lp_gpio.c **** 		case S2LP_PIN_GPIO_3: {
+  56:S2LP_Driver/s2lp_gpio.c **** 			S2LP_Read(handle, S2LP_REG_GPIO3_CONF, 1);
+ 171              		.loc 1 56 4
+ 172 0054 0122     		movs	r2, #1
+ 173 0056 0321     		movs	r1, #3
+ 174 0058 7868     		ldr	r0, [r7, #4]
+ 175 005a FFF7FEFF 		bl	S2LP_Read
+ARM GAS  /tmp/ccBBXZwO.s 			page 5
+
+
+  57:S2LP_Driver/s2lp_gpio.c **** 			break;
+ 176              		.loc 1 57 4
+ 177 005e 00E0     		b	.L17
+ 178              	.L18:
+  58:S2LP_Driver/s2lp_gpio.c **** 		}
+  59:S2LP_Driver/s2lp_gpio.c **** 		case S2LP_PIN_CSN:
+  60:S2LP_Driver/s2lp_gpio.c **** 		case S2LP_PIN_SDN:
+  61:S2LP_Driver/s2lp_gpio.c **** 		default:
+  62:S2LP_Driver/s2lp_gpio.c **** 			break;
+ 179              		.loc 1 62 4
+ 180 0060 00BF     		nop
+ 181              	.L17:
+  63:S2LP_Driver/s2lp_gpio.c **** 	}
+  64:S2LP_Driver/s2lp_gpio.c **** 	S2LP_Deselect(handle);
+ 182              		.loc 1 64 2
+ 183 0062 7868     		ldr	r0, [r7, #4]
+ 184 0064 FFF7FEFF 		bl	S2LP_Deselect
+  65:S2LP_Driver/s2lp_gpio.c **** }
+ 185              		.loc 1 65 1
+ 186 0068 00BF     		nop
+ 187 006a 0837     		adds	r7, r7, #8
+ 188              		.cfi_def_cfa_offset 8
+ 189 006c BD46     		mov	sp, r7
+ 190              		.cfi_def_cfa_register 13
+ 191              		@ sp needed
+ 192 006e 80BD     		pop	{r7, pc}
+ 193              		.cfi_endproc
+ 194              	.LFE68:
+ 196              		.section	.text.S2LP_GPIO_SetPinOutput,"ax",%progbits
+ 197              		.align	1
+ 198              		.global	S2LP_GPIO_SetPinOutput
+ 199              		.syntax unified
+ 200              		.thumb
+ 201              		.thumb_func
+ 203              	S2LP_GPIO_SetPinOutput:
+ 204              	.LFB69:
+  66:S2LP_Driver/s2lp_gpio.c **** 
+  67:S2LP_Driver/s2lp_gpio.c **** // ===== Library implementation =====
+  68:S2LP_Driver/s2lp_gpio.c **** 
+  69:S2LP_Driver/s2lp_gpio.c **** void S2LP_GPIO_SetPinOutput(S2LP_Handle* handle, S2LP_Pin pin, S2LP_GPIO_Output_Mode mode) {
+ 205              		.loc 1 69 92
+ 206              		.cfi_startproc
+ 207              		@ args = 0, pretend = 0, frame = 8
+ 208              		@ frame_needed = 1, uses_anonymous_args = 0
+ 209 0000 80B5     		push	{r7, lr}
+ 210              		.cfi_def_cfa_offset 8
+ 211              		.cfi_offset 7, -8
+ 212              		.cfi_offset 14, -4
+ 213 0002 82B0     		sub	sp, sp, #8
+ 214              		.cfi_def_cfa_offset 16
+ 215 0004 00AF     		add	r7, sp, #0
+ 216              		.cfi_def_cfa_register 7
+ 217 0006 7860     		str	r0, [r7, #4]
+ 218 0008 0B46     		mov	r3, r1
+ 219 000a FB70     		strb	r3, [r7, #3]
+ 220 000c 1346     		mov	r3, r2
+ 221 000e BB70     		strb	r3, [r7, #2]
+ARM GAS  /tmp/ccBBXZwO.s 			page 6
+
+
+  70:S2LP_Driver/s2lp_gpio.c **** 	S2LP_GPIO_SetPinOutputEx(handle, pin, mode, true);
+ 222              		.loc 1 70 2
+ 223 0010 BA78     		ldrb	r2, [r7, #2]	@ zero_extendqisi2
+ 224 0012 F978     		ldrb	r1, [r7, #3]	@ zero_extendqisi2
+ 225 0014 0123     		movs	r3, #1
+ 226 0016 7868     		ldr	r0, [r7, #4]
+ 227 0018 FFF7FEFF 		bl	S2LP_GPIO_SetPinOutputEx
+  71:S2LP_Driver/s2lp_gpio.c **** }
+ 228              		.loc 1 71 1
+ 229 001c 00BF     		nop
+ 230 001e 0837     		adds	r7, r7, #8
+ 231              		.cfi_def_cfa_offset 8
+ 232 0020 BD46     		mov	sp, r7
+ 233              		.cfi_def_cfa_register 13
+ 234              		@ sp needed
+ 235 0022 80BD     		pop	{r7, pc}
+ 236              		.cfi_endproc
+ 237              	.LFE69:
+ 239              		.section	.text.S2LP_GPIO_SetPinOutputEx,"ax",%progbits
+ 240              		.align	1
+ 241              		.global	S2LP_GPIO_SetPinOutputEx
+ 242              		.syntax unified
+ 243              		.thumb
+ 244              		.thumb_func
+ 246              	S2LP_GPIO_SetPinOutputEx:
+ 247              	.LFB70:
+  72:S2LP_Driver/s2lp_gpio.c **** 
+  73:S2LP_Driver/s2lp_gpio.c **** void S2LP_GPIO_SetPinOutputEx(S2LP_Handle* handle, S2LP_Pin pin, S2LP_GPIO_Output_Mode mode, bool l
+ 248              		.loc 1 73 110
+ 249              		.cfi_startproc
+ 250              		@ args = 0, pretend = 0, frame = 8
+ 251              		@ frame_needed = 1, uses_anonymous_args = 0
+ 252 0000 80B5     		push	{r7, lr}
+ 253              		.cfi_def_cfa_offset 8
+ 254              		.cfi_offset 7, -8
+ 255              		.cfi_offset 14, -4
+ 256 0002 82B0     		sub	sp, sp, #8
+ 257              		.cfi_def_cfa_offset 16
+ 258 0004 00AF     		add	r7, sp, #0
+ 259              		.cfi_def_cfa_register 7
+ 260 0006 7860     		str	r0, [r7, #4]
+ 261 0008 0846     		mov	r0, r1
+ 262 000a 1146     		mov	r1, r2
+ 263 000c 1A46     		mov	r2, r3
+ 264 000e 0346     		mov	r3, r0
+ 265 0010 FB70     		strb	r3, [r7, #3]
+ 266 0012 0B46     		mov	r3, r1
+ 267 0014 BB70     		strb	r3, [r7, #2]
+ 268 0016 1346     		mov	r3, r2
+ 269 0018 7B70     		strb	r3, [r7, #1]
+  74:S2LP_Driver/s2lp_gpio.c **** 
+  75:S2LP_Driver/s2lp_gpio.c **** 	SETBITS(handle->tx_buffer_start[0], (low_power ? S2LP_PINMODE_OUTPUT_LP : S2LP_PINMODE_OUTPUT_HP),
+ 270              		.loc 1 75 2
+ 271 001a 7B68     		ldr	r3, [r7, #4]
+ 272 001c D3F80831 		ldr	r3, [r3, #264]
+ 273 0020 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 274 0022 5BB2     		sxtb	r3, r3
+ARM GAS  /tmp/ccBBXZwO.s 			page 7
+
+
+ 275 0024 7A78     		ldrb	r2, [r7, #1]	@ zero_extendqisi2
+ 276 0026 002A     		cmp	r2, #0
+ 277 0028 01D0     		beq	.L21
+ 278              		.loc 1 75 2 is_stmt 0 discriminator 1
+ 279 002a 0222     		movs	r2, #2
+ 280 002c 00E0     		b	.L22
+ 281              	.L21:
+ 282              		.loc 1 75 2 discriminator 2
+ 283 002e 0322     		movs	r2, #3
+ 284              	.L22:
+ 285              		.loc 1 75 2 discriminator 4
+ 286 0030 1343     		orrs	r3, r3, r2
+ 287 0032 5AB2     		sxtb	r2, r3
+ 288 0034 7B68     		ldr	r3, [r7, #4]
+ 289 0036 D3F80831 		ldr	r3, [r3, #264]
+ 290 003a D2B2     		uxtb	r2, r2
+ 291 003c 1A70     		strb	r2, [r3]
+  76:S2LP_Driver/s2lp_gpio.c **** 	SETBITS(handle->tx_buffer_start[0], mode, 0b11111, 3);
+ 292              		.loc 1 76 2 is_stmt 1 discriminator 4
+ 293 003e 7B68     		ldr	r3, [r7, #4]
+ 294 0040 D3F80831 		ldr	r3, [r3, #264]
+ 295 0044 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 296 0046 5AB2     		sxtb	r2, r3
+ 297 0048 BB78     		ldrb	r3, [r7, #2]	@ zero_extendqisi2
+ 298 004a DB00     		lsls	r3, r3, #3
+ 299 004c 5BB2     		sxtb	r3, r3
+ 300 004e 1343     		orrs	r3, r3, r2
+ 301 0050 5AB2     		sxtb	r2, r3
+ 302 0052 7B68     		ldr	r3, [r7, #4]
+ 303 0054 D3F80831 		ldr	r3, [r3, #264]
+ 304 0058 D2B2     		uxtb	r2, r2
+ 305 005a 1A70     		strb	r2, [r3]
+  77:S2LP_Driver/s2lp_gpio.c **** 
+  78:S2LP_Driver/s2lp_gpio.c **** 	S2LP_WritePinConfig(handle, pin);
+ 306              		.loc 1 78 2 discriminator 4
+ 307 005c FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 308 005e 1946     		mov	r1, r3
+ 309 0060 7868     		ldr	r0, [r7, #4]
+ 310 0062 FFF7FEFF 		bl	S2LP_WritePinConfig
+  79:S2LP_Driver/s2lp_gpio.c **** }
+ 311              		.loc 1 79 1 discriminator 4
+ 312 0066 00BF     		nop
+ 313 0068 0837     		adds	r7, r7, #8
+ 314              		.cfi_def_cfa_offset 8
+ 315 006a BD46     		mov	sp, r7
+ 316              		.cfi_def_cfa_register 13
+ 317              		@ sp needed
+ 318 006c 80BD     		pop	{r7, pc}
+ 319              		.cfi_endproc
+ 320              	.LFE70:
+ 322              		.section	.text.S2LP_GPIO_SetPinInput,"ax",%progbits
+ 323              		.align	1
+ 324              		.global	S2LP_GPIO_SetPinInput
+ 325              		.syntax unified
+ 326              		.thumb
+ 327              		.thumb_func
+ 329              	S2LP_GPIO_SetPinInput:
+ARM GAS  /tmp/ccBBXZwO.s 			page 8
+
+
+ 330              	.LFB71:
+  80:S2LP_Driver/s2lp_gpio.c **** 
+  81:S2LP_Driver/s2lp_gpio.c **** void S2LP_GPIO_SetPinInput(S2LP_Handle* handle, S2LP_Pin pin, S2LP_GPIO_Input_Mode mode) {
+ 331              		.loc 1 81 90
+ 332              		.cfi_startproc
+ 333              		@ args = 0, pretend = 0, frame = 8
+ 334              		@ frame_needed = 1, uses_anonymous_args = 0
+ 335 0000 80B5     		push	{r7, lr}
+ 336              		.cfi_def_cfa_offset 8
+ 337              		.cfi_offset 7, -8
+ 338              		.cfi_offset 14, -4
+ 339 0002 82B0     		sub	sp, sp, #8
+ 340              		.cfi_def_cfa_offset 16
+ 341 0004 00AF     		add	r7, sp, #0
+ 342              		.cfi_def_cfa_register 7
+ 343 0006 7860     		str	r0, [r7, #4]
+ 344 0008 0B46     		mov	r3, r1
+ 345 000a FB70     		strb	r3, [r7, #3]
+ 346 000c 1346     		mov	r3, r2
+ 347 000e BB70     		strb	r3, [r7, #2]
+  82:S2LP_Driver/s2lp_gpio.c **** 
+  83:S2LP_Driver/s2lp_gpio.c **** 	SETBITS(handle->tx_buffer_start[0], S2LP_PINMODE_INPUT, 0b11, 0);
+ 348              		.loc 1 83 2
+ 349 0010 7B68     		ldr	r3, [r7, #4]
+ 350 0012 D3F80831 		ldr	r3, [r3, #264]
+ 351 0016 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 352 0018 7B68     		ldr	r3, [r7, #4]
+ 353 001a D3F80831 		ldr	r3, [r3, #264]
+ 354 001e 42F00102 		orr	r2, r2, #1
+ 355 0022 D2B2     		uxtb	r2, r2
+ 356 0024 1A70     		strb	r2, [r3]
+  84:S2LP_Driver/s2lp_gpio.c **** 	SETBITS(handle->tx_buffer_start[0], mode, 0b11111, 3);
+ 357              		.loc 1 84 2
+ 358 0026 7B68     		ldr	r3, [r7, #4]
+ 359 0028 D3F80831 		ldr	r3, [r3, #264]
+ 360 002c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 361 002e 5AB2     		sxtb	r2, r3
+ 362 0030 BB78     		ldrb	r3, [r7, #2]	@ zero_extendqisi2
+ 363 0032 DB00     		lsls	r3, r3, #3
+ 364 0034 5BB2     		sxtb	r3, r3
+ 365 0036 1343     		orrs	r3, r3, r2
+ 366 0038 5AB2     		sxtb	r2, r3
+ 367 003a 7B68     		ldr	r3, [r7, #4]
+ 368 003c D3F80831 		ldr	r3, [r3, #264]
+ 369 0040 D2B2     		uxtb	r2, r2
+ 370 0042 1A70     		strb	r2, [r3]
+  85:S2LP_Driver/s2lp_gpio.c **** 
+  86:S2LP_Driver/s2lp_gpio.c **** 	S2LP_WritePinConfig(handle, pin);
+ 371              		.loc 1 86 2
+ 372 0044 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 373 0046 1946     		mov	r1, r3
+ 374 0048 7868     		ldr	r0, [r7, #4]
+ 375 004a FFF7FEFF 		bl	S2LP_WritePinConfig
+  87:S2LP_Driver/s2lp_gpio.c **** }
+ 376              		.loc 1 87 1
+ 377 004e 00BF     		nop
+ 378 0050 0837     		adds	r7, r7, #8
+ARM GAS  /tmp/ccBBXZwO.s 			page 9
+
+
+ 379              		.cfi_def_cfa_offset 8
+ 380 0052 BD46     		mov	sp, r7
+ 381              		.cfi_def_cfa_register 13
+ 382              		@ sp needed
+ 383 0054 80BD     		pop	{r7, pc}
+ 384              		.cfi_endproc
+ 385              	.LFE71:
+ 387              		.section	.text.S2LP_GPIO_GetPinMode,"ax",%progbits
+ 388              		.align	1
+ 389              		.global	S2LP_GPIO_GetPinMode
+ 390              		.syntax unified
+ 391              		.thumb
+ 392              		.thumb_func
+ 394              	S2LP_GPIO_GetPinMode:
+ 395              	.LFB72:
+  88:S2LP_Driver/s2lp_gpio.c **** 
+  89:S2LP_Driver/s2lp_gpio.c **** S2LP_PinMode S2LP_GPIO_GetPinMode(S2LP_Handle* handle, S2LP_Pin pin) {
+ 396              		.loc 1 89 70
+ 397              		.cfi_startproc
+ 398              		@ args = 0, pretend = 0, frame = 8
+ 399              		@ frame_needed = 1, uses_anonymous_args = 0
+ 400 0000 80B5     		push	{r7, lr}
+ 401              		.cfi_def_cfa_offset 8
+ 402              		.cfi_offset 7, -8
+ 403              		.cfi_offset 14, -4
+ 404 0002 82B0     		sub	sp, sp, #8
+ 405              		.cfi_def_cfa_offset 16
+ 406 0004 00AF     		add	r7, sp, #0
+ 407              		.cfi_def_cfa_register 7
+ 408 0006 7860     		str	r0, [r7, #4]
+ 409 0008 0B46     		mov	r3, r1
+ 410 000a FB70     		strb	r3, [r7, #3]
+  90:S2LP_Driver/s2lp_gpio.c **** 	S2LP_ReadPinConfig(handle, pin);
+ 411              		.loc 1 90 2
+ 412 000c FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 413 000e 1946     		mov	r1, r3
+ 414 0010 7868     		ldr	r0, [r7, #4]
+ 415 0012 FFF7FEFF 		bl	S2LP_ReadPinConfig
+  91:S2LP_Driver/s2lp_gpio.c **** 	return (S2LP_PinMode) (GETBITS(handle->rx_buffer_start[0], 0b11, 0));
+ 416              		.loc 1 91 25
+ 417 0016 7B68     		ldr	r3, [r7, #4]
+ 418 0018 D3F80C31 		ldr	r3, [r3, #268]
+ 419 001c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 420              		.loc 1 91 9
+ 421 001e 03F00303 		and	r3, r3, #3
+ 422 0022 DBB2     		uxtb	r3, r3
+  92:S2LP_Driver/s2lp_gpio.c **** }
+ 423              		.loc 1 92 1
+ 424 0024 1846     		mov	r0, r3
+ 425 0026 0837     		adds	r7, r7, #8
+ 426              		.cfi_def_cfa_offset 8
+ 427 0028 BD46     		mov	sp, r7
+ 428              		.cfi_def_cfa_register 13
+ 429              		@ sp needed
+ 430 002a 80BD     		pop	{r7, pc}
+ 431              		.cfi_endproc
+ 432              	.LFE72:
+ARM GAS  /tmp/ccBBXZwO.s 			page 10
+
+
+ 434              		.section	.text.S2LP_GPIO_GetPinInputMode,"ax",%progbits
+ 435              		.align	1
+ 436              		.global	S2LP_GPIO_GetPinInputMode
+ 437              		.syntax unified
+ 438              		.thumb
+ 439              		.thumb_func
+ 441              	S2LP_GPIO_GetPinInputMode:
+ 442              	.LFB73:
+  93:S2LP_Driver/s2lp_gpio.c **** 
+  94:S2LP_Driver/s2lp_gpio.c **** S2LP_GPIO_Input_Mode S2LP_GPIO_GetPinInputMode(S2LP_Handle* handle, S2LP_Pin pin) {
+ 443              		.loc 1 94 83
+ 444              		.cfi_startproc
+ 445              		@ args = 0, pretend = 0, frame = 16
+ 446              		@ frame_needed = 1, uses_anonymous_args = 0
+ 447 0000 80B5     		push	{r7, lr}
+ 448              		.cfi_def_cfa_offset 8
+ 449              		.cfi_offset 7, -8
+ 450              		.cfi_offset 14, -4
+ 451 0002 84B0     		sub	sp, sp, #16
+ 452              		.cfi_def_cfa_offset 24
+ 453 0004 00AF     		add	r7, sp, #0
+ 454              		.cfi_def_cfa_register 7
+ 455 0006 7860     		str	r0, [r7, #4]
+ 456 0008 0B46     		mov	r3, r1
+ 457 000a FB70     		strb	r3, [r7, #3]
+  95:S2LP_Driver/s2lp_gpio.c **** 	S2LP_PinMode mode = S2LP_GPIO_GetPinMode(handle, pin);
+ 458              		.loc 1 95 22
+ 459 000c FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 460 000e 1946     		mov	r1, r3
+ 461 0010 7868     		ldr	r0, [r7, #4]
+ 462 0012 FFF7FEFF 		bl	S2LP_GPIO_GetPinMode
+ 463 0016 0346     		mov	r3, r0
+ 464 0018 FB73     		strb	r3, [r7, #15]
+  96:S2LP_Driver/s2lp_gpio.c **** 	// I have no clue in what context analog mode is used, so i'm just gonna handle it in both cases
+  97:S2LP_Driver/s2lp_gpio.c **** 	if (mode == S2LP_PINMODE_INPUT || mode == S2LP_PINMODE_ANALOG) {
+ 465              		.loc 1 97 5
+ 466 001a FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 467 001c 012B     		cmp	r3, #1
+ 468 001e 02D0     		beq	.L27
+ 469              		.loc 1 97 33 discriminator 1
+ 470 0020 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 471 0022 002B     		cmp	r3, #0
+ 472 0024 06D1     		bne	.L28
+ 473              	.L27:
+  98:S2LP_Driver/s2lp_gpio.c **** 		return (S2LP_GPIO_Input_Mode) (GETBITS(handle->rx_buffer_start[0], 0b11111, 3));
+ 474              		.loc 1 98 34
+ 475 0026 7B68     		ldr	r3, [r7, #4]
+ 476 0028 D3F80C31 		ldr	r3, [r3, #268]
+ 477 002c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 478              		.loc 1 98 10
+ 479 002e DB08     		lsrs	r3, r3, #3
+ 480 0030 DBB2     		uxtb	r3, r3
+ 481 0032 00E0     		b	.L29
+ 482              	.L28:
+  99:S2LP_Driver/s2lp_gpio.c **** 	}
+ 100:S2LP_Driver/s2lp_gpio.c **** 	return S2LP_GPIO_IN_INVALID;
+ 483              		.loc 1 100 9
+ARM GAS  /tmp/ccBBXZwO.s 			page 11
+
+
+ 484 0034 FF23     		movs	r3, #255
+ 485              	.L29:
+ 101:S2LP_Driver/s2lp_gpio.c **** }
+ 486              		.loc 1 101 1
+ 487 0036 1846     		mov	r0, r3
+ 488 0038 1037     		adds	r7, r7, #16
+ 489              		.cfi_def_cfa_offset 8
+ 490 003a BD46     		mov	sp, r7
+ 491              		.cfi_def_cfa_register 13
+ 492              		@ sp needed
+ 493 003c 80BD     		pop	{r7, pc}
+ 494              		.cfi_endproc
+ 495              	.LFE73:
+ 497              		.section	.text.S2LP_GPIO_GetPinOutputMode,"ax",%progbits
+ 498              		.align	1
+ 499              		.global	S2LP_GPIO_GetPinOutputMode
+ 500              		.syntax unified
+ 501              		.thumb
+ 502              		.thumb_func
+ 504              	S2LP_GPIO_GetPinOutputMode:
+ 505              	.LFB74:
+ 102:S2LP_Driver/s2lp_gpio.c **** 
+ 103:S2LP_Driver/s2lp_gpio.c **** S2LP_GPIO_Output_Mode S2LP_GPIO_GetPinOutputMode(S2LP_Handle* handle, S2LP_Pin pin) {
+ 506              		.loc 1 103 85
+ 507              		.cfi_startproc
+ 508              		@ args = 0, pretend = 0, frame = 16
+ 509              		@ frame_needed = 1, uses_anonymous_args = 0
+ 510 0000 80B5     		push	{r7, lr}
+ 511              		.cfi_def_cfa_offset 8
+ 512              		.cfi_offset 7, -8
+ 513              		.cfi_offset 14, -4
+ 514 0002 84B0     		sub	sp, sp, #16
+ 515              		.cfi_def_cfa_offset 24
+ 516 0004 00AF     		add	r7, sp, #0
+ 517              		.cfi_def_cfa_register 7
+ 518 0006 7860     		str	r0, [r7, #4]
+ 519 0008 0B46     		mov	r3, r1
+ 520 000a FB70     		strb	r3, [r7, #3]
+ 104:S2LP_Driver/s2lp_gpio.c **** 	S2LP_PinMode mode = S2LP_GPIO_GetPinMode(handle, pin);
+ 521              		.loc 1 104 22
+ 522 000c FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 523 000e 1946     		mov	r1, r3
+ 524 0010 7868     		ldr	r0, [r7, #4]
+ 525 0012 FFF7FEFF 		bl	S2LP_GPIO_GetPinMode
+ 526 0016 0346     		mov	r3, r0
+ 527 0018 FB73     		strb	r3, [r7, #15]
+ 105:S2LP_Driver/s2lp_gpio.c **** 	// I have no clue in what context analog mode is used, so i'm just gonna handle it in both cases
+ 106:S2LP_Driver/s2lp_gpio.c **** 	if (mode == S2LP_PINMODE_OUTPUT_LP || mode == S2LP_PINMODE_OUTPUT_HP || mode == S2LP_PINMODE_ANALO
+ 528              		.loc 1 106 5
+ 529 001a FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 530 001c 022B     		cmp	r3, #2
+ 531 001e 05D0     		beq	.L31
+ 532              		.loc 1 106 37 discriminator 1
+ 533 0020 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 534 0022 032B     		cmp	r3, #3
+ 535 0024 02D0     		beq	.L31
+ 536              		.loc 1 106 71 discriminator 2
+ARM GAS  /tmp/ccBBXZwO.s 			page 12
+
+
+ 537 0026 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 538 0028 002B     		cmp	r3, #0
+ 539 002a 06D1     		bne	.L32
+ 540              	.L31:
+ 107:S2LP_Driver/s2lp_gpio.c **** 		return (S2LP_GPIO_Output_Mode) (GETBITS(handle->rx_buffer_start[0], 0b11111, 3));
+ 541              		.loc 1 107 35
+ 542 002c 7B68     		ldr	r3, [r7, #4]
+ 543 002e D3F80C31 		ldr	r3, [r3, #268]
+ 544 0032 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 545              		.loc 1 107 10
+ 546 0034 DB08     		lsrs	r3, r3, #3
+ 547 0036 DBB2     		uxtb	r3, r3
+ 548 0038 00E0     		b	.L33
+ 549              	.L32:
+ 108:S2LP_Driver/s2lp_gpio.c **** 	}
+ 109:S2LP_Driver/s2lp_gpio.c **** 	return S2LP_GPIO_OUT_INVALID;
+ 550              		.loc 1 109 9
+ 551 003a FF23     		movs	r3, #255
+ 552              	.L33:
+ 110:S2LP_Driver/s2lp_gpio.c **** }
+ 553              		.loc 1 110 1
+ 554 003c 1846     		mov	r0, r3
+ 555 003e 1037     		adds	r7, r7, #16
+ 556              		.cfi_def_cfa_offset 8
+ 557 0040 BD46     		mov	sp, r7
+ 558              		.cfi_def_cfa_register 13
+ 559              		@ sp needed
+ 560 0042 80BD     		pop	{r7, pc}
+ 561              		.cfi_endproc
+ 562              	.LFE74:
+ 564              		.text
+ 565              	.Letext0:
+ 566              		.file 2 "S2LP_Driver/s2lp_constants.h"
+ 567              		.file 3 "/usr/arm-none-eabi/include/machine/_default_types.h"
+ 568              		.file 4 "/usr/arm-none-eabi/include/sys/_stdint.h"
+ 569              		.file 5 "/usr/lib/gcc/arm-none-eabi/12.2.0/include/stddef.h"
+ 570              		.file 6 "../../../lib/libhalglue/bshal/bshal_spim.h"
+ 571              		.file 7 "S2LP_Driver/s2lp_mcu_interface.h"
+ARM GAS  /tmp/ccBBXZwO.s 			page 13
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 s2lp_gpio.c
+     /tmp/ccBBXZwO.s:19     .text.S2LP_WritePinConfig:0000000000000000 $t
+     /tmp/ccBBXZwO.s:24     .text.S2LP_WritePinConfig:0000000000000000 S2LP_WritePinConfig
+     /tmp/ccBBXZwO.s:52     .text.S2LP_WritePinConfig:0000000000000020 $d
+     /tmp/ccBBXZwO.s:56     .text.S2LP_WritePinConfig:0000000000000030 $t
+     /tmp/ccBBXZwO.s:108    .text.S2LP_ReadPinConfig:0000000000000000 $t
+     /tmp/ccBBXZwO.s:113    .text.S2LP_ReadPinConfig:0000000000000000 S2LP_ReadPinConfig
+     /tmp/ccBBXZwO.s:141    .text.S2LP_ReadPinConfig:0000000000000020 $d
+     /tmp/ccBBXZwO.s:145    .text.S2LP_ReadPinConfig:0000000000000030 $t
+     /tmp/ccBBXZwO.s:197    .text.S2LP_GPIO_SetPinOutput:0000000000000000 $t
+     /tmp/ccBBXZwO.s:203    .text.S2LP_GPIO_SetPinOutput:0000000000000000 S2LP_GPIO_SetPinOutput
+     /tmp/ccBBXZwO.s:246    .text.S2LP_GPIO_SetPinOutputEx:0000000000000000 S2LP_GPIO_SetPinOutputEx
+     /tmp/ccBBXZwO.s:240    .text.S2LP_GPIO_SetPinOutputEx:0000000000000000 $t
+     /tmp/ccBBXZwO.s:323    .text.S2LP_GPIO_SetPinInput:0000000000000000 $t
+     /tmp/ccBBXZwO.s:329    .text.S2LP_GPIO_SetPinInput:0000000000000000 S2LP_GPIO_SetPinInput
+     /tmp/ccBBXZwO.s:388    .text.S2LP_GPIO_GetPinMode:0000000000000000 $t
+     /tmp/ccBBXZwO.s:394    .text.S2LP_GPIO_GetPinMode:0000000000000000 S2LP_GPIO_GetPinMode
+     /tmp/ccBBXZwO.s:435    .text.S2LP_GPIO_GetPinInputMode:0000000000000000 $t
+     /tmp/ccBBXZwO.s:441    .text.S2LP_GPIO_GetPinInputMode:0000000000000000 S2LP_GPIO_GetPinInputMode
+     /tmp/ccBBXZwO.s:498    .text.S2LP_GPIO_GetPinOutputMode:0000000000000000 $t
+     /tmp/ccBBXZwO.s:504    .text.S2LP_GPIO_GetPinOutputMode:0000000000000000 S2LP_GPIO_GetPinOutputMode
+                           .group:0000000000000000 wm4.0.2a10468dd89b593cd64cc189d36e5bb7
+                           .group:0000000000000000 wm4.s2lp_constants.h.9.b7f616e3835971b5021c80c1c98c29b7
+                           .group:0000000000000000 wm4.s2lp_mcu_interface.h.9.9eeee19d530c6ae696c504e7de7f49cd
+                           .group:0000000000000000 wm4.stdbool.h.29.4a1c88fe569adb8d03217dd16982ca34
+                           .group:0000000000000000 wm4._newlib_version.h.4.529115dae5e4f67702b1de0b6e841f38
+                           .group:0000000000000000 wm4.features.h.33.3e67abe6fb64142d4f6fa9496796153c
+                           .group:0000000000000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:0000000000000000 wm4._intsup.h.10.48bafbb683905c4daa4565a85aeeb264
+                           .group:0000000000000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:0000000000000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:0000000000000000 wm4.stddef.h.39.3e0425629195acf083c9561151306b4d
+                           .group:0000000000000000 wm4.stm32f1xx.h.39.e8c98c5ce2cd95856eed179966374e12
+                           .group:0000000000000000 wm4.stm32f103xb.h.38.ec967d5ad9d3269cb0788eebda048e38
+                           .group:0000000000000000 wm4.cmsis_version.h.32.0f826810625204eca22a19868bdc7586
+                           .group:0000000000000000 wm4.core_cm3.h.66.fc46cac19810db8f98d67da7ef88f42c
+                           .group:0000000000000000 wm4.cmsis_gcc.h.26.549e8fd988111c6b396c357ef98aeb59
+                           .group:0000000000000000 wm4.core_cm3.h.127.aaed3d1df272b0aa79c526153017805c
+                           .group:0000000000000000 wm4.stm32f103xb.h.573.10249aa7473ca93be896fed94046a725
+                           .group:0000000000000000 wm4.stm32f1xx.h.162.96b09079a093c34dbd7f0b85cbd0ddee
+                           .group:0000000000000000 wm4.stm32f1xx_hal_conf.h.24.fb218a6cd2ee35d840b3eac0f5fb4119
+                           .group:0000000000000000 wm4.stm32_hal_legacy.h.22.3d81dc02d9b9459e9eac6fdca7f8f18e
+                           .group:0000000000000000 wm4.stm32f1xx_hal_def.h.56.d1c3014f99fce17329ff5ab2921c0923
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc.h.94.78ba4ec8cedd7ba94683a5fabb61b31e
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc_ex.h.21.8406672c8a3f21f71eb8441fb8ecb4bd
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc.h.1201.89d14cbb1b46fba2de70512ccfd8d5ce
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio.h.21.0099da253a68660e916195d3e8928be3
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio_ex.h.21.93f1f3ec7660fa76375def81b976f73c
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio.h.262.7df79220ec7519ba80c1763e6b4854a6
+                           .group:0000000000000000 wm4.stm32f1xx_hal_exti.h.21.a7f1b393a0c9b2b56b72ccdbb8dee508
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma.h.21.11e5a204ed6aa790b1cdae2e4192bc9d
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma_ex.h.21.d438f745b4c04dc23f9f569190526864
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma.h.408.14794a3f8621230c9ac7fca0cacf3e57
+                           .group:0000000000000000 wm4.stm32f1xx_hal_can.h.21.d1dd4a884a3983bc975efc64fbbd5748
+                           .group:0000000000000000 wm4.stm32f1xx_hal_cortex.h.21.6ab92041a8778f53d2d2d96b3825535a
+                           .group:0000000000000000 wm4.stm32f1xx_hal_adc.h.21.8ae5a06b46334619d54b2469802d6db6
+ARM GAS  /tmp/ccBBXZwO.s 			page 14
+
+
+                           .group:0000000000000000 wm4.stm32f1xx_hal_adc_ex.h.21.f5c9ba15472af26c826d75096ae3e02a
+                           .group:0000000000000000 wm4.stm32f1xx_hal_crc.h.21.b5b5d61856236c32a5704a7db1b8c77f
+                           .group:0000000000000000 wm4.stm32f1xx_hal_flash.h.21.6df147ac02cc6dec8c4706cc1a34879c
+                           .group:0000000000000000 wm4.stm32f1xx_hal_flash_ex.h.21.33e24ce7a8607e16d5a38297454fd963
+                           .group:0000000000000000 wm4.stm32f1xx_hal_i2c.h.21.6a947c870feb456d84d10dd871ee01bd
+                           .group:0000000000000000 wm4.stm32f1xx_hal_iwdg.h.21.14afe1e30714751a311b81d0791714c2
+                           .group:0000000000000000 wm4.stm32f1xx_hal_pwr.h.21.ec3e2cfd4c26fffa32fc4ff0a8ac7390
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rtc.h.21.833c91cab3eef49edc59fd371d3c1ce0
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rtc_ex.h.21.b671683f6728965b6d8404d04009ed32
+                           .group:0000000000000000 wm4.stm32f1xx_hal_spi.h.21.59f3c581a47a8dea5d070b46998af27e
+                           .group:0000000000000000 wm4.stm32f1xx_hal_tim.h.21.76f9d96f76cba41ae3b6e27311c6f5ff
+                           .group:0000000000000000 wm4.stm32f1xx_hal_uart.h.21.ffd6508e5e0a88f651472e5c80a9d587
+                           .group:0000000000000000 wm4.stm32f1xx_hal_usart.h.21.0b32d58c93817e5f10bce7603c316c1e
+                           .group:0000000000000000 wm4.stm32f1xx_hal_irda.h.21.b44168150ccb55c331f6e6afe3cf4b88
+                           .group:0000000000000000 wm4.stm32f1xx_hal_smartcard.h.21.d256a98de9ec7b58600da5aa4b29abdb
+                           .group:0000000000000000 wm4.stm32f1xx_hal_wwdg.h.21.ac611fc4089566604f02b81297147d50
+                           .group:0000000000000000 wm4.stm32f1xx_ll_usb.h.21.4cb0f3c145693f977427d01b787de0c7
+                           .group:0000000000000000 wm4.stm32f1xx_hal_pcd.h.160.b1d545af3cea9ada15575c2dedd78cdc
+                           .group:0000000000000000 wm4.stm32f1xx_hal.h.87.60093b86a987865736d7cddecce3c235
+                           .group:0000000000000000 wm4.ieeefp.h.77.25247dc27dbe3b23bfe98c2dc18f6ac5
+                           .group:0000000000000000 wm4.newlib.h.8.e83e89ee5a2baa7686bbb3d2021a9409
+                           .group:0000000000000000 wm4.config.h.224.18dfb280c62ae4ee788eb67b451eb1a6
+                           .group:0000000000000000 wm4._ansi.h.31.de524f58584151836e90d8620a16f8e8
+                           .group:0000000000000000 wm4.stdlib.h.13.4ed386f5c1a80d71e72172885d946ef2
+                           .group:0000000000000000 wm4.stddef.h.158.bfed30416c9480cd13bc4a25427d538f
+                           .group:0000000000000000 wm4._types.h.20.dd0d04dca3800a0d2a6129b87f3adbb2
+                           .group:0000000000000000 wm4.stddef.h.158.5f30652bb2ea05b142c1bbee9108c999
+                           .group:0000000000000000 wm4._types.h.127.34941de1b2539d59d5cac00e0dd27a45
+                           .group:0000000000000000 wm4.reent.h.17.e292bf8b0bec6c96e131a54347145a30
+                           .group:0000000000000000 wm4.lock.h.2.1461d1fff82dffe8bfddc23307f6484f
+                           .group:0000000000000000 wm4.reent.h.77.dcd6129ff07fe81bd5636db29abe53b2
+                           .group:0000000000000000 wm4.cdefs.h.49.39045112216f6a021dbdffe3bf5accce
+                           .group:0000000000000000 wm4.alloca.h.8.dfc0c703c47ec3e69746825b17d9e66d
+                           .group:0000000000000000 wm4.stdlib.h.56.f4862cfbf4363a1db01842d5bdf72c18
+                           .group:0000000000000000 wm4.bshal_i2cm.h.11.09ce5fde9ee09ba50563c37b9993575a
+                           .group:0000000000000000 wm4.inttypes.h.14.b28deb26920e51e0da310220ef0f9003
+                           .group:0000000000000000 wm4.inttypes.h.28.684aa7736e7ecc9a6ffc44acc61c7a90
+                           .group:0000000000000000 wm4.bit_helpers.h.9.18ec339b3de5d33d832940f318efed57
+
+UNDEFINED SYMBOLS
+S2LP_Select
+S2LP_Write
+S2LP_Deselect
+S2LP_Read

@@ -1,0 +1,556 @@
+ARM GAS  /tmp/ccDFeLuk.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.arch armv7-m
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"radio_test.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.file 1 "radio_test.c"
+  18              		.global	handle
+  19              		.section	.bss.handle,"aw",%nobits
+  20              		.align	2
+  23              	handle:
+  24 0000 00000000 		.space	296
+  24      00000000 
+  24      00000000 
+  24      00000000 
+  24      00000000 
+  25              		.section	.rodata
+  26              		.align	2
+  27              	.LC0:
+  28 0000 61626364 		.ascii	"abcd\000"
+  28      00
+  29              		.section	.text.test_tx,"ax",%progbits
+  30              		.align	1
+  31              		.global	test_tx
+  32              		.syntax unified
+  33              		.thumb
+  34              		.thumb_func
+  36              	test_tx:
+  37              	.LFB79:
+   1:radio_test.c  **** /*
+   2:radio_test.c  ****  * radio_test.c
+   3:radio_test.c  ****  *
+   4:radio_test.c  ****  *  Created on: 4 okt. 2022
+   5:radio_test.c  ****  *      Author: andre
+   6:radio_test.c  ****  */
+   7:radio_test.c  **** 
+   8:radio_test.c  **** #include "bshal_spim.h"
+   9:radio_test.c  **** #include "bshal_i2cm.h"
+  10:radio_test.c  **** #include "bshal_delay.h"
+  11:radio_test.c  **** 
+  12:radio_test.c  **** #include "system.h"
+  13:radio_test.c  **** #include <endian.h>
+  14:radio_test.c  **** 
+  15:radio_test.c  **** #include "S2LP_Driver/bit_helpers.h"
+  16:radio_test.c  **** #include "S2LP_Driver/s2lp_constants.h"
+  17:radio_test.c  **** #include "S2LP_Driver/s2lp_gpio.h"
+  18:radio_test.c  **** #include "S2LP_Driver/s2lp.h"
+ARM GAS  /tmp/ccDFeLuk.s 			page 2
+
+
+  19:radio_test.c  **** #include "S2LP_Driver/s2lp_mcu_interface.h"
+  20:radio_test.c  **** #include "S2LP_Driver/s2lp_packet.h"
+  21:radio_test.c  **** #include "S2LP_Driver/s2lp_power.h"
+  22:radio_test.c  **** #include "S2LP_Driver/s2lp_rf.h"
+  23:radio_test.c  **** #include "S2LP_Driver/s2lp_rx.h"
+  24:radio_test.c  **** #include "S2LP_Driver/s2lp_tx.h"
+  25:radio_test.c  **** #include "S2LP_Driver/s2lp_utils.h"
+  26:radio_test.c  **** 
+  27:radio_test.c  **** 
+  28:radio_test.c  **** S2LP_Handle handle;
+  29:radio_test.c  **** 
+  30:radio_test.c  **** 
+  31:radio_test.c  **** void test_tx(void) {
+  38              		.loc 1 31 20
+  39              		.cfi_startproc
+  40              		@ args = 0, pretend = 0, frame = 16
+  41              		@ frame_needed = 1, uses_anonymous_args = 0
+  42 0000 80B5     		push	{r7, lr}
+  43              		.cfi_def_cfa_offset 8
+  44              		.cfi_offset 7, -8
+  45              		.cfi_offset 14, -4
+  46 0002 84B0     		sub	sp, sp, #16
+  47              		.cfi_def_cfa_offset 24
+  48 0004 00AF     		add	r7, sp, #0
+  49              		.cfi_def_cfa_register 7
+  50              	.L4:
+  51              	.LBB2:
+  32:radio_test.c  **** 
+  33:radio_test.c  **** 
+  34:radio_test.c  **** 
+  35:radio_test.c  **** 
+  36:radio_test.c  **** 	uint32_t irq ;
+  37:radio_test.c  **** 	while (1) {
+  38:radio_test.c  **** 
+  39:radio_test.c  **** 
+  40:radio_test.c  **** 		S2LP_SetInterruptMasks(&handle,5); // rx, tx packet
+  52              		.loc 1 40 3
+  53 0006 0521     		movs	r1, #5
+  54 0008 1A48     		ldr	r0, .L5
+  55 000a FFF7FEFF 		bl	S2LP_SetInterruptMasks
+  41:radio_test.c  **** 		irq=S2LP_GetInterrupts(&handle); // clear
+  56              		.loc 1 41 7
+  57 000e 1948     		ldr	r0, .L5
+  58 0010 FFF7FEFF 		bl	S2LP_GetInterrupts
+  59 0014 B860     		str	r0, [r7, #8]
+  42:radio_test.c  **** 		irq=S2LP_GetInterrupts(&handle); // clear
+  60              		.loc 1 42 7
+  61 0016 1748     		ldr	r0, .L5
+  62 0018 FFF7FEFF 		bl	S2LP_GetInterrupts
+  63 001c B860     		str	r0, [r7, #8]
+  43:radio_test.c  **** 		S2LP_SendCommand(&handle, S2LP_CMD_FLUSHTXFIFO);
+  64              		.loc 1 43 3
+  65 001e 7221     		movs	r1, #114
+  66 0020 1448     		ldr	r0, .L5
+  67 0022 FFF7FEFF 		bl	S2LP_SendCommand
+  44:radio_test.c  **** 
+  45:radio_test.c  **** 		S2LP_PCKT_SetPacketLength(&handle, 4);
+ARM GAS  /tmp/ccDFeLuk.s 			page 3
+
+
+  68              		.loc 1 45 3
+  69 0026 0421     		movs	r1, #4
+  70 0028 1248     		ldr	r0, .L5
+  71 002a FFF7FEFF 		bl	S2LP_PCKT_SetPacketLength
+  46:radio_test.c  **** 		S2LP_WriteFIFO(&handle, 4, "abcd");
+  72              		.loc 1 46 3
+  73 002e 124A     		ldr	r2, .L5+4
+  74 0030 0421     		movs	r1, #4
+  75 0032 1048     		ldr	r0, .L5
+  76 0034 FFF7FEFF 		bl	S2LP_WriteFIFO
+  47:radio_test.c  **** 
+  48:radio_test.c  **** 		S2LP_SendCommand(&handle, S2LP_CMD_TX);
+  77              		.loc 1 48 3
+  78 0038 6021     		movs	r1, #96
+  79 003a 0E48     		ldr	r0, .L5
+  80 003c FFF7FEFF 		bl	S2LP_SendCommand
+  49:radio_test.c  **** 		S2LP_Status  status = {0};
+  81              		.loc 1 49 16
+  82 0040 3B46     		mov	r3, r7
+  83 0042 0022     		movs	r2, #0
+  84 0044 1A60     		str	r2, [r3]
+  85 0046 C3F80320 		str	r2, [r3, #3]	@ unaligned
+  50:radio_test.c  **** 		uint32_t irq = S2LP_GetInterrupts(&handle);
+  86              		.loc 1 50 18
+  87 004a 0A48     		ldr	r0, .L5
+  88 004c FFF7FEFF 		bl	S2LP_GetInterrupts
+  89 0050 F860     		str	r0, [r7, #12]
+  51:radio_test.c  **** 		while ((irq&4)!=4){
+  90              		.loc 1 51 9
+  91 0052 08E0     		b	.L2
+  92              	.L3:
+  52:radio_test.c  **** 			irq = S2LP_GetInterrupts(&handle);
+  93              		.loc 1 52 10
+  94 0054 0748     		ldr	r0, .L5
+  95 0056 FFF7FEFF 		bl	S2LP_GetInterrupts
+  96 005a F860     		str	r0, [r7, #12]
+  53:radio_test.c  **** 			status = S2LP_GetStatus(&handle);
+  97              		.loc 1 53 13
+  98 005c 3B46     		mov	r3, r7
+  99 005e 0549     		ldr	r1, .L5
+ 100 0060 1846     		mov	r0, r3
+ 101 0062 FFF7FEFF 		bl	S2LP_GetStatus
+ 102              	.L2:
+  51:radio_test.c  **** 		while ((irq&4)!=4){
+ 103              		.loc 1 51 14
+ 104 0066 FB68     		ldr	r3, [r7, #12]
+ 105 0068 03F00403 		and	r3, r3, #4
+  51:radio_test.c  **** 		while ((irq&4)!=4){
+ 106              		.loc 1 51 17
+ 107 006c 002B     		cmp	r3, #0
+ 108 006e F1D0     		beq	.L3
+ 109              	.LBE2:
+  37:radio_test.c  **** 
+ 110              		.loc 1 37 12
+ 111 0070 C9E7     		b	.L4
+ 112              	.L6:
+ 113 0072 00BF     		.align	2
+ARM GAS  /tmp/ccDFeLuk.s 			page 4
+
+
+ 114              	.L5:
+ 115 0074 00000000 		.word	handle
+ 116 0078 00000000 		.word	.LC0
+ 117              		.cfi_endproc
+ 118              	.LFE79:
+ 120              		.section	.text.main,"ax",%progbits
+ 121              		.align	1
+ 122              		.global	main
+ 123              		.syntax unified
+ 124              		.thumb
+ 125              		.thumb_func
+ 127              	main:
+ 128              	.LFB80:
+  54:radio_test.c  **** 		}
+  55:radio_test.c  **** 		//bshal_delay_ms(25);
+  56:radio_test.c  **** 	}
+  57:radio_test.c  **** 
+  58:radio_test.c  **** 
+  59:radio_test.c  **** //		S2LP_Status status = S2LP_ReadStatus(&handle);
+  60:radio_test.c  **** //		while (status.state==S2LP_STATE_TX)
+  61:radio_test.c  **** //			status = S2LP_ReadStatus(&handle);
+  62:radio_test.c  **** //		}
+  63:radio_test.c  **** 
+  64:radio_test.c  **** }
+  65:radio_test.c  **** 
+  66:radio_test.c  **** int main(void) {	
+ 129              		.loc 1 66 16
+ 130              		.cfi_startproc
+ 131              		@ args = 0, pretend = 0, frame = 16
+ 132              		@ frame_needed = 1, uses_anonymous_args = 0
+ 133 0000 80B5     		push	{r7, lr}
+ 134              		.cfi_def_cfa_offset 8
+ 135              		.cfi_offset 7, -8
+ 136              		.cfi_offset 14, -4
+ 137 0002 84B0     		sub	sp, sp, #16
+ 138              		.cfi_def_cfa_offset 24
+ 139 0004 00AF     		add	r7, sp, #0
+ 140              		.cfi_def_cfa_register 7
+  67:radio_test.c  **** 	S2LP_Status status = {0};
+ 141              		.loc 1 67 14
+ 142 0006 3B1D     		adds	r3, r7, #4
+ 143 0008 0022     		movs	r2, #0
+ 144 000a 1A60     		str	r2, [r3]
+ 145 000c C3F80320 		str	r2, [r3, #3]	@ unaligned
+  68:radio_test.c  **** 
+  69:radio_test.c  **** 	S2LP_Initialize(&handle, S2LP_CLOCK_FREQ_50MHZ);
+ 146              		.loc 1 69 2
+ 147 0010 0521     		movs	r1, #5
+ 148 0012 2F48     		ldr	r0, .L10
+ 149 0014 FFF7FEFF 		bl	S2LP_Initialize
+  70:radio_test.c  **** 	//S2LP_Initialize(&handle, S2LP_CLOCK_FREQ_26MHZ);
+  71:radio_test.c  **** 
+  72:radio_test.c  **** 	S2LP_SendCommand(&handle, S2LP_CMD_SRES); // reset
+ 150              		.loc 1 72 2
+ 151 0018 7021     		movs	r1, #112
+ 152 001a 2D48     		ldr	r0, .L10
+ 153 001c FFF7FEFF 		bl	S2LP_SendCommand
+ARM GAS  /tmp/ccDFeLuk.s 			page 5
+
+
+  73:radio_test.c  **** 	S2LP_SendCommand(&handle, S2LP_CMD_STANDBY); // standby
+ 154              		.loc 1 73 2
+ 155 0020 6321     		movs	r1, #99
+ 156 0022 2B48     		ldr	r0, .L10
+ 157 0024 FFF7FEFF 		bl	S2LP_SendCommand
+  74:radio_test.c  **** 	S2LP_Initialize(&handle, S2LP_CLOCK_FREQ_50MHZ);
+ 158              		.loc 1 74 2
+ 159 0028 0521     		movs	r1, #5
+ 160 002a 2948     		ldr	r0, .L10
+ 161 002c FFF7FEFF 		bl	S2LP_Initialize
+  75:radio_test.c  **** 	S2LP_RF_SetChargePumpCurrent(&handle, S2LP_CHARGE_PUMP_140UA);
+ 162              		.loc 1 75 2
+ 163 0030 0221     		movs	r1, #2
+ 164 0032 2748     		ldr	r0, .L10
+ 165 0034 FFF7FEFF 		bl	S2LP_RF_SetChargePumpCurrent
+  76:radio_test.c  **** 	//S2LP_RF_SetChargePumpCurrent(&handle, S2LP_CHARGE_PUMP_120UA);
+  77:radio_test.c  **** 	//S2LP_RF_SetChargePumpCurrent(&handle, S2LP_CHARGE_PUMP_200UA);
+  78:radio_test.c  **** 	//S2LP_RF_SetChargePumpCurrent(&handle, S2LP_CHARGE_PUMP_240UA);
+  79:radio_test.c  **** 
+  80:radio_test.c  **** 
+  81:radio_test.c  **** 	bool calib = S2LP_CallibrateRCO(&handle);
+ 166              		.loc 1 81 15
+ 167 0038 2548     		ldr	r0, .L10
+ 168 003a FFF7FEFF 		bl	S2LP_CallibrateRCO
+ 169 003e 0346     		mov	r3, r0
+ 170 0040 FB73     		strb	r3, [r7, #15]
+  82:radio_test.c  **** 	if (!calib) {
+ 171              		.loc 1 82 6
+ 172 0042 FB7B     		ldrb	r3, [r7, #15]
+ 173 0044 83F00103 		eor	r3, r3, #1
+ 174 0048 DBB2     		uxtb	r3, r3
+ 175              		.loc 1 82 5
+ 176 004a 002B     		cmp	r3, #0
+ 177 004c 00D0     		beq	.L8
+  83:radio_test.c  **** 		__BKPT(0);
+ 178              		.loc 1 83 3
+ 179              		.syntax unified
+ 180              	@ 83 "radio_test.c" 1
+ 181 004e 00BE     		bkpt 0
+ 182              	@ 0 "" 2
+ 183              		.thumb
+ 184              		.syntax unified
+ 185              	.L8:
+  84:radio_test.c  **** 	}
+  85:radio_test.c  **** 	S2LP_SendCommand(&handle, S2LP_CMD_READY);
+ 186              		.loc 1 85 2
+ 187 0050 6221     		movs	r1, #98
+ 188 0052 1F48     		ldr	r0, .L10
+ 189 0054 FFF7FEFF 		bl	S2LP_SendCommand
+  86:radio_test.c  **** 
+  87:radio_test.c  **** 
+  88:radio_test.c  **** 
+  89:radio_test.c  **** 	uint8_t partnumber = S2LP_GetDevicePartNumber(&handle);
+ 190              		.loc 1 89 23
+ 191 0058 1D48     		ldr	r0, .L10
+ 192 005a FFF7FEFF 		bl	S2LP_GetDevicePartNumber
+ 193 005e 0346     		mov	r3, r0
+ARM GAS  /tmp/ccDFeLuk.s 			page 6
+
+
+ 194 0060 BB73     		strb	r3, [r7, #14]
+  90:radio_test.c  **** 	uint8_t versionnumber = S2LP_GetDeviceVersionNumber(&handle);
+ 195              		.loc 1 90 26
+ 196 0062 1B48     		ldr	r0, .L10
+ 197 0064 FFF7FEFF 		bl	S2LP_GetDeviceVersionNumber
+ 198 0068 0346     		mov	r3, r0
+ 199 006a 7B73     		strb	r3, [r7, #13]
+  91:radio_test.c  **** 
+  92:radio_test.c  **** 
+  93:radio_test.c  **** 	S2LP_RF_SetSynthBand(&handle,S2LP_SYNTH_BAND_MID);
+ 200              		.loc 1 93 2
+ 201 006c 0121     		movs	r1, #1
+ 202 006e 1848     		ldr	r0, .L10
+ 203 0070 FFF7FEFF 		bl	S2LP_RF_SetSynthBand
+  94:radio_test.c  **** 
+  95:radio_test.c  **** 	S2LP_RF_SetBaseFrequency(&handle,433500000);
+ 204              		.loc 1 95 2
+ 205 0074 1749     		ldr	r1, .L10+4
+ 206 0076 1648     		ldr	r0, .L10
+ 207 0078 FFF7FEFF 		bl	S2LP_RF_SetBaseFrequency
+  96:radio_test.c  **** 
+  97:radio_test.c  **** //	//S2LP_RF_SetModulationType(&handle, S2LP_MODULATION_NONE);
+  98:radio_test.c  **** //	S2LP_WriteRegister(&handle, S2LP_REG_MOD2, 0x77);
+  99:radio_test.c  **** //
+ 100:radio_test.c  **** //	S2LP_SendCommand(&handle, S2LP_CMD_TX);
+ 101:radio_test.c  **** 
+ 102:radio_test.c  **** //	status = S2LP_GetStatus(&handle);
+ 103:radio_test.c  **** //	while(1) {
+ 104:radio_test.c  **** //
+ 105:radio_test.c  **** //
+ 106:radio_test.c  **** //		status = S2LP_ReadStatus(&handle);
+ 107:radio_test.c  **** //	}
+ 108:radio_test.c  **** 
+ 109:radio_test.c  **** 
+ 110:radio_test.c  **** 
+ 111:radio_test.c  **** 
+ 112:radio_test.c  **** 
+ 113:radio_test.c  **** 	S2LP_PCKT_SetPacketFormat(&handle,S2LP_PACKET_BASIC);
+ 208              		.loc 1 113 2
+ 209 007c 0021     		movs	r1, #0
+ 210 007e 1448     		ldr	r0, .L10
+ 211 0080 FFF7FEFF 		bl	S2LP_PCKT_SetPacketFormat
+ 114:radio_test.c  **** 	S2LP_RF_SetDataRate(&handle, 40000); // Si4332 default rate is 40K, so we put our s2lp on the same
+ 212              		.loc 1 114 2
+ 213 0084 49F64041 		movw	r1, #40000
+ 214 0088 1148     		ldr	r0, .L10
+ 215 008a FFF7FEFF 		bl	S2LP_RF_SetDataRate
+ 115:radio_test.c  **** 	S2LP_RF_SetFrequencyDeviation(&handle, 80000); // Deviation to 2x datarate
+ 216              		.loc 1 115 2
+ 217 008e 1249     		ldr	r1, .L10+8
+ 218 0090 0F48     		ldr	r0, .L10
+ 219 0092 FFF7FEFF 		bl	S2LP_RF_SetFrequencyDeviation
+ 116:radio_test.c  **** 	// We should also set the channel filtert, but it appears not fully implemented yet
+ 117:radio_test.c  **** 	S2LP_RF_SetModulationType(&handle, S2LP_MODULATION_2GFSK);
+ 220              		.loc 1 117 2
+ 221 0096 0221     		movs	r1, #2
+ 222 0098 0D48     		ldr	r0, .L10
+ARM GAS  /tmp/ccDFeLuk.s 			page 7
+
+
+ 223 009a FFF7FEFF 		bl	S2LP_RF_SetModulationType
+ 118:radio_test.c  **** 	S2LP_PCKT_SetLengthFieldSize(&handle, 1);
+ 224              		.loc 1 118 2
+ 225 009e 0121     		movs	r1, #1
+ 226 00a0 0B48     		ldr	r0, .L10
+ 227 00a2 FFF7FEFF 		bl	S2LP_PCKT_SetLengthFieldSize
+ 119:radio_test.c  **** 	S2LP_TX_SetDataSource(&handle, S2LP_TX_SOURCE_NORMAL);
+ 228              		.loc 1 119 2
+ 229 00a6 0021     		movs	r1, #0
+ 230 00a8 0948     		ldr	r0, .L10
+ 231 00aa FFF7FEFF 		bl	S2LP_TX_SetDataSource
+ 120:radio_test.c  **** 
+ 121:radio_test.c  **** 
+ 122:radio_test.c  **** 	S2LP_TX_SetDataSource(&handle, S2LP_TX_SOURCE_PN9);
+ 232              		.loc 1 122 2
+ 233 00ae 0321     		movs	r1, #3
+ 234 00b0 0748     		ldr	r0, .L10
+ 235 00b2 FFF7FEFF 		bl	S2LP_TX_SetDataSource
+ 123:radio_test.c  **** 	S2LP_SendCommand(&handle, S2LP_CMD_TX);
+ 236              		.loc 1 123 2
+ 237 00b6 6021     		movs	r1, #96
+ 238 00b8 0548     		ldr	r0, .L10
+ 239 00ba FFF7FEFF 		bl	S2LP_SendCommand
+ 124:radio_test.c  **** 
+ 125:radio_test.c  **** 
+ 126:radio_test.c  **** 	status = S2LP_GetStatus(&handle);
+ 240              		.loc 1 126 11
+ 241 00be 3B1D     		adds	r3, r7, #4
+ 242 00c0 0349     		ldr	r1, .L10
+ 243 00c2 1846     		mov	r0, r3
+ 244 00c4 FFF7FEFF 		bl	S2LP_GetStatus
+ 127:radio_test.c  **** //	while(1) {
+ 128:radio_test.c  **** //
+ 129:radio_test.c  **** //
+ 130:radio_test.c  **** //		status = S2LP_ReadStatus(&handle);
+ 131:radio_test.c  **** //		if (status.state == 0x74) {
+ 132:radio_test.c  **** //			// Undefined state error
+ 133:radio_test.c  **** //			S2LP_SendCommand(&handle, S2LP_CMD_SABORT);
+ 134:radio_test.c  **** //			status = S2LP_GetStatus(&handle);
+ 135:radio_test.c  **** //			S2LP_SendCommand(&handle, S2LP_CMD_TX);
+ 136:radio_test.c  **** //			status = S2LP_GetStatus(&handle);
+ 137:radio_test.c  **** //		}
+ 138:radio_test.c  **** //	}
+ 139:radio_test.c  **** 
+ 140:radio_test.c  **** 
+ 141:radio_test.c  **** 
+ 142:radio_test.c  **** 	test_tx();
+ 245              		.loc 1 142 2
+ 246 00c8 FFF7FEFF 		bl	test_tx
+ 247              	.L9:
+ 143:radio_test.c  **** 	while (1);
+ 248              		.loc 1 143 8 discriminator 1
+ 249 00cc 00BF     		nop
+ 250 00ce FDE7     		b	.L9
+ 251              	.L11:
+ 252              		.align	2
+ 253              	.L10:
+ARM GAS  /tmp/ccDFeLuk.s 			page 8
+
+
+ 254 00d0 00000000 		.word	handle
+ 255 00d4 60AFD619 		.word	433500000
+ 256 00d8 80380100 		.word	80000
+ 257              		.cfi_endproc
+ 258              	.LFE80:
+ 260              		.text
+ 261              	.Letext0:
+ 262              		.file 2 "/usr/arm-none-eabi/include/machine/_default_types.h"
+ 263              		.file 3 "/usr/arm-none-eabi/include/sys/_stdint.h"
+ 264              		.file 4 "/usr/lib/gcc/arm-none-eabi/12.2.0/include/stddef.h"
+ 265              		.file 5 "../../../lib/libhalglue/bshal/bshal_spim.h"
+ 266              		.file 6 "S2LP_Driver/s2lp_constants.h"
+ 267              		.file 7 "S2LP_Driver/s2lp_mcu_interface.h"
+ 268              		.file 8 "S2LP_Driver/s2lp.h"
+ 269              		.file 9 "S2LP_Driver/s2lp_tx.h"
+ 270              		.file 10 "S2LP_Driver/s2lp_packet.h"
+ 271              		.file 11 "S2LP_Driver/s2lp_rf.h"
+ARM GAS  /tmp/ccDFeLuk.s 			page 9
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 radio_test.c
+     /tmp/ccDFeLuk.s:23     .bss.handle:0000000000000000 handle
+     /tmp/ccDFeLuk.s:20     .bss.handle:0000000000000000 $d
+     /tmp/ccDFeLuk.s:26     .rodata:0000000000000000 $d
+     /tmp/ccDFeLuk.s:30     .text.test_tx:0000000000000000 $t
+     /tmp/ccDFeLuk.s:36     .text.test_tx:0000000000000000 test_tx
+     /tmp/ccDFeLuk.s:115    .text.test_tx:0000000000000074 $d
+     /tmp/ccDFeLuk.s:121    .text.main:0000000000000000 $t
+     /tmp/ccDFeLuk.s:127    .text.main:0000000000000000 main
+     /tmp/ccDFeLuk.s:254    .text.main:00000000000000d0 $d
+                           .group:0000000000000000 wm4.0.2a10468dd89b593cd64cc189d36e5bb7
+                           .group:0000000000000000 wm4.stdbool.h.29.4a1c88fe569adb8d03217dd16982ca34
+                           .group:0000000000000000 wm4._newlib_version.h.4.529115dae5e4f67702b1de0b6e841f38
+                           .group:0000000000000000 wm4.features.h.33.3e67abe6fb64142d4f6fa9496796153c
+                           .group:0000000000000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:0000000000000000 wm4._intsup.h.10.48bafbb683905c4daa4565a85aeeb264
+                           .group:0000000000000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:0000000000000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:0000000000000000 wm4.ieeefp.h.77.25247dc27dbe3b23bfe98c2dc18f6ac5
+                           .group:0000000000000000 wm4.newlib.h.8.e83e89ee5a2baa7686bbb3d2021a9409
+                           .group:0000000000000000 wm4.config.h.224.18dfb280c62ae4ee788eb67b451eb1a6
+                           .group:0000000000000000 wm4._ansi.h.31.de524f58584151836e90d8620a16f8e8
+                           .group:0000000000000000 wm4.stdlib.h.13.4ed386f5c1a80d71e72172885d946ef2
+                           .group:0000000000000000 wm4.stddef.h.185.882514a1a6169ceba9142f401cbe27c6
+                           .group:0000000000000000 wm4.stddef.h.39.f07083f9b666a9e5c52a336c758fdd72
+                           .group:0000000000000000 wm4._types.h.20.dd0d04dca3800a0d2a6129b87f3adbb2
+                           .group:0000000000000000 wm4.stddef.h.158.5f30652bb2ea05b142c1bbee9108c999
+                           .group:0000000000000000 wm4._types.h.127.34941de1b2539d59d5cac00e0dd27a45
+                           .group:0000000000000000 wm4.reent.h.17.e292bf8b0bec6c96e131a54347145a30
+                           .group:0000000000000000 wm4.lock.h.2.1461d1fff82dffe8bfddc23307f6484f
+                           .group:0000000000000000 wm4.reent.h.77.dcd6129ff07fe81bd5636db29abe53b2
+                           .group:0000000000000000 wm4.cdefs.h.49.39045112216f6a021dbdffe3bf5accce
+                           .group:0000000000000000 wm4.alloca.h.8.dfc0c703c47ec3e69746825b17d9e66d
+                           .group:0000000000000000 wm4.stdlib.h.56.f4862cfbf4363a1db01842d5bdf72c18
+                           .group:0000000000000000 wm4.bshal_i2cm.h.11.09ce5fde9ee09ba50563c37b9993575a
+                           .group:0000000000000000 wm4.inttypes.h.14.b28deb26920e51e0da310220ef0f9003
+                           .group:0000000000000000 wm4.stddef.h.158.bfed30416c9480cd13bc4a25427d538f
+                           .group:0000000000000000 wm4.inttypes.h.28.684aa7736e7ecc9a6ffc44acc61c7a90
+                           .group:0000000000000000 wm4.stm32f1xx.h.39.e8c98c5ce2cd95856eed179966374e12
+                           .group:0000000000000000 wm4.stm32f103xb.h.38.ec967d5ad9d3269cb0788eebda048e38
+                           .group:0000000000000000 wm4.cmsis_version.h.32.0f826810625204eca22a19868bdc7586
+                           .group:0000000000000000 wm4.core_cm3.h.66.fc46cac19810db8f98d67da7ef88f42c
+                           .group:0000000000000000 wm4.cmsis_gcc.h.26.549e8fd988111c6b396c357ef98aeb59
+                           .group:0000000000000000 wm4.core_cm3.h.127.aaed3d1df272b0aa79c526153017805c
+                           .group:0000000000000000 wm4.stm32f103xb.h.573.10249aa7473ca93be896fed94046a725
+                           .group:0000000000000000 wm4.stm32f1xx.h.162.96b09079a093c34dbd7f0b85cbd0ddee
+                           .group:0000000000000000 wm4.stm32f1xx_hal_conf.h.24.fb218a6cd2ee35d840b3eac0f5fb4119
+                           .group:0000000000000000 wm4.stm32_hal_legacy.h.22.3d81dc02d9b9459e9eac6fdca7f8f18e
+                           .group:0000000000000000 wm4.stm32f1xx_hal_def.h.56.dfe92d4f76983476d27bcb2e4d801fca
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc.h.94.78ba4ec8cedd7ba94683a5fabb61b31e
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc_ex.h.21.8406672c8a3f21f71eb8441fb8ecb4bd
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc.h.1201.89d14cbb1b46fba2de70512ccfd8d5ce
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio.h.21.0099da253a68660e916195d3e8928be3
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio_ex.h.21.93f1f3ec7660fa76375def81b976f73c
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio.h.262.7df79220ec7519ba80c1763e6b4854a6
+                           .group:0000000000000000 wm4.stm32f1xx_hal_exti.h.21.a7f1b393a0c9b2b56b72ccdbb8dee508
+ARM GAS  /tmp/ccDFeLuk.s 			page 10
+
+
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma.h.21.11e5a204ed6aa790b1cdae2e4192bc9d
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma_ex.h.21.d438f745b4c04dc23f9f569190526864
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma.h.408.14794a3f8621230c9ac7fca0cacf3e57
+                           .group:0000000000000000 wm4.stm32f1xx_hal_can.h.21.d1dd4a884a3983bc975efc64fbbd5748
+                           .group:0000000000000000 wm4.stm32f1xx_hal_cortex.h.21.6ab92041a8778f53d2d2d96b3825535a
+                           .group:0000000000000000 wm4.stm32f1xx_hal_adc.h.21.8ae5a06b46334619d54b2469802d6db6
+                           .group:0000000000000000 wm4.stm32f1xx_hal_adc_ex.h.21.f5c9ba15472af26c826d75096ae3e02a
+                           .group:0000000000000000 wm4.stm32f1xx_hal_crc.h.21.b5b5d61856236c32a5704a7db1b8c77f
+                           .group:0000000000000000 wm4.stm32f1xx_hal_flash.h.21.6df147ac02cc6dec8c4706cc1a34879c
+                           .group:0000000000000000 wm4.stm32f1xx_hal_flash_ex.h.21.33e24ce7a8607e16d5a38297454fd963
+                           .group:0000000000000000 wm4.stm32f1xx_hal_i2c.h.21.6a947c870feb456d84d10dd871ee01bd
+                           .group:0000000000000000 wm4.stm32f1xx_hal_iwdg.h.21.14afe1e30714751a311b81d0791714c2
+                           .group:0000000000000000 wm4.stm32f1xx_hal_pwr.h.21.ec3e2cfd4c26fffa32fc4ff0a8ac7390
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rtc.h.21.833c91cab3eef49edc59fd371d3c1ce0
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rtc_ex.h.21.b671683f6728965b6d8404d04009ed32
+                           .group:0000000000000000 wm4.stm32f1xx_hal_spi.h.21.59f3c581a47a8dea5d070b46998af27e
+                           .group:0000000000000000 wm4.stm32f1xx_hal_tim.h.21.76f9d96f76cba41ae3b6e27311c6f5ff
+                           .group:0000000000000000 wm4.stm32f1xx_hal_uart.h.21.ffd6508e5e0a88f651472e5c80a9d587
+                           .group:0000000000000000 wm4.stm32f1xx_hal_usart.h.21.0b32d58c93817e5f10bce7603c316c1e
+                           .group:0000000000000000 wm4.stm32f1xx_hal_irda.h.21.b44168150ccb55c331f6e6afe3cf4b88
+                           .group:0000000000000000 wm4.stm32f1xx_hal_smartcard.h.21.d256a98de9ec7b58600da5aa4b29abdb
+                           .group:0000000000000000 wm4.stm32f1xx_hal_wwdg.h.21.ac611fc4089566604f02b81297147d50
+                           .group:0000000000000000 wm4.stm32f1xx_ll_usb.h.21.4cb0f3c145693f977427d01b787de0c7
+                           .group:0000000000000000 wm4.stm32f1xx_hal_pcd.h.160.b1d545af3cea9ada15575c2dedd78cdc
+                           .group:0000000000000000 wm4.stm32f1xx_hal.h.87.60093b86a987865736d7cddecce3c235
+                           .group:0000000000000000 wm4.endian.h.33.c1913dfa48871279aa52a8d34c7726a7
+                           .group:0000000000000000 wm4.bit_helpers.h.9.18ec339b3de5d33d832940f318efed57
+                           .group:0000000000000000 wm4.s2lp_constants.h.9.b7f616e3835971b5021c80c1c98c29b7
+                           .group:0000000000000000 wm4.s2lp_mcu_interface.h.9.9eeee19d530c6ae696c504e7de7f49cd
+                           .group:0000000000000000 wm4.s2lp_tx.h.16.c3dd382957aac675afead280ae18647a
+                           .group:0000000000000000 wm4.s2lp.h.23.2b5ca43c97556c1103e2a8d1aaf1f08a
+                           .group:0000000000000000 wm4.s2lp_utils.h.9.c693440ab99919902489fc9c4b4a089f
+
+UNDEFINED SYMBOLS
+S2LP_SetInterruptMasks
+S2LP_GetInterrupts
+S2LP_SendCommand
+S2LP_PCKT_SetPacketLength
+S2LP_WriteFIFO
+S2LP_GetStatus
+S2LP_Initialize
+S2LP_RF_SetChargePumpCurrent
+S2LP_CallibrateRCO
+S2LP_GetDevicePartNumber
+S2LP_GetDeviceVersionNumber
+S2LP_RF_SetSynthBand
+S2LP_RF_SetBaseFrequency
+S2LP_PCKT_SetPacketFormat
+S2LP_RF_SetDataRate
+S2LP_RF_SetFrequencyDeviation
+S2LP_RF_SetModulationType
+S2LP_PCKT_SetLengthFieldSize
+S2LP_TX_SetDataSource

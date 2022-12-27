@@ -1,0 +1,1030 @@
+ARM GAS  /tmp/cc6y1l24.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.arch armv7-m
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"bshal_gpio_stm32.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.file 1 "../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c"
+  18              		.section	.text.bshal_gpio_encode_pin,"ax",%progbits
+  19              		.align	1
+  20              		.global	bshal_gpio_encode_pin
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  25              	bshal_gpio_encode_pin:
+  26              	.LFB67:
+   1:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 
+   2:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 
+   3:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #include <stdlib.h>
+   4:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #include <stdint.h>
+   5:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #include <stdbool.h>
+   6:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 
+   7:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #include "bshal_gpio_stm32.h"
+   8:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 
+   9:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** uint8_t bshal_gpio_encode_pin(GPIO_TypeDef *port, uint16_t pin) {
+  27              		.loc 1 9 65
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 16
+  30              		@ frame_needed = 1, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  32 0000 80B4     		push	{r7}
+  33              		.cfi_def_cfa_offset 4
+  34              		.cfi_offset 7, -4
+  35 0002 85B0     		sub	sp, sp, #20
+  36              		.cfi_def_cfa_offset 24
+  37 0004 00AF     		add	r7, sp, #0
+  38              		.cfi_def_cfa_register 7
+  39 0006 7860     		str	r0, [r7, #4]
+  40 0008 0B46     		mov	r3, r1
+  41 000a 7B80     		strh	r3, [r7, #2]	@ movhi
+  10:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	uint8_t result = 0;
+  42              		.loc 1 10 10
+  43 000c 0023     		movs	r3, #0
+  44 000e FB73     		strb	r3, [r7, #15]
+  45              	.LBB2:
+  11:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	for (int i = 0; i < 16; i++) {
+  46              		.loc 1 11 11
+  47 0010 0023     		movs	r3, #0
+ARM GAS  /tmp/cc6y1l24.s 			page 2
+
+
+  48 0012 BB60     		str	r3, [r7, #8]
+  49              		.loc 1 11 2
+  50 0014 11E0     		b	.L2
+  51              	.L6:
+  12:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 		if ((1 << i) & pin) {
+  52              		.loc 1 12 7
+  53 0016 7A88     		ldrh	r2, [r7, #2]
+  54 0018 BB68     		ldr	r3, [r7, #8]
+  55 001a 42FA03F3 		asr	r3, r2, r3
+  56 001e 03F00103 		and	r3, r3, #1
+  57              		.loc 1 12 6
+  58 0022 002B     		cmp	r3, #0
+  59 0024 06D0     		beq	.L3
+  13:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			if (result)
+  60              		.loc 1 13 7
+  61 0026 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+  62 0028 002B     		cmp	r3, #0
+  63 002a 01D0     		beq	.L4
+  14:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 				return -1;
+  64              		.loc 1 14 12
+  65 002c FF23     		movs	r3, #255
+  66 002e 32E0     		b	.L5
+  67              	.L4:
+  15:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			result = i;
+  68              		.loc 1 15 11
+  69 0030 BB68     		ldr	r3, [r7, #8]
+  70 0032 FB73     		strb	r3, [r7, #15]
+  71              	.L3:
+  11:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 		if ((1 << i) & pin) {
+  72              		.loc 1 11 27 discriminator 2
+  73 0034 BB68     		ldr	r3, [r7, #8]
+  74 0036 0133     		adds	r3, r3, #1
+  75 0038 BB60     		str	r3, [r7, #8]
+  76              	.L2:
+  11:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 		if ((1 << i) & pin) {
+  77              		.loc 1 11 20 discriminator 1
+  78 003a BB68     		ldr	r3, [r7, #8]
+  79 003c 0F2B     		cmp	r3, #15
+  80 003e EADD     		ble	.L6
+  81              	.LBE2:
+  16:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 		}
+  17:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	}
+  18:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOA
+  19:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if (port == GPIOA)
+  82              		.loc 1 19 5
+  83 0040 7B68     		ldr	r3, [r7, #4]
+  84 0042 174A     		ldr	r2, .L12
+  85 0044 9342     		cmp	r3, r2
+  86 0046 01D1     		bne	.L7
+  20:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	return result | ( 0 << 4);
+  87              		.loc 1 20 16
+  88 0048 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+  89 004a 24E0     		b	.L5
+  90              	.L7:
+  21:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif	
+  22:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOB
+  23:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if (port == GPIOB)
+ARM GAS  /tmp/cc6y1l24.s 			page 3
+
+
+  91              		.loc 1 23 5
+  92 004c 7B68     		ldr	r3, [r7, #4]
+  93 004e 154A     		ldr	r2, .L12+4
+  94 0050 9342     		cmp	r3, r2
+  95 0052 04D1     		bne	.L8
+  24:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	return result | ( 1 << 4);
+  96              		.loc 1 24 16
+  97 0054 FB7B     		ldrb	r3, [r7, #15]
+  98 0056 43F01003 		orr	r3, r3, #16
+  99 005a DBB2     		uxtb	r3, r3
+ 100 005c 1BE0     		b	.L5
+ 101              	.L8:
+  25:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif	
+  26:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOC
+  27:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if (port == GPIOC)
+ 102              		.loc 1 27 5
+ 103 005e 7B68     		ldr	r3, [r7, #4]
+ 104 0060 114A     		ldr	r2, .L12+8
+ 105 0062 9342     		cmp	r3, r2
+ 106 0064 04D1     		bne	.L9
+  28:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	return result | ( 2 << 4);
+ 107              		.loc 1 28 16
+ 108 0066 FB7B     		ldrb	r3, [r7, #15]
+ 109 0068 43F02003 		orr	r3, r3, #32
+ 110 006c DBB2     		uxtb	r3, r3
+ 111 006e 12E0     		b	.L5
+ 112              	.L9:
+  29:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif	
+  30:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOD
+  31:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if (port == GPIOD)
+ 113              		.loc 1 31 5
+ 114 0070 7B68     		ldr	r3, [r7, #4]
+ 115 0072 0E4A     		ldr	r2, .L12+12
+ 116 0074 9342     		cmp	r3, r2
+ 117 0076 04D1     		bne	.L10
+  32:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	return result | ( 3 << 4);
+ 118              		.loc 1 32 16
+ 119 0078 FB7B     		ldrb	r3, [r7, #15]
+ 120 007a 43F03003 		orr	r3, r3, #48
+ 121 007e DBB2     		uxtb	r3, r3
+ 122 0080 09E0     		b	.L5
+ 123              	.L10:
+  33:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif	
+  34:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOE
+  35:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if (port == GPIOE)
+ 124              		.loc 1 35 5
+ 125 0082 7B68     		ldr	r3, [r7, #4]
+ 126 0084 0A4A     		ldr	r2, .L12+16
+ 127 0086 9342     		cmp	r3, r2
+ 128 0088 04D1     		bne	.L11
+  36:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	return result | ( 4 << 4);
+ 129              		.loc 1 36 16
+ 130 008a FB7B     		ldrb	r3, [r7, #15]
+ 131 008c 43F04003 		orr	r3, r3, #64
+ 132 0090 DBB2     		uxtb	r3, r3
+ 133 0092 00E0     		b	.L5
+ 134              	.L11:
+ARM GAS  /tmp/cc6y1l24.s 			page 4
+
+
+  37:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif	
+  38:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOF
+  39:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if (port == GPIOF)
+  40:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	return result | ( 5 << 4);
+  41:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif	
+  42:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOG
+  43:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if (port == GPIOG)
+  44:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	return result | ( 6 << 4);
+  45:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif	
+  46:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOH
+  47:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if (port == GPIOH)
+  48:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	return result | ( 7 << 4);
+  49:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif	
+  50:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOI
+  51:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if (port == GPIOI)
+  52:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	return result | ( 8 << 4);
+  53:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif	
+  54:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOJ
+  55:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if (port == GPIOJ)
+  56:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	return result | ( 9 << 4);
+  57:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif	
+  58:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOK
+  59:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if (port == GPIOK)
+  60:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	return result | ( 10 << 4);
+  61:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif	
+  62:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOL
+  63:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if (port == GPIOL)
+  64:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	return result | ( 11 << 4);
+  65:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif	
+  66:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOM
+  67:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if (port == GPIOM)
+  68:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	return result | ( 12 << 4);
+  69:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif	
+  70:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPION
+  71:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if (port == GPION)
+  72:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	return result | ( 13 << 4);
+  73:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif	
+  74:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOO
+  75:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if (port == GPIOO)
+  76:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	return result | ( 14 << 4);
+  77:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif
+  78:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	return -1;
+ 135              		.loc 1 78 9
+ 136 0094 FF23     		movs	r3, #255
+ 137              	.L5:
+  79:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** }
+ 138              		.loc 1 79 1
+ 139 0096 1846     		mov	r0, r3
+ 140 0098 1437     		adds	r7, r7, #20
+ 141              		.cfi_def_cfa_offset 4
+ 142 009a BD46     		mov	sp, r7
+ 143              		.cfi_def_cfa_register 13
+ 144              		@ sp needed
+ 145 009c 80BC     		pop	{r7}
+ 146              		.cfi_restore 7
+ 147              		.cfi_def_cfa_offset 0
+ 148 009e 7047     		bx	lr
+ARM GAS  /tmp/cc6y1l24.s 			page 5
+
+
+ 149              	.L13:
+ 150              		.align	2
+ 151              	.L12:
+ 152 00a0 00080140 		.word	1073809408
+ 153 00a4 000C0140 		.word	1073810432
+ 154 00a8 00100140 		.word	1073811456
+ 155 00ac 00140140 		.word	1073812480
+ 156 00b0 00180140 		.word	1073813504
+ 157              		.cfi_endproc
+ 158              	.LFE67:
+ 160              		.section	.text.bshal_gpio_decode_pin,"ax",%progbits
+ 161              		.align	1
+ 162              		.global	bshal_gpio_decode_pin
+ 163              		.syntax unified
+ 164              		.thumb
+ 165              		.thumb_func
+ 167              	bshal_gpio_decode_pin:
+ 168              	.LFB68:
+  80:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 
+  81:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** void bshal_gpio_decode_pin(uint8_t bs_pin, GPIO_TypeDef **port, uint16_t *pin) {
+ 169              		.loc 1 81 80
+ 170              		.cfi_startproc
+ 171              		@ args = 0, pretend = 0, frame = 16
+ 172              		@ frame_needed = 1, uses_anonymous_args = 0
+ 173              		@ link register save eliminated.
+ 174 0000 80B4     		push	{r7}
+ 175              		.cfi_def_cfa_offset 4
+ 176              		.cfi_offset 7, -4
+ 177 0002 85B0     		sub	sp, sp, #20
+ 178              		.cfi_def_cfa_offset 24
+ 179 0004 00AF     		add	r7, sp, #0
+ 180              		.cfi_def_cfa_register 7
+ 181 0006 0346     		mov	r3, r0
+ 182 0008 B960     		str	r1, [r7, #8]
+ 183 000a 7A60     		str	r2, [r7, #4]
+ 184 000c FB73     		strb	r3, [r7, #15]
+  82:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	*pin = 1 << (bs_pin & 0xF);
+ 185              		.loc 1 82 22
+ 186 000e FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 187 0010 03F00F03 		and	r3, r3, #15
+ 188              		.loc 1 82 11
+ 189 0014 0122     		movs	r2, #1
+ 190 0016 02FA03F3 		lsl	r3, r2, r3
+ 191              		.loc 1 82 7
+ 192 001a 9AB2     		uxth	r2, r3
+ 193 001c 7B68     		ldr	r3, [r7, #4]
+ 194 001e 1A80     		strh	r2, [r3]	@ movhi
+  83:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	*port = NULL;
+ 195              		.loc 1 83 8
+ 196 0020 BB68     		ldr	r3, [r7, #8]
+ 197 0022 0022     		movs	r2, #0
+ 198 0024 1A60     		str	r2, [r3]
+  84:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOA
+  85:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if ( (bs_pin & 0xF0)  == ( 0 << 4) )
+ 199              		.loc 1 85 15
+ 200 0026 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 201 0028 03F0F003 		and	r3, r3, #240
+ARM GAS  /tmp/cc6y1l24.s 			page 6
+
+
+ 202              		.loc 1 85 5
+ 203 002c 002B     		cmp	r3, #0
+ 204 002e 02D1     		bne	.L15
+  86:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 		*port = GPIOA;
+ 205              		.loc 1 86 9
+ 206 0030 BB68     		ldr	r3, [r7, #8]
+ 207 0032 134A     		ldr	r2, .L21
+ 208 0034 1A60     		str	r2, [r3]
+ 209              	.L15:
+  87:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif	
+  88:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOB
+  89:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if ( (bs_pin & 0xF0)  == ( 1 << 4) )
+ 210              		.loc 1 89 15
+ 211 0036 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 212 0038 03F0F003 		and	r3, r3, #240
+ 213              		.loc 1 89 5
+ 214 003c 102B     		cmp	r3, #16
+ 215 003e 02D1     		bne	.L16
+  90:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 		*port = GPIOB;
+ 216              		.loc 1 90 9
+ 217 0040 BB68     		ldr	r3, [r7, #8]
+ 218 0042 104A     		ldr	r2, .L21+4
+ 219 0044 1A60     		str	r2, [r3]
+ 220              	.L16:
+  91:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif	
+  92:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOC
+  93:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if ( (bs_pin & 0xF0)  == ( 2 << 4) )
+ 221              		.loc 1 93 15
+ 222 0046 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 223 0048 03F0F003 		and	r3, r3, #240
+ 224              		.loc 1 93 5
+ 225 004c 202B     		cmp	r3, #32
+ 226 004e 02D1     		bne	.L17
+  94:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 		*port = GPIOC;
+ 227              		.loc 1 94 9
+ 228 0050 BB68     		ldr	r3, [r7, #8]
+ 229 0052 0D4A     		ldr	r2, .L21+8
+ 230 0054 1A60     		str	r2, [r3]
+ 231              	.L17:
+  95:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif	
+  96:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOD
+  97:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if ( (bs_pin & 0xF0)  == ( 3 << 4) )
+ 232              		.loc 1 97 15
+ 233 0056 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 234 0058 03F0F003 		and	r3, r3, #240
+ 235              		.loc 1 97 5
+ 236 005c 302B     		cmp	r3, #48
+ 237 005e 02D1     		bne	.L18
+  98:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 		*port = GPIOD;
+ 238              		.loc 1 98 9
+ 239 0060 BB68     		ldr	r3, [r7, #8]
+ 240 0062 0A4A     		ldr	r2, .L21+12
+ 241 0064 1A60     		str	r2, [r3]
+ 242              	.L18:
+  99:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif	
+ 100:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOE
+ 101:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if ( (bs_pin & 0xF0)  == ( 4 << 4) )
+ARM GAS  /tmp/cc6y1l24.s 			page 7
+
+
+ 243              		.loc 1 101 15
+ 244 0066 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 245 0068 03F0F003 		and	r3, r3, #240
+ 246              		.loc 1 101 5
+ 247 006c 402B     		cmp	r3, #64
+ 248 006e 02D1     		bne	.L20
+ 102:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 		*port = GPIOE;
+ 249              		.loc 1 102 9
+ 250 0070 BB68     		ldr	r3, [r7, #8]
+ 251 0072 074A     		ldr	r2, .L21+16
+ 252 0074 1A60     		str	r2, [r3]
+ 253              	.L20:
+ 103:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif	
+ 104:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOF
+ 105:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if ( (bs_pin & 0xF0)  == ( 5 << 4) )
+ 106:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 		*port = GPIOF;
+ 107:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif	
+ 108:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOG
+ 109:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if ( (bs_pin & 0xF0)  == ( 6 << 4) )
+ 110:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 		*port = GPIOG;
+ 111:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif	
+ 112:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOH
+ 113:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if ( (bs_pin & 0xF0)  == ( 7 << 4) )
+ 114:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 		*port = GPIOH;
+ 115:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif	
+ 116:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOI
+ 117:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if ( (bs_pin & 0xF0)  == ( 8 << 4) )
+ 118:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 		*port = GPIOI;
+ 119:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif	
+ 120:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOJ
+ 121:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if ( (bs_pin & 0xF0)  == ( 9 << 4) )
+ 122:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 		*port = GPIOJ;
+ 123:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif	
+ 124:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOK
+ 125:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if ( (bs_pin & 0xF0)  == ( 10 << 4) )
+ 126:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 		*port = GPIOK;
+ 127:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif	
+ 128:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOL
+ 129:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if ( (bs_pin & 0xF0)  == ( 11 << 4) )
+ 130:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 		*port = GPIOL;
+ 131:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif	
+ 132:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOM
+ 133:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if ( (bs_pin & 0xF0)  == ( 12 << 4) )
+ 134:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 		*port = GPIOM;
+ 135:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif	
+ 136:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPION
+ 137:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if ( (bs_pin & 0xF0)  == ( 13 << 4) )
+ 138:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 		*port = GPION;
+ 139:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif	
+ 140:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOO
+ 141:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if ( (bs_pin & 0xF0)  == ( 14 << 4) )
+ 142:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 		*port = GPIOO;
+ 143:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif	
+ 144:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** }
+ 254              		.loc 1 144 1
+ 255 0076 00BF     		nop
+ 256 0078 1437     		adds	r7, r7, #20
+ARM GAS  /tmp/cc6y1l24.s 			page 8
+
+
+ 257              		.cfi_def_cfa_offset 4
+ 258 007a BD46     		mov	sp, r7
+ 259              		.cfi_def_cfa_register 13
+ 260              		@ sp needed
+ 261 007c 80BC     		pop	{r7}
+ 262              		.cfi_restore 7
+ 263              		.cfi_def_cfa_offset 0
+ 264 007e 7047     		bx	lr
+ 265              	.L22:
+ 266              		.align	2
+ 267              	.L21:
+ 268 0080 00080140 		.word	1073809408
+ 269 0084 000C0140 		.word	1073810432
+ 270 0088 00100140 		.word	1073811456
+ 271 008c 00140140 		.word	1073812480
+ 272 0090 00180140 		.word	1073813504
+ 273              		.cfi_endproc
+ 274              	.LFE68:
+ 276              		.section	.text.bshal_gpio_write_pin,"ax",%progbits
+ 277              		.align	1
+ 278              		.global	bshal_gpio_write_pin
+ 279              		.syntax unified
+ 280              		.thumb
+ 281              		.thumb_func
+ 283              	bshal_gpio_write_pin:
+ 284              	.LFB69:
+ 145:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 
+ 146:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** void bshal_gpio_write_pin(uint8_t bs_pin, bool val) {
+ 285              		.loc 1 146 53
+ 286              		.cfi_startproc
+ 287              		@ args = 0, pretend = 0, frame = 16
+ 288              		@ frame_needed = 1, uses_anonymous_args = 0
+ 289 0000 80B5     		push	{r7, lr}
+ 290              		.cfi_def_cfa_offset 8
+ 291              		.cfi_offset 7, -8
+ 292              		.cfi_offset 14, -4
+ 293 0002 84B0     		sub	sp, sp, #16
+ 294              		.cfi_def_cfa_offset 24
+ 295 0004 00AF     		add	r7, sp, #0
+ 296              		.cfi_def_cfa_register 7
+ 297 0006 0346     		mov	r3, r0
+ 298 0008 0A46     		mov	r2, r1
+ 299 000a FB71     		strb	r3, [r7, #7]
+ 300 000c 1346     		mov	r3, r2
+ 301 000e BB71     		strb	r3, [r7, #6]
+ 147:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	GPIO_TypeDef *port = NULL;
+ 302              		.loc 1 147 16
+ 303 0010 0023     		movs	r3, #0
+ 304 0012 FB60     		str	r3, [r7, #12]
+ 148:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	uint16_t pin = -1;
+ 305              		.loc 1 148 11
+ 306 0014 4FF6FF73 		movw	r3, #65535
+ 307 0018 7B81     		strh	r3, [r7, #10]	@ movhi
+ 149:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	bshal_gpio_decode_pin(bs_pin,&port,&pin);
+ 308              		.loc 1 149 2
+ 309 001a 07F10A02 		add	r2, r7, #10
+ 310 001e 07F10C01 		add	r1, r7, #12
+ARM GAS  /tmp/cc6y1l24.s 			page 9
+
+
+ 311 0022 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 312 0024 1846     		mov	r0, r3
+ 313 0026 FFF7FEFF 		bl	bshal_gpio_decode_pin
+ 150:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if (port)
+ 314              		.loc 1 150 6
+ 315 002a FB68     		ldr	r3, [r7, #12]
+ 316              		.loc 1 150 5
+ 317 002c 002B     		cmp	r3, #0
+ 318 002e 05D0     		beq	.L25
+ 151:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 		HAL_GPIO_WritePin(port, pin, val);
+ 319              		.loc 1 151 3
+ 320 0030 FB68     		ldr	r3, [r7, #12]
+ 321 0032 7989     		ldrh	r1, [r7, #10]
+ 322 0034 BA79     		ldrb	r2, [r7, #6]	@ zero_extendqisi2
+ 323 0036 1846     		mov	r0, r3
+ 324 0038 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 325              	.L25:
+ 152:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** }
+ 326              		.loc 1 152 1
+ 327 003c 00BF     		nop
+ 328 003e 1037     		adds	r7, r7, #16
+ 329              		.cfi_def_cfa_offset 8
+ 330 0040 BD46     		mov	sp, r7
+ 331              		.cfi_def_cfa_register 13
+ 332              		@ sp needed
+ 333 0042 80BD     		pop	{r7, pc}
+ 334              		.cfi_endproc
+ 335              	.LFE69:
+ 337              		.section	.text.bshal_gpio_port_enable_clock,"ax",%progbits
+ 338              		.align	1
+ 339              		.global	bshal_gpio_port_enable_clock
+ 340              		.syntax unified
+ 341              		.thumb
+ 342              		.thumb_func
+ 344              	bshal_gpio_port_enable_clock:
+ 345              	.LFB70:
+ 153:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 
+ 154:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** void bshal_gpio_port_enable_clock(uint8_t bs_pin) {
+ 346              		.loc 1 154 51
+ 347              		.cfi_startproc
+ 348              		@ args = 0, pretend = 0, frame = 40
+ 349              		@ frame_needed = 1, uses_anonymous_args = 0
+ 350 0000 80B5     		push	{r7, lr}
+ 351              		.cfi_def_cfa_offset 8
+ 352              		.cfi_offset 7, -8
+ 353              		.cfi_offset 14, -4
+ 354 0002 8AB0     		sub	sp, sp, #40
+ 355              		.cfi_def_cfa_offset 48
+ 356 0004 00AF     		add	r7, sp, #0
+ 357              		.cfi_def_cfa_register 7
+ 358 0006 0346     		mov	r3, r0
+ 359 0008 FB71     		strb	r3, [r7, #7]
+ 155:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 
+ 156:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	GPIO_TypeDef *port;
+ 157:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	uint16_t pin;
+ 158:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	bshal_gpio_decode_pin(bs_pin, &port, &pin);
+ 360              		.loc 1 158 2
+ARM GAS  /tmp/cc6y1l24.s 			page 10
+
+
+ 361 000a 07F12202 		add	r2, r7, #34
+ 362 000e 07F12401 		add	r1, r7, #36
+ 363 0012 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 364 0014 1846     		mov	r0, r3
+ 365 0016 FFF7FEFF 		bl	bshal_gpio_decode_pin
+ 159:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	switch ( (int)(port)) {
+ 366              		.loc 1 159 11
+ 367 001a 7B6A     		ldr	r3, [r7, #36]
+ 368              		.loc 1 159 2
+ 369 001c 2E4A     		ldr	r2, .L34
+ 370 001e 9342     		cmp	r3, r2
+ 371 0020 49D0     		beq	.L27
+ 372 0022 2D4A     		ldr	r2, .L34
+ 373 0024 9342     		cmp	r3, r2
+ 374 0026 53DC     		bgt	.L33
+ 375 0028 2C4A     		ldr	r2, .L34+4
+ 376 002a 9342     		cmp	r3, r2
+ 377 002c 36D0     		beq	.L29
+ 378 002e 2B4A     		ldr	r2, .L34+4
+ 379 0030 9342     		cmp	r3, r2
+ 380 0032 4DDC     		bgt	.L33
+ 381 0034 2A4A     		ldr	r2, .L34+8
+ 382 0036 9342     		cmp	r3, r2
+ 383 0038 23D0     		beq	.L30
+ 384 003a 294A     		ldr	r2, .L34+8
+ 385 003c 9342     		cmp	r3, r2
+ 386 003e 47DC     		bgt	.L33
+ 387 0040 284A     		ldr	r2, .L34+12
+ 388 0042 9342     		cmp	r3, r2
+ 389 0044 03D0     		beq	.L31
+ 390 0046 284A     		ldr	r2, .L34+16
+ 391 0048 9342     		cmp	r3, r2
+ 392 004a 0DD0     		beq	.L32
+ 160:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOA
+ 161:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	case (int)GPIOA:
+ 162:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			__HAL_RCC_GPIOA_CLK_ENABLE();
+ 163:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			break;
+ 164:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif
+ 165:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOB
+ 166:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	case (int)GPIOB:
+ 167:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			__HAL_RCC_GPIOB_CLK_ENABLE();
+ 168:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			break;
+ 169:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif
+ 170:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOC
+ 171:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	case (int)GPIOC:
+ 172:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			__HAL_RCC_GPIOC_CLK_ENABLE();
+ 173:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			break;
+ 174:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif
+ 175:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOD
+ 176:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	case (int)GPIOD:
+ 177:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			__HAL_RCC_GPIOD_CLK_ENABLE();
+ 178:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			break;
+ 179:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif
+ 180:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOE
+ 181:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	case (int)GPIOE:
+ 182:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			__HAL_RCC_GPIOE_CLK_ENABLE();
+ 183:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			break;
+ARM GAS  /tmp/cc6y1l24.s 			page 11
+
+
+ 184:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif
+ 185:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOF
+ 186:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	case (int)GPIOF:
+ 187:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			__HAL_RCC_GPIOF_CLK_ENABLE();
+ 188:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			break;
+ 189:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif
+ 190:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOG
+ 191:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	case (int)GPIOG:
+ 192:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			__HAL_RCC_GPIOG_CLK_ENABLE();
+ 193:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			break;
+ 194:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif
+ 195:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOH
+ 196:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	case (int)GPIOH:
+ 197:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			__HAL_RCC_GPIOH_CLK_ENABLE();
+ 198:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			break;
+ 199:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif
+ 200:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOI
+ 201:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	case (int)GPIOI:
+ 202:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			__HAL_RCC_GPIOI_CLK_ENABLE();
+ 203:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			break;
+ 204:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif
+ 205:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOJ
+ 206:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	case (int)GPIOJ:
+ 207:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			__HAL_RCC_GPIOJ_CLK_ENABLE();
+ 208:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			break;
+ 209:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif
+ 210:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOK
+ 211:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	case (int)GPIOK:
+ 212:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			__HAL_RCC_GPIOK_CLK_ENABLE();
+ 213:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			break;
+ 214:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif
+ 215:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOL
+ 216:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	case (int)GPIOL:
+ 217:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			__HAL_RCC_GPIOL_CLK_ENABLE();
+ 218:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			break;
+ 219:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif
+ 220:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOM
+ 221:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	case (int)GPIOM:
+ 222:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			__HAL_RCC_GPIOM_CLK_ENABLE();
+ 223:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			break;
+ 224:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif
+ 225:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPION
+ 226:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	case (int)GPION:
+ 227:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			__HAL_RCC_GPION_CLK_ENABLE();
+ 228:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			break;
+ 229:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif
+ 230:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #ifdef GPIOO
+ 231:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	case (int)GPIOO:
+ 232:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			__HAL_RCC_GPIOO_CLK_ENABLE();
+ 233:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			break;
+ 234:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 
+ 235:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif
+ 236:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	}
+ 237:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** }
+ 393              		.loc 1 237 1
+ 394 004c 40E0     		b	.L33
+ 395              	.L31:
+ARM GAS  /tmp/cc6y1l24.s 			page 12
+
+
+ 396              	.LBB3:
+ 162:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			break;
+ 397              		.loc 1 162 4
+ 398 004e 274B     		ldr	r3, .L34+20
+ 399 0050 9B69     		ldr	r3, [r3, #24]
+ 400 0052 264A     		ldr	r2, .L34+20
+ 401 0054 43F00403 		orr	r3, r3, #4
+ 402 0058 9361     		str	r3, [r2, #24]
+ 403 005a 244B     		ldr	r3, .L34+20
+ 404 005c 9B69     		ldr	r3, [r3, #24]
+ 405 005e 03F00403 		and	r3, r3, #4
+ 406 0062 FB61     		str	r3, [r7, #28]
+ 407 0064 FB69     		ldr	r3, [r7, #28]
+ 408              	.LBE3:
+ 163:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif
+ 409              		.loc 1 163 4
+ 410 0066 33E0     		b	.L28
+ 411              	.L32:
+ 412              	.LBB4:
+ 167:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			break;
+ 413              		.loc 1 167 4
+ 414 0068 204B     		ldr	r3, .L34+20
+ 415 006a 9B69     		ldr	r3, [r3, #24]
+ 416 006c 1F4A     		ldr	r2, .L34+20
+ 417 006e 43F00803 		orr	r3, r3, #8
+ 418 0072 9361     		str	r3, [r2, #24]
+ 419 0074 1D4B     		ldr	r3, .L34+20
+ 420 0076 9B69     		ldr	r3, [r3, #24]
+ 421 0078 03F00803 		and	r3, r3, #8
+ 422 007c BB61     		str	r3, [r7, #24]
+ 423 007e BB69     		ldr	r3, [r7, #24]
+ 424              	.LBE4:
+ 168:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif
+ 425              		.loc 1 168 4
+ 426 0080 26E0     		b	.L28
+ 427              	.L30:
+ 428              	.LBB5:
+ 172:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			break;
+ 429              		.loc 1 172 4
+ 430 0082 1A4B     		ldr	r3, .L34+20
+ 431 0084 9B69     		ldr	r3, [r3, #24]
+ 432 0086 194A     		ldr	r2, .L34+20
+ 433 0088 43F01003 		orr	r3, r3, #16
+ 434 008c 9361     		str	r3, [r2, #24]
+ 435 008e 174B     		ldr	r3, .L34+20
+ 436 0090 9B69     		ldr	r3, [r3, #24]
+ 437 0092 03F01003 		and	r3, r3, #16
+ 438 0096 7B61     		str	r3, [r7, #20]
+ 439 0098 7B69     		ldr	r3, [r7, #20]
+ 440              	.LBE5:
+ 173:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif
+ 441              		.loc 1 173 4
+ 442 009a 19E0     		b	.L28
+ 443              	.L29:
+ 444              	.LBB6:
+ 177:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			break;
+ 445              		.loc 1 177 4
+ARM GAS  /tmp/cc6y1l24.s 			page 13
+
+
+ 446 009c 134B     		ldr	r3, .L34+20
+ 447 009e 9B69     		ldr	r3, [r3, #24]
+ 448 00a0 124A     		ldr	r2, .L34+20
+ 449 00a2 43F02003 		orr	r3, r3, #32
+ 450 00a6 9361     		str	r3, [r2, #24]
+ 451 00a8 104B     		ldr	r3, .L34+20
+ 452 00aa 9B69     		ldr	r3, [r3, #24]
+ 453 00ac 03F02003 		and	r3, r3, #32
+ 454 00b0 3B61     		str	r3, [r7, #16]
+ 455 00b2 3B69     		ldr	r3, [r7, #16]
+ 456              	.LBE6:
+ 178:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif
+ 457              		.loc 1 178 4
+ 458 00b4 0CE0     		b	.L28
+ 459              	.L27:
+ 460              	.LBB7:
+ 182:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 			break;
+ 461              		.loc 1 182 4
+ 462 00b6 0D4B     		ldr	r3, .L34+20
+ 463 00b8 9B69     		ldr	r3, [r3, #24]
+ 464 00ba 0C4A     		ldr	r2, .L34+20
+ 465 00bc 43F04003 		orr	r3, r3, #64
+ 466 00c0 9361     		str	r3, [r2, #24]
+ 467 00c2 0A4B     		ldr	r3, .L34+20
+ 468 00c4 9B69     		ldr	r3, [r3, #24]
+ 469 00c6 03F04003 		and	r3, r3, #64
+ 470 00ca FB60     		str	r3, [r7, #12]
+ 471 00cc FB68     		ldr	r3, [r7, #12]
+ 472              	.LBE7:
+ 183:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** #endif
+ 473              		.loc 1 183 4
+ 474 00ce 00BF     		nop
+ 475              	.L28:
+ 476              	.L33:
+ 477              		.loc 1 237 1
+ 478 00d0 00BF     		nop
+ 479 00d2 2837     		adds	r7, r7, #40
+ 480              		.cfi_def_cfa_offset 8
+ 481 00d4 BD46     		mov	sp, r7
+ 482              		.cfi_def_cfa_register 13
+ 483              		@ sp needed
+ 484 00d6 80BD     		pop	{r7, pc}
+ 485              	.L35:
+ 486              		.align	2
+ 487              	.L34:
+ 488 00d8 00180140 		.word	1073813504
+ 489 00dc 00140140 		.word	1073812480
+ 490 00e0 00100140 		.word	1073811456
+ 491 00e4 00080140 		.word	1073809408
+ 492 00e8 000C0140 		.word	1073810432
+ 493 00ec 00100240 		.word	1073876992
+ 494              		.cfi_endproc
+ 495              	.LFE70:
+ 497              		.section	.text.bshal_gpio_cfg_out,"ax",%progbits
+ 498              		.align	1
+ 499              		.global	bshal_gpio_cfg_out
+ 500              		.syntax unified
+ARM GAS  /tmp/cc6y1l24.s 			page 14
+
+
+ 501              		.thumb
+ 502              		.thumb_func
+ 504              	bshal_gpio_cfg_out:
+ 505              	.LFB71:
+ 238:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 
+ 239:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** int bshal_gpio_cfg_out(uint8_t bshal_pin){
+ 506              		.loc 1 239 42
+ 507              		.cfi_startproc
+ 508              		@ args = 0, pretend = 0, frame = 32
+ 509              		@ frame_needed = 1, uses_anonymous_args = 0
+ 510 0000 80B5     		push	{r7, lr}
+ 511              		.cfi_def_cfa_offset 8
+ 512              		.cfi_offset 7, -8
+ 513              		.cfi_offset 14, -4
+ 514 0002 88B0     		sub	sp, sp, #32
+ 515              		.cfi_def_cfa_offset 40
+ 516 0004 00AF     		add	r7, sp, #0
+ 517              		.cfi_def_cfa_register 7
+ 518 0006 0346     		mov	r3, r0
+ 519 0008 FB71     		strb	r3, [r7, #7]
+ 240:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if (bshal_pin == 0xFF) return -1;
+ 520              		.loc 1 240 5
+ 521 000a FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 522 000c FF2B     		cmp	r3, #255
+ 523 000e 02D1     		bne	.L37
+ 524              		.loc 1 240 32 discriminator 1
+ 525 0010 4FF0FF33 		mov	r3, #-1
+ 526 0014 26E0     		b	.L40
+ 527              	.L37:
+ 241:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 
+ 242:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 
+ 243:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	GPIO_InitTypeDef GPIO_InitStruct;
+ 244:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	GPIO_InitStruct.Pull = GPIO_NOPULL;
+ 528              		.loc 1 244 23
+ 529 0016 0023     		movs	r3, #0
+ 530 0018 BB61     		str	r3, [r7, #24]
+ 245:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+ 531              		.loc 1 245 24
+ 532 001a 0323     		movs	r3, #3
+ 533 001c FB61     		str	r3, [r7, #28]
+ 246:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	GPIO_TypeDef *stm32_port = NULL;
+ 534              		.loc 1 246 16
+ 535 001e 0023     		movs	r3, #0
+ 536 0020 FB60     		str	r3, [r7, #12]
+ 247:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	uint16_t stm32_pin = -1;
+ 537              		.loc 1 247 11
+ 538 0022 4FF6FF73 		movw	r3, #65535
+ 539 0026 7B81     		strh	r3, [r7, #10]	@ movhi
+ 248:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	bshal_gpio_decode_pin(bshal_pin, &stm32_port, &stm32_pin);
+ 540              		.loc 1 248 2
+ 541 0028 07F10A02 		add	r2, r7, #10
+ 542 002c 07F10C01 		add	r1, r7, #12
+ 543 0030 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 544 0032 1846     		mov	r0, r3
+ 545 0034 FFF7FEFF 		bl	bshal_gpio_decode_pin
+ 249:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	bshal_gpio_port_enable_clock(bshal_pin);
+ 546              		.loc 1 249 2
+ARM GAS  /tmp/cc6y1l24.s 			page 15
+
+
+ 547 0038 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 548 003a 1846     		mov	r0, r3
+ 549 003c FFF7FEFF 		bl	bshal_gpio_port_enable_clock
+ 250:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	if (stm32_pin) {
+ 550              		.loc 1 250 6
+ 551 0040 7B89     		ldrh	r3, [r7, #10]
+ 552              		.loc 1 250 5
+ 553 0042 002B     		cmp	r3, #0
+ 554 0044 0CD0     		beq	.L39
+ 251:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 		GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+ 555              		.loc 1 251 24
+ 556 0046 0123     		movs	r3, #1
+ 557 0048 7B61     		str	r3, [r7, #20]
+ 252:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 		GPIO_InitStruct.Pin = stm32_pin;
+ 558              		.loc 1 252 23
+ 559 004a 7B89     		ldrh	r3, [r7, #10]
+ 560 004c 3B61     		str	r3, [r7, #16]
+ 253:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 		HAL_GPIO_Init(stm32_port, &GPIO_InitStruct);
+ 561              		.loc 1 253 3
+ 562 004e FB68     		ldr	r3, [r7, #12]
+ 563 0050 07F11002 		add	r2, r7, #16
+ 564 0054 1146     		mov	r1, r2
+ 565 0056 1846     		mov	r0, r3
+ 566 0058 FFF7FEFF 		bl	HAL_GPIO_Init
+ 254:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 		return 0;
+ 567              		.loc 1 254 10
+ 568 005c 0023     		movs	r3, #0
+ 569 005e 01E0     		b	.L40
+ 570              	.L39:
+ 255:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	}
+ 256:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 	return -1;
+ 571              		.loc 1 256 9
+ 572 0060 4FF0FF33 		mov	r3, #-1
+ 573              	.L40:
+ 257:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** }
+ 574              		.loc 1 257 1 discriminator 1
+ 575 0064 1846     		mov	r0, r3
+ 576 0066 2037     		adds	r7, r7, #32
+ 577              		.cfi_def_cfa_offset 8
+ 578 0068 BD46     		mov	sp, r7
+ 579              		.cfi_def_cfa_register 13
+ 580              		@ sp needed
+ 581 006a 80BD     		pop	{r7, pc}
+ 582              		.cfi_endproc
+ 583              	.LFE71:
+ 585              		.section	.text.bshal_gpio_cfg_int,"ax",%progbits
+ 586              		.align	1
+ 587              		.global	bshal_gpio_cfg_int
+ 588              		.syntax unified
+ 589              		.thumb
+ 590              		.thumb_func
+ 592              	bshal_gpio_cfg_int:
+ 593              	.LFB72:
+ 258:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** 
+ 259:../../../lib/libhalglue/bshal/stm32/bshal_gpio_stm32.c **** int bshal_gpio_cfg_int(uint8_t pin){}
+ 594              		.loc 1 259 36
+ 595              		.cfi_startproc
+ARM GAS  /tmp/cc6y1l24.s 			page 16
+
+
+ 596              		@ args = 0, pretend = 0, frame = 8
+ 597              		@ frame_needed = 1, uses_anonymous_args = 0
+ 598              		@ link register save eliminated.
+ 599 0000 80B4     		push	{r7}
+ 600              		.cfi_def_cfa_offset 4
+ 601              		.cfi_offset 7, -4
+ 602 0002 83B0     		sub	sp, sp, #12
+ 603              		.cfi_def_cfa_offset 16
+ 604 0004 00AF     		add	r7, sp, #0
+ 605              		.cfi_def_cfa_register 7
+ 606 0006 0346     		mov	r3, r0
+ 607 0008 FB71     		strb	r3, [r7, #7]
+ 608              		.loc 1 259 37
+ 609 000a 00BF     		nop
+ 610 000c 1846     		mov	r0, r3
+ 611 000e 0C37     		adds	r7, r7, #12
+ 612              		.cfi_def_cfa_offset 4
+ 613 0010 BD46     		mov	sp, r7
+ 614              		.cfi_def_cfa_register 13
+ 615              		@ sp needed
+ 616 0012 80BC     		pop	{r7}
+ 617              		.cfi_restore 7
+ 618              		.cfi_def_cfa_offset 0
+ 619 0014 7047     		bx	lr
+ 620              		.cfi_endproc
+ 621              	.LFE72:
+ 623              		.text
+ 624              	.Letext0:
+ 625              		.file 2 "/usr/arm-none-eabi/include/machine/_default_types.h"
+ 626              		.file 3 "/usr/arm-none-eabi/include/sys/_stdint.h"
+ 627              		.file 4 "../../../ext/stm32/cmsis_device_f1/Include/stm32f103xb.h"
+ 628              		.file 5 "../../../ext/stm32/stm32f1xx_hal_driver/Inc/stm32f1xx_hal_gpio.h"
+ARM GAS  /tmp/cc6y1l24.s 			page 17
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 bshal_gpio_stm32.c
+     /tmp/cc6y1l24.s:19     .text.bshal_gpio_encode_pin:0000000000000000 $t
+     /tmp/cc6y1l24.s:25     .text.bshal_gpio_encode_pin:0000000000000000 bshal_gpio_encode_pin
+     /tmp/cc6y1l24.s:152    .text.bshal_gpio_encode_pin:00000000000000a0 $d
+     /tmp/cc6y1l24.s:161    .text.bshal_gpio_decode_pin:0000000000000000 $t
+     /tmp/cc6y1l24.s:167    .text.bshal_gpio_decode_pin:0000000000000000 bshal_gpio_decode_pin
+     /tmp/cc6y1l24.s:268    .text.bshal_gpio_decode_pin:0000000000000080 $d
+     /tmp/cc6y1l24.s:277    .text.bshal_gpio_write_pin:0000000000000000 $t
+     /tmp/cc6y1l24.s:283    .text.bshal_gpio_write_pin:0000000000000000 bshal_gpio_write_pin
+     /tmp/cc6y1l24.s:338    .text.bshal_gpio_port_enable_clock:0000000000000000 $t
+     /tmp/cc6y1l24.s:344    .text.bshal_gpio_port_enable_clock:0000000000000000 bshal_gpio_port_enable_clock
+     /tmp/cc6y1l24.s:488    .text.bshal_gpio_port_enable_clock:00000000000000d8 $d
+     /tmp/cc6y1l24.s:498    .text.bshal_gpio_cfg_out:0000000000000000 $t
+     /tmp/cc6y1l24.s:504    .text.bshal_gpio_cfg_out:0000000000000000 bshal_gpio_cfg_out
+     /tmp/cc6y1l24.s:586    .text.bshal_gpio_cfg_int:0000000000000000 $t
+     /tmp/cc6y1l24.s:592    .text.bshal_gpio_cfg_int:0000000000000000 bshal_gpio_cfg_int
+                           .group:0000000000000000 wm4.0.2a10468dd89b593cd64cc189d36e5bb7
+                           .group:0000000000000000 wm4.ieeefp.h.77.25247dc27dbe3b23bfe98c2dc18f6ac5
+                           .group:0000000000000000 wm4._newlib_version.h.4.529115dae5e4f67702b1de0b6e841f38
+                           .group:0000000000000000 wm4.newlib.h.18.a58e9e86397e11d140a508f2e0db40b7
+                           .group:0000000000000000 wm4.features.h.22.7877b139107948f7dadcf3660cc79cfd
+                           .group:0000000000000000 wm4.config.h.224.18dfb280c62ae4ee788eb67b451eb1a6
+                           .group:0000000000000000 wm4._ansi.h.31.de524f58584151836e90d8620a16f8e8
+                           .group:0000000000000000 wm4.stdlib.h.13.4ed386f5c1a80d71e72172885d946ef2
+                           .group:0000000000000000 wm4.stddef.h.185.882514a1a6169ceba9142f401cbe27c6
+                           .group:0000000000000000 wm4.stddef.h.39.f07083f9b666a9e5c52a336c758fdd72
+                           .group:0000000000000000 wm4._types.h.20.dd0d04dca3800a0d2a6129b87f3adbb2
+                           .group:0000000000000000 wm4.stddef.h.158.5f30652bb2ea05b142c1bbee9108c999
+                           .group:0000000000000000 wm4._default_types.h.6.959254cf5f09734ea7516c89e8bb21bd
+                           .group:0000000000000000 wm4._types.h.127.34941de1b2539d59d5cac00e0dd27a45
+                           .group:0000000000000000 wm4.reent.h.17.e292bf8b0bec6c96e131a54347145a30
+                           .group:0000000000000000 wm4.lock.h.2.1461d1fff82dffe8bfddc23307f6484f
+                           .group:0000000000000000 wm4.reent.h.77.dcd6129ff07fe81bd5636db29abe53b2
+                           .group:0000000000000000 wm4.cdefs.h.49.39045112216f6a021dbdffe3bf5accce
+                           .group:0000000000000000 wm4.alloca.h.8.dfc0c703c47ec3e69746825b17d9e66d
+                           .group:0000000000000000 wm4.stdlib.h.56.f4862cfbf4363a1db01842d5bdf72c18
+                           .group:0000000000000000 wm4._intsup.h.10.48bafbb683905c4daa4565a85aeeb264
+                           .group:0000000000000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:0000000000000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:0000000000000000 wm4.stdbool.h.29.4a1c88fe569adb8d03217dd16982ca34
+                           .group:0000000000000000 wm4.stm32f1xx.h.39.e8c98c5ce2cd95856eed179966374e12
+                           .group:0000000000000000 wm4.stm32f103xb.h.38.ec967d5ad9d3269cb0788eebda048e38
+                           .group:0000000000000000 wm4.cmsis_version.h.32.0f826810625204eca22a19868bdc7586
+                           .group:0000000000000000 wm4.core_cm3.h.66.fc46cac19810db8f98d67da7ef88f42c
+                           .group:0000000000000000 wm4.cmsis_gcc.h.26.549e8fd988111c6b396c357ef98aeb59
+                           .group:0000000000000000 wm4.core_cm3.h.127.aaed3d1df272b0aa79c526153017805c
+                           .group:0000000000000000 wm4.stm32f103xb.h.573.10249aa7473ca93be896fed94046a725
+                           .group:0000000000000000 wm4.stm32f1xx.h.162.96b09079a093c34dbd7f0b85cbd0ddee
+                           .group:0000000000000000 wm4.stm32f1xx_hal_conf.h.24.fb218a6cd2ee35d840b3eac0f5fb4119
+                           .group:0000000000000000 wm4.stm32_hal_legacy.h.22.3d81dc02d9b9459e9eac6fdca7f8f18e
+                           .group:0000000000000000 wm4.stm32f1xx_hal_def.h.56.dfe92d4f76983476d27bcb2e4d801fca
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc.h.94.78ba4ec8cedd7ba94683a5fabb61b31e
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc_ex.h.21.8406672c8a3f21f71eb8441fb8ecb4bd
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc.h.1201.89d14cbb1b46fba2de70512ccfd8d5ce
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio.h.21.0099da253a68660e916195d3e8928be3
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio_ex.h.21.93f1f3ec7660fa76375def81b976f73c
+ARM GAS  /tmp/cc6y1l24.s 			page 18
+
+
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio.h.262.7df79220ec7519ba80c1763e6b4854a6
+                           .group:0000000000000000 wm4.stm32f1xx_hal_exti.h.21.a7f1b393a0c9b2b56b72ccdbb8dee508
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma.h.21.11e5a204ed6aa790b1cdae2e4192bc9d
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma_ex.h.21.d438f745b4c04dc23f9f569190526864
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma.h.408.14794a3f8621230c9ac7fca0cacf3e57
+                           .group:0000000000000000 wm4.stm32f1xx_hal_can.h.21.d1dd4a884a3983bc975efc64fbbd5748
+                           .group:0000000000000000 wm4.stm32f1xx_hal_cortex.h.21.6ab92041a8778f53d2d2d96b3825535a
+                           .group:0000000000000000 wm4.stm32f1xx_hal_adc.h.21.8ae5a06b46334619d54b2469802d6db6
+                           .group:0000000000000000 wm4.stm32f1xx_hal_adc_ex.h.21.f5c9ba15472af26c826d75096ae3e02a
+                           .group:0000000000000000 wm4.stm32f1xx_hal_crc.h.21.b5b5d61856236c32a5704a7db1b8c77f
+                           .group:0000000000000000 wm4.stm32f1xx_hal_flash.h.21.6df147ac02cc6dec8c4706cc1a34879c
+                           .group:0000000000000000 wm4.stm32f1xx_hal_flash_ex.h.21.33e24ce7a8607e16d5a38297454fd963
+                           .group:0000000000000000 wm4.stm32f1xx_hal_i2c.h.21.6a947c870feb456d84d10dd871ee01bd
+                           .group:0000000000000000 wm4.stm32f1xx_hal_iwdg.h.21.14afe1e30714751a311b81d0791714c2
+                           .group:0000000000000000 wm4.stm32f1xx_hal_pwr.h.21.ec3e2cfd4c26fffa32fc4ff0a8ac7390
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rtc.h.21.833c91cab3eef49edc59fd371d3c1ce0
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rtc_ex.h.21.b671683f6728965b6d8404d04009ed32
+                           .group:0000000000000000 wm4.stm32f1xx_hal_spi.h.21.59f3c581a47a8dea5d070b46998af27e
+                           .group:0000000000000000 wm4.stm32f1xx_hal_tim.h.21.76f9d96f76cba41ae3b6e27311c6f5ff
+                           .group:0000000000000000 wm4.stm32f1xx_hal_uart.h.21.ffd6508e5e0a88f651472e5c80a9d587
+                           .group:0000000000000000 wm4.stm32f1xx_hal_usart.h.21.0b32d58c93817e5f10bce7603c316c1e
+                           .group:0000000000000000 wm4.stm32f1xx_hal_irda.h.21.b44168150ccb55c331f6e6afe3cf4b88
+                           .group:0000000000000000 wm4.stm32f1xx_hal_smartcard.h.21.d256a98de9ec7b58600da5aa4b29abdb
+                           .group:0000000000000000 wm4.stm32f1xx_hal_wwdg.h.21.ac611fc4089566604f02b81297147d50
+                           .group:0000000000000000 wm4.stm32f1xx_ll_usb.h.21.4cb0f3c145693f977427d01b787de0c7
+                           .group:0000000000000000 wm4.stm32f1xx_hal_pcd.h.160.b1d545af3cea9ada15575c2dedd78cdc
+                           .group:0000000000000000 wm4.stm32f1xx_hal.h.87.60093b86a987865736d7cddecce3c235
+                           .group:0000000000000000 wm4.hal.h.171.2416996228cff7a433489242f7abe7d4
+
+UNDEFINED SYMBOLS
+HAL_GPIO_WritePin
+HAL_GPIO_Init

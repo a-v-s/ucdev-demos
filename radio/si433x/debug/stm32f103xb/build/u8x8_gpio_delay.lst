@@ -1,0 +1,388 @@
+ARM GAS  /tmp/ccqiS98c.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.arch armv7-m
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"u8x8_gpio_delay.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.file 1 "../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c"
+  18              		.section	.bss.mp_u8g2,"aw",%nobits
+  19              		.align	2
+  22              	mp_u8g2:
+  23 0000 00000000 		.space	4
+  24              		.section	.text.bshal_u8x8_gpio_and_delay,"ax",%progbits
+  25              		.align	1
+  26              		.global	bshal_u8x8_gpio_and_delay
+  27              		.syntax unified
+  28              		.thumb
+  29              		.thumb_func
+  31              	bshal_u8x8_gpio_and_delay:
+  32              	.LFB67:
+   1:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 
+   2:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** #include "u8x8_gpio_delay.h"
+   3:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** static u8g2_t *mp_u8g2;
+   4:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 
+   5:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** // As per documentation, these are mainly for bit banging.
+   6:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** // As this file provides hardware i2c support these are not
+   7:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** // really used, but I believe some delay function have been called.
+   8:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** uint8_t bshal_u8x8_gpio_and_delay(u8x8_t *u8x8, uint8_t msg,
+   9:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		uint8_t arg_int, void *arg_ptr) {
+  33              		.loc 1 9 35
+  34              		.cfi_startproc
+  35              		@ args = 0, pretend = 0, frame = 16
+  36              		@ frame_needed = 1, uses_anonymous_args = 0
+  37 0000 80B5     		push	{r7, lr}
+  38              		.cfi_def_cfa_offset 8
+  39              		.cfi_offset 7, -8
+  40              		.cfi_offset 14, -4
+  41 0002 84B0     		sub	sp, sp, #16
+  42              		.cfi_def_cfa_offset 24
+  43 0004 00AF     		add	r7, sp, #0
+  44              		.cfi_def_cfa_register 7
+  45 0006 F860     		str	r0, [r7, #12]
+  46 0008 7B60     		str	r3, [r7, #4]
+  47 000a 0B46     		mov	r3, r1
+  48 000c FB72     		strb	r3, [r7, #11]
+  49 000e 1346     		mov	r3, r2
+  50 0010 BB72     		strb	r3, [r7, #10]
+  10:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	switch (msg) {
+ARM GAS  /tmp/ccqiS98c.s 			page 2
+
+
+  51              		.loc 1 10 2
+  52 0012 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+  53 0014 283B     		subs	r3, r3, #40
+  54 0016 2B2B     		cmp	r3, #43
+  55 0018 00F29380 		bhi	.L2
+  56 001c 01A2     		adr	r2, .L4
+  57 001e 52F823F0 		ldr	pc, [r2, r3, lsl #2]
+  58 0022 00BF     		.p2align 2
+  59              	.L4:
+  60 0024 4D010000 		.word	.L32+1
+  61 0028 11010000 		.word	.L28+1
+  62 002c FF000000 		.word	.L27+1
+  63 0030 EB000000 		.word	.L26+1
+  64 0034 D5000000 		.word	.L25+1
+  65 0038 4D010000 		.word	.L32+1
+  66 003c 43010000 		.word	.L2+1
+  67 0040 43010000 		.word	.L2+1
+  68 0044 43010000 		.word	.L2+1
+  69 0048 43010000 		.word	.L2+1
+  70 004c 43010000 		.word	.L2+1
+  71 0050 43010000 		.word	.L2+1
+  72 0054 43010000 		.word	.L2+1
+  73 0058 43010000 		.word	.L2+1
+  74 005c 43010000 		.word	.L2+1
+  75 0060 43010000 		.word	.L2+1
+  76 0064 43010000 		.word	.L2+1
+  77 0068 43010000 		.word	.L2+1
+  78 006c 43010000 		.word	.L2+1
+  79 0070 43010000 		.word	.L2+1
+  80 0074 43010000 		.word	.L2+1
+  81 0078 43010000 		.word	.L2+1
+  82 007c 43010000 		.word	.L2+1
+  83 0080 43010000 		.word	.L2+1
+  84 0084 4D010000 		.word	.L32+1
+  85 0088 4D010000 		.word	.L32+1
+  86 008c 4D010000 		.word	.L32+1
+  87 0090 4D010000 		.word	.L32+1
+  88 0094 4D010000 		.word	.L32+1
+  89 0098 4D010000 		.word	.L32+1
+  90 009c 4D010000 		.word	.L32+1
+  91 00a0 4D010000 		.word	.L32+1
+  92 00a4 4D010000 		.word	.L32+1
+  93 00a8 4D010000 		.word	.L32+1
+  94 00ac 4D010000 		.word	.L32+1
+  95 00b0 4D010000 		.word	.L32+1
+  96 00b4 4D010000 		.word	.L32+1
+  97 00b8 4D010000 		.word	.L32+1
+  98 00bc 4D010000 		.word	.L32+1
+  99 00c0 4D010000 		.word	.L32+1
+ 100 00c4 1B010000 		.word	.L7+1
+ 101 00c8 25010000 		.word	.L6+1
+ 102 00cc 2F010000 		.word	.L5+1
+ 103 00d0 39010000 		.word	.L3+1
+ 104              		.p2align 1
+ 105              	.L25:
+ 106              	.LBB2:
+  11:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	case U8X8_MSG_GPIO_AND_DELAY_INIT: 	// called once during init phase of u8g2/u8x8
+ARM GAS  /tmp/ccqiS98c.s 			page 3
+
+
+  12:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 										// can be used to setup pins
+  13:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		break;
+  14:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	case U8X8_MSG_DELAY_NANO:			// delay arg_int * 1 nano second
+  15:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 			// Well.. if we need nanosecond precision delays
+  16:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 			// I guess we won't be running on a simple microcontroller
+  17:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		bshal_delay_us(arg_int/1000);
+ 107              		.loc 1 17 3
+ 108 00d4 BB7A     		ldrb	r3, [r7, #10]	@ zero_extendqisi2
+ 109 00d6 204A     		ldr	r2, .L33
+ 110 00d8 82FB0312 		smull	r1, r2, r2, r3
+ 111 00dc 9211     		asrs	r2, r2, #6
+ 112 00de DB17     		asrs	r3, r3, #31
+ 113 00e0 D31A     		subs	r3, r2, r3
+ 114 00e2 1846     		mov	r0, r3
+ 115 00e4 FFF7FEFF 		bl	bshal_delay_us
+  18:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		break;
+ 116              		.loc 1 18 3
+ 117 00e8 31E0     		b	.L30
+ 118              	.L26:
+  19:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	case U8X8_MSG_DELAY_100NANO:		// delay arg_int * 100 nano seconds
+  20:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 			// We might be able to implement a delay in this precision
+  21:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 			// But for now, we'll have to do with microseconds
+  22:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		bshal_delay_us(arg_int/10);
+ 119              		.loc 1 22 3
+ 120 00ea BB7A     		ldrb	r3, [r7, #10]	@ zero_extendqisi2
+ 121 00ec 1B4A     		ldr	r2, .L33+4
+ 122 00ee A2FB0323 		umull	r2, r3, r2, r3
+ 123 00f2 DB08     		lsrs	r3, r3, #3
+ 124 00f4 DBB2     		uxtb	r3, r3
+ 125 00f6 1846     		mov	r0, r3
+ 126 00f8 FFF7FEFF 		bl	bshal_delay_us
+  23:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		break;
+ 127              		.loc 1 23 3
+ 128 00fc 27E0     		b	.L30
+ 129              	.L27:
+  24:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	case U8X8_MSG_DELAY_10MICRO:		// delay arg_int * 10 micro seconds
+  25:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		bshal_delay_us(10*arg_int);
+ 130              		.loc 1 25 3
+ 131 00fe BA7A     		ldrb	r2, [r7, #10]	@ zero_extendqisi2
+ 132 0100 1346     		mov	r3, r2
+ 133 0102 9B00     		lsls	r3, r3, #2
+ 134 0104 1344     		add	r3, r3, r2
+ 135 0106 5B00     		lsls	r3, r3, #1
+ 136 0108 1846     		mov	r0, r3
+ 137 010a FFF7FEFF 		bl	bshal_delay_us
+  26:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		break;
+ 138              		.loc 1 26 3
+ 139 010e 1EE0     		b	.L30
+ 140              	.L28:
+  27:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	case U8X8_MSG_DELAY_MILLI:			// delay arg_int * 1 milli second
+  28:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		bshal_delay_ms(arg_int);
+ 141              		.loc 1 28 3
+ 142 0110 BB7A     		ldrb	r3, [r7, #10]	@ zero_extendqisi2
+ 143 0112 1846     		mov	r0, r3
+ 144 0114 FFF7FEFF 		bl	bshal_delay_ms
+  29:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		break;
+ 145              		.loc 1 29 3
+ARM GAS  /tmp/ccqiS98c.s 			page 4
+
+
+ 146 0118 19E0     		b	.L30
+ 147              	.L7:
+  30:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	case U8X8_MSG_DELAY_I2C:	// arg_int is the I2C speed in 100KHz, e.g. 4 = 400 KHz
+  31:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 								// arg_int=1: delay by 5us, arg_int = 4: delay by 1.25us
+  32:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		break;
+  33:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	case U8X8_MSG_GPIO_D0:		// D0 or SPI clock pin: Output level in arg_int
+  34:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	//case U8X8_MSG_GPIO_SPI_CLOCK:
+  35:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		break;
+  36:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	case U8X8_MSG_GPIO_D1:		// D1 or SPI data pin: Output level in arg_int
+  37:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	//case U8X8_MSG_GPIO_SPI_DATA:
+  38:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		break;
+  39:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	case U8X8_MSG_GPIO_D2:				// D2 pin: Output level in arg_int
+  40:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		break;
+  41:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	case U8X8_MSG_GPIO_D3:				// D3 pin: Output level in arg_int
+  42:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		break;
+  43:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	case U8X8_MSG_GPIO_D4:				// D4 pin: Output level in arg_int
+  44:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		break;
+  45:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	case U8X8_MSG_GPIO_D5:				// D5 pin: Output level in arg_int
+  46:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		break;
+  47:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	case U8X8_MSG_GPIO_D6:				// D6 pin: Output level in arg_int
+  48:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		break;
+  49:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	case U8X8_MSG_GPIO_D7:				// D7 pin: Output level in arg_int
+  50:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		break;
+  51:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	case U8X8_MSG_GPIO_E:				// E/WR pin: Output level in arg_int
+  52:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		break;
+  53:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	case U8X8_MSG_GPIO_CS:		// CS (chip select) pin: Output level in arg_int
+  54:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		break;
+  55:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	case U8X8_MSG_GPIO_DC:// DC (data/cmd, A0, register select) pin: Output level in arg_int
+  56:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		break;
+  57:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	case U8X8_MSG_GPIO_RESET:			// Reset pin: Output level in arg_int
+  58:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		break;
+  59:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	case U8X8_MSG_GPIO_CS1:	// CS1 (chip select) pin: Output level in arg_int
+  60:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		break;
+  61:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	case U8X8_MSG_GPIO_CS2:	// CS2 (chip select) pin: Output level in arg_int
+  62:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		break;
+  63:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	case U8X8_MSG_GPIO_I2C_CLOCK:	// arg_int=0: Output low at I2C clock pin
+  64:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		break;		// arg_int=1: Input dir with pullup high for I2C clock pin
+  65:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	case U8X8_MSG_GPIO_I2C_DATA:		// arg_int=0: Output low at I2C data pin
+  66:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		break;		// arg_int=1: Input dir with pullup high for I2C data pin
+  67:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	case U8X8_MSG_GPIO_MENU_SELECT:
+  68:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		u8x8_SetGPIOResult(u8x8, /* get menu select pin state */0);
+ 148              		.loc 1 68 3
+ 149 011a FB68     		ldr	r3, [r7, #12]
+ 150 011c 0022     		movs	r2, #0
+ 151 011e 83F82720 		strb	r2, [r3, #39]
+  69:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		break;
+ 152              		.loc 1 69 3
+ 153 0122 14E0     		b	.L30
+ 154              	.L6:
+  70:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	case U8X8_MSG_GPIO_MENU_NEXT:
+  71:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		u8x8_SetGPIOResult(u8x8, /* get menu next pin state */0);
+ 155              		.loc 1 71 3
+ 156 0124 FB68     		ldr	r3, [r7, #12]
+ 157 0126 0022     		movs	r2, #0
+ 158 0128 83F82720 		strb	r2, [r3, #39]
+  72:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		break;
+ 159              		.loc 1 72 3
+ARM GAS  /tmp/ccqiS98c.s 			page 5
+
+
+ 160 012c 0FE0     		b	.L30
+ 161              	.L5:
+  73:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	case U8X8_MSG_GPIO_MENU_PREV:
+  74:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		u8x8_SetGPIOResult(u8x8, /* get menu prev pin state */0);
+ 162              		.loc 1 74 3
+ 163 012e FB68     		ldr	r3, [r7, #12]
+ 164 0130 0022     		movs	r2, #0
+ 165 0132 83F82720 		strb	r2, [r3, #39]
+  75:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		break;
+ 166              		.loc 1 75 3
+ 167 0136 0AE0     		b	.L30
+ 168              	.L3:
+  76:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	case U8X8_MSG_GPIO_MENU_HOME:
+  77:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		u8x8_SetGPIOResult(u8x8, /* get menu home pin state */0);
+ 169              		.loc 1 77 3
+ 170 0138 FB68     		ldr	r3, [r7, #12]
+ 171 013a 0022     		movs	r2, #0
+ 172 013c 83F82720 		strb	r2, [r3, #39]
+  78:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		break;
+ 173              		.loc 1 78 3
+ 174 0140 05E0     		b	.L30
+ 175              	.L2:
+  79:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	default:
+  80:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		u8x8_SetGPIOResult(u8x8, 1);			// default return value
+ 176              		.loc 1 80 3
+ 177 0142 FB68     		ldr	r3, [r7, #12]
+ 178 0144 0122     		movs	r2, #1
+ 179 0146 83F82720 		strb	r2, [r3, #39]
+  81:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 		break;
+ 180              		.loc 1 81 3
+ 181 014a 00E0     		b	.L30
+ 182              	.L32:
+  13:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	case U8X8_MSG_DELAY_NANO:			// delay arg_int * 1 nano second
+ 183              		.loc 1 13 3
+ 184 014c 00BF     		nop
+ 185              	.L30:
+ 186              	.LBE2:
+  82:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	}
+  83:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** 	return 1;
+ 187              		.loc 1 83 9
+ 188 014e 0123     		movs	r3, #1
+  84:../../../lib/libhalglue/bshal/extlib/u8x8_gpio_delay.c **** }
+ 189              		.loc 1 84 1
+ 190 0150 1846     		mov	r0, r3
+ 191 0152 1037     		adds	r7, r7, #16
+ 192              		.cfi_def_cfa_offset 8
+ 193 0154 BD46     		mov	sp, r7
+ 194              		.cfi_def_cfa_register 13
+ 195              		@ sp needed
+ 196 0156 80BD     		pop	{r7, pc}
+ 197              	.L34:
+ 198              		.align	2
+ 199              	.L33:
+ 200 0158 D34D6210 		.word	274877907
+ 201 015c CDCCCCCC 		.word	-858993459
+ 202              		.cfi_endproc
+ 203              	.LFE67:
+ARM GAS  /tmp/ccqiS98c.s 			page 6
+
+
+ 205              		.text
+ 206              	.Letext0:
+ 207              		.file 2 "/usr/arm-none-eabi/include/machine/_default_types.h"
+ 208              		.file 3 "/usr/arm-none-eabi/include/sys/_stdint.h"
+ 209              		.file 4 "../../../ext/u8g2/csrc/u8x8.h"
+ 210              		.file 5 "../../../ext/u8g2/csrc/u8g2.h"
+ARM GAS  /tmp/ccqiS98c.s 			page 7
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 u8x8_gpio_delay.c
+     /tmp/ccqiS98c.s:19     .bss.mp_u8g2:0000000000000000 $d
+     /tmp/ccqiS98c.s:22     .bss.mp_u8g2:0000000000000000 mp_u8g2
+     /tmp/ccqiS98c.s:25     .text.bshal_u8x8_gpio_and_delay:0000000000000000 $t
+     /tmp/ccqiS98c.s:31     .text.bshal_u8x8_gpio_and_delay:0000000000000000 bshal_u8x8_gpio_and_delay
+     /tmp/ccqiS98c.s:60     .text.bshal_u8x8_gpio_and_delay:0000000000000024 $d
+     /tmp/ccqiS98c.s:104    .text.bshal_u8x8_gpio_and_delay:00000000000000d4 $t
+     /tmp/ccqiS98c.s:200    .text.bshal_u8x8_gpio_and_delay:0000000000000158 $d
+                           .group:0000000000000000 wm4.0.2a10468dd89b593cd64cc189d36e5bb7
+                           .group:0000000000000000 wm4._newlib_version.h.4.529115dae5e4f67702b1de0b6e841f38
+                           .group:0000000000000000 wm4.features.h.33.3e67abe6fb64142d4f6fa9496796153c
+                           .group:0000000000000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:0000000000000000 wm4._intsup.h.10.48bafbb683905c4daa4565a85aeeb264
+                           .group:0000000000000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:0000000000000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:0000000000000000 wm4.stm32f1xx.h.39.e8c98c5ce2cd95856eed179966374e12
+                           .group:0000000000000000 wm4.stm32f103xb.h.38.ec967d5ad9d3269cb0788eebda048e38
+                           .group:0000000000000000 wm4.cmsis_version.h.32.0f826810625204eca22a19868bdc7586
+                           .group:0000000000000000 wm4.core_cm3.h.66.fc46cac19810db8f98d67da7ef88f42c
+                           .group:0000000000000000 wm4.cmsis_gcc.h.26.549e8fd988111c6b396c357ef98aeb59
+                           .group:0000000000000000 wm4.core_cm3.h.127.aaed3d1df272b0aa79c526153017805c
+                           .group:0000000000000000 wm4.stm32f103xb.h.573.10249aa7473ca93be896fed94046a725
+                           .group:0000000000000000 wm4.stm32f1xx.h.162.96b09079a093c34dbd7f0b85cbd0ddee
+                           .group:0000000000000000 wm4.stm32f1xx_hal_conf.h.24.fb218a6cd2ee35d840b3eac0f5fb4119
+                           .group:0000000000000000 wm4.stm32_hal_legacy.h.22.3d81dc02d9b9459e9eac6fdca7f8f18e
+                           .group:0000000000000000 wm4.stddef.h.39.3e0425629195acf083c9561151306b4d
+                           .group:0000000000000000 wm4.stm32f1xx_hal_def.h.56.d1c3014f99fce17329ff5ab2921c0923
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc.h.94.78ba4ec8cedd7ba94683a5fabb61b31e
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc_ex.h.21.8406672c8a3f21f71eb8441fb8ecb4bd
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc.h.1201.89d14cbb1b46fba2de70512ccfd8d5ce
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio.h.21.0099da253a68660e916195d3e8928be3
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio_ex.h.21.93f1f3ec7660fa76375def81b976f73c
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio.h.262.7df79220ec7519ba80c1763e6b4854a6
+                           .group:0000000000000000 wm4.stm32f1xx_hal_exti.h.21.a7f1b393a0c9b2b56b72ccdbb8dee508
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma.h.21.11e5a204ed6aa790b1cdae2e4192bc9d
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma_ex.h.21.d438f745b4c04dc23f9f569190526864
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma.h.408.14794a3f8621230c9ac7fca0cacf3e57
+                           .group:0000000000000000 wm4.stm32f1xx_hal_can.h.21.d1dd4a884a3983bc975efc64fbbd5748
+                           .group:0000000000000000 wm4.stm32f1xx_hal_cortex.h.21.6ab92041a8778f53d2d2d96b3825535a
+                           .group:0000000000000000 wm4.stm32f1xx_hal_adc.h.21.8ae5a06b46334619d54b2469802d6db6
+                           .group:0000000000000000 wm4.stm32f1xx_hal_adc_ex.h.21.f5c9ba15472af26c826d75096ae3e02a
+                           .group:0000000000000000 wm4.stm32f1xx_hal_crc.h.21.b5b5d61856236c32a5704a7db1b8c77f
+                           .group:0000000000000000 wm4.stm32f1xx_hal_flash.h.21.6df147ac02cc6dec8c4706cc1a34879c
+                           .group:0000000000000000 wm4.stm32f1xx_hal_flash_ex.h.21.33e24ce7a8607e16d5a38297454fd963
+                           .group:0000000000000000 wm4.stm32f1xx_hal_i2c.h.21.6a947c870feb456d84d10dd871ee01bd
+                           .group:0000000000000000 wm4.stm32f1xx_hal_iwdg.h.21.14afe1e30714751a311b81d0791714c2
+                           .group:0000000000000000 wm4.stm32f1xx_hal_pwr.h.21.ec3e2cfd4c26fffa32fc4ff0a8ac7390
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rtc.h.21.833c91cab3eef49edc59fd371d3c1ce0
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rtc_ex.h.21.b671683f6728965b6d8404d04009ed32
+                           .group:0000000000000000 wm4.stm32f1xx_hal_spi.h.21.59f3c581a47a8dea5d070b46998af27e
+                           .group:0000000000000000 wm4.stm32f1xx_hal_tim.h.21.76f9d96f76cba41ae3b6e27311c6f5ff
+                           .group:0000000000000000 wm4.stm32f1xx_hal_uart.h.21.ffd6508e5e0a88f651472e5c80a9d587
+                           .group:0000000000000000 wm4.stm32f1xx_hal_usart.h.21.0b32d58c93817e5f10bce7603c316c1e
+                           .group:0000000000000000 wm4.stm32f1xx_hal_irda.h.21.b44168150ccb55c331f6e6afe3cf4b88
+                           .group:0000000000000000 wm4.stm32f1xx_hal_smartcard.h.21.d256a98de9ec7b58600da5aa4b29abdb
+                           .group:0000000000000000 wm4.stm32f1xx_hal_wwdg.h.21.ac611fc4089566604f02b81297147d50
+ARM GAS  /tmp/ccqiS98c.s 			page 8
+
+
+                           .group:0000000000000000 wm4.stm32f1xx_ll_usb.h.21.4cb0f3c145693f977427d01b787de0c7
+                           .group:0000000000000000 wm4.stm32f1xx_hal_pcd.h.160.b1d545af3cea9ada15575c2dedd78cdc
+                           .group:0000000000000000 wm4.stm32f1xx_hal.h.87.60093b86a987865736d7cddecce3c235
+                           .group:0000000000000000 wm4.u8x8.h.86.bc5ec8fbecc320ead0be82affafd935e
+                           .group:0000000000000000 wm4.stdarg.h.31.b55da1089056868966f25de5dbfc7d3c
+                           .group:0000000000000000 wm4.newlib.h.8.e83e89ee5a2baa7686bbb3d2021a9409
+                           .group:0000000000000000 wm4.cdefs.h.49.39045112216f6a021dbdffe3bf5accce
+                           .group:0000000000000000 wm4.syslimits.h.34.de5cbd310098bc5895998b6bde577ed2
+                           .group:0000000000000000 wm4.limits.h.9.70fb0ada6f71b16202a66baaa6d8ea70
+                           .group:0000000000000000 wm4.limits.h.60.56a1ae353e2028a24298ec6463b8b593
+                           .group:0000000000000000 wm4.u8x8.h.145.11dcc4a545f228c50ea5c47d12bdfe7e
+                           .group:0000000000000000 wm4.u8g2.h.77.bf3e97a62949d76402af91824b2ca2b1
+
+UNDEFINED SYMBOLS
+bshal_delay_us
+bshal_delay_ms

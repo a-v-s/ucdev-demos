@@ -1,0 +1,546 @@
+ARM GAS  /tmp/ccDShOrO.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.arch armv7-m
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"bshal_i2cm.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.file 1 "../../../lib/libhalglue/bshal/bshal_i2cm.c"
+  18              		.section	.text.bshal_i2cm_send,"ax",%progbits
+  19              		.align	1
+  20              		.global	bshal_i2cm_send
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  25              	bshal_i2cm_send:
+  26              	.LFB0:
+   1:../../../lib/libhalglue/bshal/bshal_i2cm.c **** /*
+   2:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 	License:	MIT
+   3:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 	File:		bshal_i2c.c
+   4:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 
+   5:../../../lib/libhalglue/bshal/bshal_i2cm.c ****     Copyright (c) 2018, 2019, 2021
+   6:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 								André van Schoubroeck <andre@blaatschaap.be>
+   7:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 
+   8:../../../lib/libhalglue/bshal/bshal_i2cm.c ****     Permission is hereby granted, free of charge, to any person obtaining a copy
+   9:../../../lib/libhalglue/bshal/bshal_i2cm.c ****     of this software and associated documentation files (the "Software"), to deal
+  10:../../../lib/libhalglue/bshal/bshal_i2cm.c ****     in the Software without restriction, including without limitation the rights
+  11:../../../lib/libhalglue/bshal/bshal_i2cm.c ****     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  12:../../../lib/libhalglue/bshal/bshal_i2cm.c ****     copies of the Software, and to permit persons to whom the Software is
+  13:../../../lib/libhalglue/bshal/bshal_i2cm.c ****     furnished to do so, subject to the following conditions:
+  14:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 
+  15:../../../lib/libhalglue/bshal/bshal_i2cm.c ****     The above copyright notice and this permission notice shall be included in all
+  16:../../../lib/libhalglue/bshal/bshal_i2cm.c ****     copies or substantial portions of the Software.
+  17:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 
+  18:../../../lib/libhalglue/bshal/bshal_i2cm.c ****     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  19:../../../lib/libhalglue/bshal/bshal_i2cm.c ****     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  20:../../../lib/libhalglue/bshal/bshal_i2cm.c ****     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  21:../../../lib/libhalglue/bshal/bshal_i2cm.c ****     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  22:../../../lib/libhalglue/bshal/bshal_i2cm.c ****     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  23:../../../lib/libhalglue/bshal/bshal_i2cm.c ****     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  24:../../../lib/libhalglue/bshal/bshal_i2cm.c ****     SOFTWARE.
+  25:../../../lib/libhalglue/bshal/bshal_i2cm.c **** */
+  26:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 
+  27:../../../lib/libhalglue/bshal/bshal_i2cm.c **** #include "bshal_i2cm.h"
+  28:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 
+  29:../../../lib/libhalglue/bshal/bshal_i2cm.c **** #include <stdint.h>
+  30:../../../lib/libhalglue/bshal/bshal_i2cm.c **** #include <string.h>
+  31:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 
+  32:../../../lib/libhalglue/bshal/bshal_i2cm.c **** int bshal_i2cm_send(bshal_i2cm_instance_t *i2c_instance, uint8_t address,
+ARM GAS  /tmp/ccDShOrO.s 			page 2
+
+
+  33:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 		void *p_data, uint8_t length, bool nostop) {
+  27              		.loc 1 33 46
+  28              		.cfi_startproc
+  29              		@ args = 4, pretend = 0, frame = 16
+  30              		@ frame_needed = 1, uses_anonymous_args = 0
+  31 0000 90B5     		push	{r4, r7, lr}
+  32              		.cfi_def_cfa_offset 12
+  33              		.cfi_offset 4, -12
+  34              		.cfi_offset 7, -8
+  35              		.cfi_offset 14, -4
+  36 0002 87B0     		sub	sp, sp, #28
+  37              		.cfi_def_cfa_offset 40
+  38 0004 02AF     		add	r7, sp, #8
+  39              		.cfi_def_cfa 7, 32
+  40 0006 F860     		str	r0, [r7, #12]
+  41 0008 7A60     		str	r2, [r7, #4]
+  42 000a 1A46     		mov	r2, r3
+  43 000c 0B46     		mov	r3, r1
+  44 000e FB72     		strb	r3, [r7, #11]
+  45 0010 1346     		mov	r3, r2
+  46 0012 BB72     		strb	r3, [r7, #10]
+  34:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 	if (!i2c_instance)
+  47              		.loc 1 34 5
+  48 0014 FB68     		ldr	r3, [r7, #12]
+  49 0016 002B     		cmp	r3, #0
+  50 0018 02D1     		bne	.L2
+  35:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 		return -1;
+  51              		.loc 1 35 10
+  52 001a 4FF0FF33 		mov	r3, #-1
+  53 001e 13E0     		b	.L3
+  54              	.L2:
+  36:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 	return i2c_instance->i2cm_send ?
+  55              		.loc 1 36 21
+  56 0020 FB68     		ldr	r3, [r7, #12]
+  57 0022 5B68     		ldr	r3, [r3, #4]
+  37:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 			i2c_instance->i2cm_send(i2c_instance->drv_specific, address, p_data,
+  38:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 					length, nostop) :
+  58              		.loc 1 38 22
+  59 0024 002B     		cmp	r3, #0
+  60 0026 0DD0     		beq	.L4
+  37:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 			i2c_instance->i2cm_send(i2c_instance->drv_specific, address, p_data,
+  61              		.loc 1 37 16
+  62 0028 FB68     		ldr	r3, [r7, #12]
+  63 002a 5C68     		ldr	r4, [r3, #4]
+  37:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 			i2c_instance->i2cm_send(i2c_instance->drv_specific, address, p_data,
+  64              		.loc 1 37 4
+  65 002c FB68     		ldr	r3, [r7, #12]
+  66 002e 1868     		ldr	r0, [r3]
+  67 0030 BA7A     		ldrb	r2, [r7, #10]	@ zero_extendqisi2
+  68 0032 F97A     		ldrb	r1, [r7, #11]	@ zero_extendqisi2
+  69 0034 97F82030 		ldrb	r3, [r7, #32]	@ zero_extendqisi2
+  70 0038 0093     		str	r3, [sp]
+  71 003a 1346     		mov	r3, r2
+  72 003c 7A68     		ldr	r2, [r7, #4]
+  73 003e A047     		blx	r4
+  74              	.LVL0:
+  75 0040 0346     		mov	r3, r0
+ARM GAS  /tmp/ccDShOrO.s 			page 3
+
+
+  76              		.loc 1 38 22
+  77 0042 01E0     		b	.L3
+  78              	.L4:
+  79              		.loc 1 38 22 is_stmt 0 discriminator 1
+  80 0044 6FF00103 		mvn	r3, #1
+  81              	.L3:
+  39:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 			I2C_NO_INIT;
+  40:../../../lib/libhalglue/bshal/bshal_i2cm.c **** }
+  82              		.loc 1 40 1 is_stmt 1
+  83 0048 1846     		mov	r0, r3
+  84 004a 1437     		adds	r7, r7, #20
+  85              		.cfi_def_cfa_offset 12
+  86 004c BD46     		mov	sp, r7
+  87              		.cfi_def_cfa_register 13
+  88              		@ sp needed
+  89 004e 90BD     		pop	{r4, r7, pc}
+  90              		.cfi_endproc
+  91              	.LFE0:
+  93              		.section	.text.bshal_i2cm_recv,"ax",%progbits
+  94              		.align	1
+  95              		.global	bshal_i2cm_recv
+  96              		.syntax unified
+  97              		.thumb
+  98              		.thumb_func
+ 100              	bshal_i2cm_recv:
+ 101              	.LFB1:
+  41:../../../lib/libhalglue/bshal/bshal_i2cm.c **** int bshal_i2cm_recv(bshal_i2cm_instance_t *i2c_instance, uint8_t address,
+  42:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 		void *p_data, uint8_t length, bool nostop) {
+ 102              		.loc 1 42 46
+ 103              		.cfi_startproc
+ 104              		@ args = 4, pretend = 0, frame = 16
+ 105              		@ frame_needed = 1, uses_anonymous_args = 0
+ 106 0000 90B5     		push	{r4, r7, lr}
+ 107              		.cfi_def_cfa_offset 12
+ 108              		.cfi_offset 4, -12
+ 109              		.cfi_offset 7, -8
+ 110              		.cfi_offset 14, -4
+ 111 0002 87B0     		sub	sp, sp, #28
+ 112              		.cfi_def_cfa_offset 40
+ 113 0004 02AF     		add	r7, sp, #8
+ 114              		.cfi_def_cfa 7, 32
+ 115 0006 F860     		str	r0, [r7, #12]
+ 116 0008 7A60     		str	r2, [r7, #4]
+ 117 000a 1A46     		mov	r2, r3
+ 118 000c 0B46     		mov	r3, r1
+ 119 000e FB72     		strb	r3, [r7, #11]
+ 120 0010 1346     		mov	r3, r2
+ 121 0012 BB72     		strb	r3, [r7, #10]
+  43:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 	if (!i2c_instance)
+ 122              		.loc 1 43 5
+ 123 0014 FB68     		ldr	r3, [r7, #12]
+ 124 0016 002B     		cmp	r3, #0
+ 125 0018 02D1     		bne	.L7
+  44:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 		return -1;
+ 126              		.loc 1 44 10
+ 127 001a 4FF0FF33 		mov	r3, #-1
+ 128 001e 13E0     		b	.L8
+ARM GAS  /tmp/ccDShOrO.s 			page 4
+
+
+ 129              	.L7:
+  45:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 	return i2c_instance->i2cm_recv ?
+ 130              		.loc 1 45 21
+ 131 0020 FB68     		ldr	r3, [r7, #12]
+ 132 0022 9B68     		ldr	r3, [r3, #8]
+  46:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 			i2c_instance->i2cm_recv(i2c_instance->drv_specific, address, p_data,
+  47:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 					length, nostop) :
+ 133              		.loc 1 47 22
+ 134 0024 002B     		cmp	r3, #0
+ 135 0026 0DD0     		beq	.L9
+  46:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 			i2c_instance->i2cm_recv(i2c_instance->drv_specific, address, p_data,
+ 136              		.loc 1 46 16
+ 137 0028 FB68     		ldr	r3, [r7, #12]
+ 138 002a 9C68     		ldr	r4, [r3, #8]
+  46:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 			i2c_instance->i2cm_recv(i2c_instance->drv_specific, address, p_data,
+ 139              		.loc 1 46 4
+ 140 002c FB68     		ldr	r3, [r7, #12]
+ 141 002e 1868     		ldr	r0, [r3]
+ 142 0030 BA7A     		ldrb	r2, [r7, #10]	@ zero_extendqisi2
+ 143 0032 F97A     		ldrb	r1, [r7, #11]	@ zero_extendqisi2
+ 144 0034 97F82030 		ldrb	r3, [r7, #32]	@ zero_extendqisi2
+ 145 0038 0093     		str	r3, [sp]
+ 146 003a 1346     		mov	r3, r2
+ 147 003c 7A68     		ldr	r2, [r7, #4]
+ 148 003e A047     		blx	r4
+ 149              	.LVL1:
+ 150 0040 0346     		mov	r3, r0
+ 151              		.loc 1 47 22
+ 152 0042 01E0     		b	.L8
+ 153              	.L9:
+ 154              		.loc 1 47 22 is_stmt 0 discriminator 1
+ 155 0044 6FF00103 		mvn	r3, #1
+ 156              	.L8:
+  48:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 			I2C_NO_INIT;
+  49:../../../lib/libhalglue/bshal/bshal_i2cm.c **** }
+ 157              		.loc 1 49 1 is_stmt 1
+ 158 0048 1846     		mov	r0, r3
+ 159 004a 1437     		adds	r7, r7, #20
+ 160              		.cfi_def_cfa_offset 12
+ 161 004c BD46     		mov	sp, r7
+ 162              		.cfi_def_cfa_register 13
+ 163              		@ sp needed
+ 164 004e 90BD     		pop	{r4, r7, pc}
+ 165              		.cfi_endproc
+ 166              	.LFE1:
+ 168              		.section	.text.bshal_i2cm_isok,"ax",%progbits
+ 169              		.align	1
+ 170              		.global	bshal_i2cm_isok
+ 171              		.syntax unified
+ 172              		.thumb
+ 173              		.thumb_func
+ 175              	bshal_i2cm_isok:
+ 176              	.LFB2:
+  50:../../../lib/libhalglue/bshal/bshal_i2cm.c **** int bshal_i2cm_isok(bshal_i2cm_instance_t *i2c_instance, uint8_t address) {
+ 177              		.loc 1 50 75
+ 178              		.cfi_startproc
+ 179              		@ args = 0, pretend = 0, frame = 8
+ARM GAS  /tmp/ccDShOrO.s 			page 5
+
+
+ 180              		@ frame_needed = 1, uses_anonymous_args = 0
+ 181 0000 80B5     		push	{r7, lr}
+ 182              		.cfi_def_cfa_offset 8
+ 183              		.cfi_offset 7, -8
+ 184              		.cfi_offset 14, -4
+ 185 0002 82B0     		sub	sp, sp, #8
+ 186              		.cfi_def_cfa_offset 16
+ 187 0004 00AF     		add	r7, sp, #0
+ 188              		.cfi_def_cfa_register 7
+ 189 0006 7860     		str	r0, [r7, #4]
+ 190 0008 0B46     		mov	r3, r1
+ 191 000a FB70     		strb	r3, [r7, #3]
+  51:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 	if (!i2c_instance)
+ 192              		.loc 1 51 5
+ 193 000c 7B68     		ldr	r3, [r7, #4]
+ 194 000e 002B     		cmp	r3, #0
+ 195 0010 02D1     		bne	.L12
+  52:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 		return -1;
+ 196              		.loc 1 52 10
+ 197 0012 4FF0FF33 		mov	r3, #-1
+ 198 0016 0EE0     		b	.L13
+ 199              	.L12:
+  53:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 	return i2c_instance->i2cm_isok ?
+ 200              		.loc 1 53 21
+ 201 0018 7B68     		ldr	r3, [r7, #4]
+ 202 001a DB68     		ldr	r3, [r3, #12]
+  54:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 			i2c_instance->i2cm_isok(i2c_instance->drv_specific, address) :
+ 203              		.loc 1 54 65
+ 204 001c 002B     		cmp	r3, #0
+ 205 001e 08D0     		beq	.L14
+ 206              		.loc 1 54 16 discriminator 1
+ 207 0020 7B68     		ldr	r3, [r7, #4]
+ 208 0022 DB68     		ldr	r3, [r3, #12]
+ 209              		.loc 1 54 4 discriminator 1
+ 210 0024 7A68     		ldr	r2, [r7, #4]
+ 211 0026 1268     		ldr	r2, [r2]
+ 212 0028 F978     		ldrb	r1, [r7, #3]	@ zero_extendqisi2
+ 213 002a 1046     		mov	r0, r2
+ 214 002c 9847     		blx	r3
+ 215              	.LVL2:
+ 216 002e 0346     		mov	r3, r0
+ 217              		.loc 1 54 65 discriminator 1
+ 218 0030 01E0     		b	.L13
+ 219              	.L14:
+ 220              		.loc 1 54 65 is_stmt 0 discriminator 2
+ 221 0032 6FF00103 		mvn	r3, #1
+ 222              	.L13:
+  55:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 			I2C_NO_INIT;
+  56:../../../lib/libhalglue/bshal/bshal_i2cm.c **** }
+ 223              		.loc 1 56 1 is_stmt 1
+ 224 0036 1846     		mov	r0, r3
+ 225 0038 0837     		adds	r7, r7, #8
+ 226              		.cfi_def_cfa_offset 8
+ 227 003a BD46     		mov	sp, r7
+ 228              		.cfi_def_cfa_register 13
+ 229              		@ sp needed
+ 230 003c 80BD     		pop	{r7, pc}
+ARM GAS  /tmp/ccDShOrO.s 			page 6
+
+
+ 231              		.cfi_endproc
+ 232              	.LFE2:
+ 234              		.section	.text.bshal_i2cm_send_reg,"ax",%progbits
+ 235              		.align	1
+ 236              		.global	bshal_i2cm_send_reg
+ 237              		.syntax unified
+ 238              		.thumb
+ 239              		.thumb_func
+ 241              	bshal_i2cm_send_reg:
+ 242              	.LFB3:
+  57:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 
+  58:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 
+  59:../../../lib/libhalglue/bshal/bshal_i2cm.c **** // Convenience functions
+  60:../../../lib/libhalglue/bshal/bshal_i2cm.c **** int bshal_i2cm_send_reg(bshal_i2cm_instance_t* i2c_instance, uint8_t address, uint8_t reg, uint8_t 
+ 243              		.loc 1 60 125
+ 244              		.cfi_startproc
+ 245              		@ args = 4, pretend = 0, frame = 24
+ 246              		@ frame_needed = 1, uses_anonymous_args = 0
+ 247 0000 2DE9F043 		push	{r4, r5, r6, r7, r8, r9, lr}
+ 248              		.cfi_def_cfa_offset 28
+ 249              		.cfi_offset 4, -28
+ 250              		.cfi_offset 5, -24
+ 251              		.cfi_offset 6, -20
+ 252              		.cfi_offset 7, -16
+ 253              		.cfi_offset 8, -12
+ 254              		.cfi_offset 9, -8
+ 255              		.cfi_offset 14, -4
+ 256 0004 89B0     		sub	sp, sp, #36
+ 257              		.cfi_def_cfa_offset 64
+ 258 0006 02AF     		add	r7, sp, #8
+ 259              		.cfi_def_cfa 7, 56
+ 260 0008 F860     		str	r0, [r7, #12]
+ 261 000a 7B60     		str	r3, [r7, #4]
+ 262 000c 0B46     		mov	r3, r1
+ 263 000e FB72     		strb	r3, [r7, #11]
+ 264 0010 1346     		mov	r3, r2
+ 265 0012 BB72     		strb	r3, [r7, #10]
+ 266              		.loc 1 60 125
+ 267 0014 6B46     		mov	r3, sp
+ 268 0016 1E46     		mov	r6, r3
+  61:../../../lib/libhalglue/bshal/bshal_i2cm.c ****     int result;
+  62:../../../lib/libhalglue/bshal/bshal_i2cm.c ****     /*
+  63:../../../lib/libhalglue/bshal/bshal_i2cm.c ****     result = i2c_send(i2c_instance, address, &reg, 1, true);
+  64:../../../lib/libhalglue/bshal/bshal_i2cm.c ****     if (result) return result;
+  65:../../../lib/libhalglue/bshal/bshal_i2cm.c ****     return i2c_send(i2c_instance, address, p_data, length, false);
+  66:../../../lib/libhalglue/bshal/bshal_i2cm.c ****     */
+  67:../../../lib/libhalglue/bshal/bshal_i2cm.c ****     uint8_t buffer[1+length];
+ 269              		.loc 1 67 21
+ 270 0018 97F83830 		ldrb	r3, [r7, #56]	@ zero_extendqisi2
+ 271 001c 591C     		adds	r1, r3, #1
+ 272              		.loc 1 67 13
+ 273 001e 4B1E     		subs	r3, r1, #1
+ 274 0020 7B61     		str	r3, [r7, #20]
+ 275 0022 0A46     		mov	r2, r1
+ 276 0024 0023     		movs	r3, #0
+ 277 0026 9046     		mov	r8, r2
+ 278 0028 9946     		mov	r9, r3
+ARM GAS  /tmp/ccDShOrO.s 			page 7
+
+
+ 279 002a 4FF00002 		mov	r2, #0
+ 280 002e 4FF00003 		mov	r3, #0
+ 281 0032 4FEAC903 		lsl	r3, r9, #3
+ 282 0036 43EA5873 		orr	r3, r3, r8, lsr #29
+ 283 003a 4FEAC802 		lsl	r2, r8, #3
+ 284 003e 0A46     		mov	r2, r1
+ 285 0040 0023     		movs	r3, #0
+ 286 0042 1446     		mov	r4, r2
+ 287 0044 1D46     		mov	r5, r3
+ 288 0046 4FF00002 		mov	r2, #0
+ 289 004a 4FF00003 		mov	r3, #0
+ 290 004e EB00     		lsls	r3, r5, #3
+ 291 0050 43EA5473 		orr	r3, r3, r4, lsr #29
+ 292 0054 E200     		lsls	r2, r4, #3
+ 293 0056 0B46     		mov	r3, r1
+ 294 0058 0733     		adds	r3, r3, #7
+ 295 005a DB08     		lsrs	r3, r3, #3
+ 296 005c DB00     		lsls	r3, r3, #3
+ 297 005e ADEB030D 		sub	sp, sp, r3
+ 298 0062 02AB     		add	r3, sp, #8
+ 299 0064 0033     		adds	r3, r3, #0
+ 300 0066 3B61     		str	r3, [r7, #16]
+  68:../../../lib/libhalglue/bshal/bshal_i2cm.c ****     buffer[0] = reg;
+ 301              		.loc 1 68 15
+ 302 0068 3B69     		ldr	r3, [r7, #16]
+ 303 006a BA7A     		ldrb	r2, [r7, #10]
+ 304 006c 1A70     		strb	r2, [r3]
+  69:../../../lib/libhalglue/bshal/bshal_i2cm.c ****     memcpy(buffer+1, p_data, length);
+ 305              		.loc 1 69 5
+ 306 006e 3B69     		ldr	r3, [r7, #16]
+ 307 0070 0133     		adds	r3, r3, #1
+ 308 0072 97F83820 		ldrb	r2, [r7, #56]	@ zero_extendqisi2
+ 309 0076 7968     		ldr	r1, [r7, #4]
+ 310 0078 1846     		mov	r0, r3
+ 311 007a FFF7FEFF 		bl	memcpy
+  70:../../../lib/libhalglue/bshal/bshal_i2cm.c ****     return bshal_i2cm_send(i2c_instance, address, buffer, 1+length, false);
+ 312              		.loc 1 70 12
+ 313 007e 97F83830 		ldrb	r3, [r7, #56]
+ 314 0082 0133     		adds	r3, r3, #1
+ 315 0084 DBB2     		uxtb	r3, r3
+ 316 0086 F97A     		ldrb	r1, [r7, #11]	@ zero_extendqisi2
+ 317 0088 0022     		movs	r2, #0
+ 318 008a 0092     		str	r2, [sp]
+ 319 008c 3A69     		ldr	r2, [r7, #16]
+ 320 008e F868     		ldr	r0, [r7, #12]
+ 321 0090 FFF7FEFF 		bl	bshal_i2cm_send
+ 322 0094 0346     		mov	r3, r0
+ 323 0096 B546     		mov	sp, r6
+  71:../../../lib/libhalglue/bshal/bshal_i2cm.c **** }
+ 324              		.loc 1 71 1
+ 325 0098 1846     		mov	r0, r3
+ 326 009a 1C37     		adds	r7, r7, #28
+ 327              		.cfi_def_cfa_offset 28
+ 328 009c BD46     		mov	sp, r7
+ 329              		.cfi_def_cfa_register 13
+ 330              		@ sp needed
+ 331 009e BDE8F083 		pop	{r4, r5, r6, r7, r8, r9, pc}
+ARM GAS  /tmp/ccDShOrO.s 			page 8
+
+
+ 332              		.cfi_endproc
+ 333              	.LFE3:
+ 335              		.section	.text.bshal_i2cm_recv_reg,"ax",%progbits
+ 336              		.align	1
+ 337              		.global	bshal_i2cm_recv_reg
+ 338              		.syntax unified
+ 339              		.thumb
+ 340              		.thumb_func
+ 342              	bshal_i2cm_recv_reg:
+ 343              	.LFB4:
+  72:../../../lib/libhalglue/bshal/bshal_i2cm.c **** 
+  73:../../../lib/libhalglue/bshal/bshal_i2cm.c **** int bshal_i2cm_recv_reg(bshal_i2cm_instance_t* i2c_instance, uint8_t address, uint8_t reg, uint8_t 
+ 344              		.loc 1 73 125
+ 345              		.cfi_startproc
+ 346              		@ args = 4, pretend = 0, frame = 24
+ 347              		@ frame_needed = 1, uses_anonymous_args = 0
+ 348 0000 80B5     		push	{r7, lr}
+ 349              		.cfi_def_cfa_offset 8
+ 350              		.cfi_offset 7, -8
+ 351              		.cfi_offset 14, -4
+ 352 0002 88B0     		sub	sp, sp, #32
+ 353              		.cfi_def_cfa_offset 40
+ 354 0004 02AF     		add	r7, sp, #8
+ 355              		.cfi_def_cfa 7, 32
+ 356 0006 F860     		str	r0, [r7, #12]
+ 357 0008 7B60     		str	r3, [r7, #4]
+ 358 000a 0B46     		mov	r3, r1
+ 359 000c FB72     		strb	r3, [r7, #11]
+ 360 000e 1346     		mov	r3, r2
+ 361 0010 BB72     		strb	r3, [r7, #10]
+  74:../../../lib/libhalglue/bshal/bshal_i2cm.c ****     int result;
+  75:../../../lib/libhalglue/bshal/bshal_i2cm.c ****     result = bshal_i2cm_send(i2c_instance, address, &reg, 1, true);
+ 362              		.loc 1 75 14
+ 363 0012 07F10A02 		add	r2, r7, #10
+ 364 0016 F97A     		ldrb	r1, [r7, #11]	@ zero_extendqisi2
+ 365 0018 0123     		movs	r3, #1
+ 366 001a 0093     		str	r3, [sp]
+ 367 001c 0123     		movs	r3, #1
+ 368 001e F868     		ldr	r0, [r7, #12]
+ 369 0020 FFF7FEFF 		bl	bshal_i2cm_send
+ 370 0024 7861     		str	r0, [r7, #20]
+  76:../../../lib/libhalglue/bshal/bshal_i2cm.c ****     if (result) return result;
+ 371              		.loc 1 76 8
+ 372 0026 7B69     		ldr	r3, [r7, #20]
+ 373 0028 002B     		cmp	r3, #0
+ 374 002a 01D0     		beq	.L19
+ 375              		.loc 1 76 24 discriminator 1
+ 376 002c 7B69     		ldr	r3, [r7, #20]
+ 377 002e 09E0     		b	.L20
+ 378              	.L19:
+  77:../../../lib/libhalglue/bshal/bshal_i2cm.c ****     return bshal_i2cm_recv(i2c_instance, address, p_data, length, false);
+ 379              		.loc 1 77 12
+ 380 0030 97F82030 		ldrb	r3, [r7, #32]	@ zero_extendqisi2
+ 381 0034 F97A     		ldrb	r1, [r7, #11]	@ zero_extendqisi2
+ 382 0036 0022     		movs	r2, #0
+ 383 0038 0092     		str	r2, [sp]
+ 384 003a 7A68     		ldr	r2, [r7, #4]
+ARM GAS  /tmp/ccDShOrO.s 			page 9
+
+
+ 385 003c F868     		ldr	r0, [r7, #12]
+ 386 003e FFF7FEFF 		bl	bshal_i2cm_recv
+ 387 0042 0346     		mov	r3, r0
+ 388              	.L20:
+  78:../../../lib/libhalglue/bshal/bshal_i2cm.c **** }
+ 389              		.loc 1 78 1
+ 390 0044 1846     		mov	r0, r3
+ 391 0046 1837     		adds	r7, r7, #24
+ 392              		.cfi_def_cfa_offset 8
+ 393 0048 BD46     		mov	sp, r7
+ 394              		.cfi_def_cfa_register 13
+ 395              		@ sp needed
+ 396 004a 80BD     		pop	{r7, pc}
+ 397              		.cfi_endproc
+ 398              	.LFE4:
+ 400              		.text
+ 401              	.Letext0:
+ 402              		.file 2 "/usr/arm-none-eabi/include/machine/_default_types.h"
+ 403              		.file 3 "/usr/arm-none-eabi/include/sys/_stdint.h"
+ 404              		.file 4 "../../../lib/libhalglue/bshal/bshal_i2cm.h"
+ 405              		.file 5 "/usr/lib/gcc/arm-none-eabi/12.2.0/include/stddef.h"
+ 406              		.file 6 "/usr/arm-none-eabi/include/string.h"
+ARM GAS  /tmp/ccDShOrO.s 			page 10
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 bshal_i2cm.c
+     /tmp/ccDShOrO.s:19     .text.bshal_i2cm_send:0000000000000000 $t
+     /tmp/ccDShOrO.s:25     .text.bshal_i2cm_send:0000000000000000 bshal_i2cm_send
+     /tmp/ccDShOrO.s:94     .text.bshal_i2cm_recv:0000000000000000 $t
+     /tmp/ccDShOrO.s:100    .text.bshal_i2cm_recv:0000000000000000 bshal_i2cm_recv
+     /tmp/ccDShOrO.s:169    .text.bshal_i2cm_isok:0000000000000000 $t
+     /tmp/ccDShOrO.s:175    .text.bshal_i2cm_isok:0000000000000000 bshal_i2cm_isok
+     /tmp/ccDShOrO.s:235    .text.bshal_i2cm_send_reg:0000000000000000 $t
+     /tmp/ccDShOrO.s:241    .text.bshal_i2cm_send_reg:0000000000000000 bshal_i2cm_send_reg
+     /tmp/ccDShOrO.s:336    .text.bshal_i2cm_recv_reg:0000000000000000 $t
+     /tmp/ccDShOrO.s:342    .text.bshal_i2cm_recv_reg:0000000000000000 bshal_i2cm_recv_reg
+                           .group:0000000000000000 wm4.0.2a10468dd89b593cd64cc189d36e5bb7
+                           .group:0000000000000000 wm4._newlib_version.h.4.529115dae5e4f67702b1de0b6e841f38
+                           .group:0000000000000000 wm4.features.h.33.3e67abe6fb64142d4f6fa9496796153c
+                           .group:0000000000000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:0000000000000000 wm4._intsup.h.10.48bafbb683905c4daa4565a85aeeb264
+                           .group:0000000000000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:0000000000000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:0000000000000000 wm4.stdbool.h.29.4a1c88fe569adb8d03217dd16982ca34
+                           .group:0000000000000000 wm4.bshal_i2cm.h.17.c7329ec6dbd3040670862aca99bbdc7c
+                           .group:0000000000000000 wm4.newlib.h.8.e83e89ee5a2baa7686bbb3d2021a9409
+                           .group:0000000000000000 wm4.ieeefp.h.77.25247dc27dbe3b23bfe98c2dc18f6ac5
+                           .group:0000000000000000 wm4.config.h.224.18dfb280c62ae4ee788eb67b451eb1a6
+                           .group:0000000000000000 wm4._ansi.h.31.de524f58584151836e90d8620a16f8e8
+                           .group:0000000000000000 wm4.stddef.h.39.3e0425629195acf083c9561151306b4d
+                           .group:0000000000000000 wm4._types.h.20.dd0d04dca3800a0d2a6129b87f3adbb2
+                           .group:0000000000000000 wm4.stddef.h.158.5f30652bb2ea05b142c1bbee9108c999
+                           .group:0000000000000000 wm4._types.h.127.34941de1b2539d59d5cac00e0dd27a45
+                           .group:0000000000000000 wm4.reent.h.17.e292bf8b0bec6c96e131a54347145a30
+                           .group:0000000000000000 wm4.lock.h.2.1461d1fff82dffe8bfddc23307f6484f
+                           .group:0000000000000000 wm4.reent.h.77.dcd6129ff07fe81bd5636db29abe53b2
+                           .group:0000000000000000 wm4.cdefs.h.49.39045112216f6a021dbdffe3bf5accce
+                           .group:0000000000000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:0000000000000000 wm4.stddef.h.158.bfed30416c9480cd13bc4a25427d538f
+
+UNDEFINED SYMBOLS
+memcpy

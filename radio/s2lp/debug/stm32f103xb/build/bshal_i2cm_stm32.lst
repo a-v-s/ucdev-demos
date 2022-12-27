@@ -1,0 +1,305 @@
+ARM GAS  /tmp/ccR7hKqS.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.arch armv7-m
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"bshal_i2cm_stm32.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.file 1 "../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c"
+  18              		.section	.text.bshal_stm32_i2cm_send,"ax",%progbits
+  19              		.align	1
+  20              		.global	bshal_stm32_i2cm_send
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  25              	bshal_stm32_i2cm_send:
+  26              	.LFB67:
+   1:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c **** /*
+   2:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c ****  * bshal_i2cm_stm32.c
+   3:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c ****  *
+   4:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c ****  *  Created on: 11 feb. 2022
+   5:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c ****  *      Author: andre
+   6:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c ****  */
+   7:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c **** 
+   8:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c **** 
+   9:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c **** #include "bshal_i2cm_stm32.h"
+  10:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c **** 
+  11:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c **** int bshal_stm32_i2cm_send(void *drv_specific, uint8_t address, void *p_data,
+  12:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c **** 		uint8_t length, bool nostop) {
+  27              		.loc 1 12 32
+  28              		.cfi_startproc
+  29              		@ args = 4, pretend = 0, frame = 16
+  30              		@ frame_needed = 1, uses_anonymous_args = 0
+  31 0000 80B5     		push	{r7, lr}
+  32              		.cfi_def_cfa_offset 8
+  33              		.cfi_offset 7, -8
+  34              		.cfi_offset 14, -4
+  35 0002 86B0     		sub	sp, sp, #24
+  36              		.cfi_def_cfa_offset 32
+  37 0004 02AF     		add	r7, sp, #8
+  38              		.cfi_def_cfa 7, 24
+  39 0006 F860     		str	r0, [r7, #12]
+  40 0008 7A60     		str	r2, [r7, #4]
+  41 000a 1A46     		mov	r2, r3
+  42 000c 0B46     		mov	r3, r1
+  43 000e FB72     		strb	r3, [r7, #11]
+  44 0010 1346     		mov	r3, r2
+  45 0012 BB72     		strb	r3, [r7, #10]
+  13:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c **** 	return HAL_I2C_Master_Transmit(drv_specific, address << 1, p_data, length,
+ARM GAS  /tmp/ccR7hKqS.s 			page 2
+
+
+  46              		.loc 1 13 9
+  47 0014 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+  48 0016 9BB2     		uxth	r3, r3
+  49 0018 5B00     		lsls	r3, r3, #1
+  50 001a 99B2     		uxth	r1, r3
+  51 001c BB7A     		ldrb	r3, [r7, #10]	@ zero_extendqisi2
+  52 001e 9BB2     		uxth	r3, r3
+  53 0020 4FF47A72 		mov	r2, #1000
+  54 0024 0092     		str	r2, [sp]
+  55 0026 7A68     		ldr	r2, [r7, #4]
+  56 0028 F868     		ldr	r0, [r7, #12]
+  57 002a FFF7FEFF 		bl	HAL_I2C_Master_Transmit
+  58 002e 0346     		mov	r3, r0
+  14:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c **** 			1000);
+  15:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c **** }
+  59              		.loc 1 15 1
+  60 0030 1846     		mov	r0, r3
+  61 0032 1037     		adds	r7, r7, #16
+  62              		.cfi_def_cfa_offset 8
+  63 0034 BD46     		mov	sp, r7
+  64              		.cfi_def_cfa_register 13
+  65              		@ sp needed
+  66 0036 80BD     		pop	{r7, pc}
+  67              		.cfi_endproc
+  68              	.LFE67:
+  70              		.section	.text.bshal_stm32_i2cm_recv,"ax",%progbits
+  71              		.align	1
+  72              		.global	bshal_stm32_i2cm_recv
+  73              		.syntax unified
+  74              		.thumb
+  75              		.thumb_func
+  77              	bshal_stm32_i2cm_recv:
+  78              	.LFB68:
+  16:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c **** 
+  17:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c **** int bshal_stm32_i2cm_recv(void *drv_specific, uint8_t address, void *p_data,
+  18:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c **** 		uint8_t length, bool nostop) {
+  79              		.loc 1 18 32
+  80              		.cfi_startproc
+  81              		@ args = 4, pretend = 0, frame = 24
+  82              		@ frame_needed = 1, uses_anonymous_args = 0
+  83 0000 80B5     		push	{r7, lr}
+  84              		.cfi_def_cfa_offset 8
+  85              		.cfi_offset 7, -8
+  86              		.cfi_offset 14, -4
+  87 0002 88B0     		sub	sp, sp, #32
+  88              		.cfi_def_cfa_offset 40
+  89 0004 02AF     		add	r7, sp, #8
+  90              		.cfi_def_cfa 7, 32
+  91 0006 F860     		str	r0, [r7, #12]
+  92 0008 7A60     		str	r2, [r7, #4]
+  93 000a 1A46     		mov	r2, r3
+  94 000c 0B46     		mov	r3, r1
+  95 000e FB72     		strb	r3, [r7, #11]
+  96 0010 1346     		mov	r3, r2
+  97 0012 BB72     		strb	r3, [r7, #10]
+  19:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c **** 	int result =  HAL_I2C_Master_Receive(drv_specific, address << 1, p_data, length,
+  98              		.loc 1 19 16
+ARM GAS  /tmp/ccR7hKqS.s 			page 3
+
+
+  99 0014 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 100 0016 9BB2     		uxth	r3, r3
+ 101 0018 5B00     		lsls	r3, r3, #1
+ 102 001a 99B2     		uxth	r1, r3
+ 103 001c BB7A     		ldrb	r3, [r7, #10]	@ zero_extendqisi2
+ 104 001e 9BB2     		uxth	r3, r3
+ 105 0020 4FF47A72 		mov	r2, #1000
+ 106 0024 0092     		str	r2, [sp]
+ 107 0026 7A68     		ldr	r2, [r7, #4]
+ 108 0028 F868     		ldr	r0, [r7, #12]
+ 109 002a FFF7FEFF 		bl	HAL_I2C_Master_Receive
+ 110 002e 0346     		mov	r3, r0
+ 111              		.loc 1 19 6
+ 112 0030 7B61     		str	r3, [r7, #20]
+  20:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c **** 			1000);
+  21:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c **** 	if (result) {
+  22:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c **** 		/*Reset I2C*/
+  23:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c **** //		I2C_HandleTypeDef *hi2c = drv_specific;
+  24:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c **** //		hi2c->Instance->CR1 |= I2C_CR1_SWRST;
+  25:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c **** //		hi2c->Instance->CR1 &= ~I2C_CR1_SWRST;
+  26:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c **** 		// HAL_I2C_Init(drv_specific); // disable for testing
+  27:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c **** 	}
+  28:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c **** 	return result;
+ 113              		.loc 1 28 9
+ 114 0032 7B69     		ldr	r3, [r7, #20]
+  29:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c **** }
+ 115              		.loc 1 29 1
+ 116 0034 1846     		mov	r0, r3
+ 117 0036 1837     		adds	r7, r7, #24
+ 118              		.cfi_def_cfa_offset 8
+ 119 0038 BD46     		mov	sp, r7
+ 120              		.cfi_def_cfa_register 13
+ 121              		@ sp needed
+ 122 003a 80BD     		pop	{r7, pc}
+ 123              		.cfi_endproc
+ 124              	.LFE68:
+ 126              		.section	.text.bshal_stm32_i2cm_isok,"ax",%progbits
+ 127              		.align	1
+ 128              		.global	bshal_stm32_i2cm_isok
+ 129              		.syntax unified
+ 130              		.thumb
+ 131              		.thumb_func
+ 133              	bshal_stm32_i2cm_isok:
+ 134              	.LFB69:
+  30:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c **** 
+  31:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c **** int bshal_stm32_i2cm_isok(void *drv_specific, uint8_t address) {
+ 135              		.loc 1 31 64
+ 136              		.cfi_startproc
+ 137              		@ args = 0, pretend = 0, frame = 8
+ 138              		@ frame_needed = 1, uses_anonymous_args = 0
+ 139 0000 80B5     		push	{r7, lr}
+ 140              		.cfi_def_cfa_offset 8
+ 141              		.cfi_offset 7, -8
+ 142              		.cfi_offset 14, -4
+ 143 0002 82B0     		sub	sp, sp, #8
+ 144              		.cfi_def_cfa_offset 16
+ 145 0004 00AF     		add	r7, sp, #0
+ARM GAS  /tmp/ccR7hKqS.s 			page 4
+
+
+ 146              		.cfi_def_cfa_register 7
+ 147 0006 7860     		str	r0, [r7, #4]
+ 148 0008 0B46     		mov	r3, r1
+ 149 000a FB70     		strb	r3, [r7, #3]
+  32:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c **** 	return HAL_I2C_IsDeviceReady(drv_specific, address << 1, 1, 1000);
+ 150              		.loc 1 32 9
+ 151 000c FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 152 000e 9BB2     		uxth	r3, r3
+ 153 0010 5B00     		lsls	r3, r3, #1
+ 154 0012 99B2     		uxth	r1, r3
+ 155 0014 4FF47A73 		mov	r3, #1000
+ 156 0018 0122     		movs	r2, #1
+ 157 001a 7868     		ldr	r0, [r7, #4]
+ 158 001c FFF7FEFF 		bl	HAL_I2C_IsDeviceReady
+ 159 0020 0346     		mov	r3, r0
+  33:../../../lib/libhalglue/bshal/stm32/bshal_i2cm_stm32.c **** }
+ 160              		.loc 1 33 1
+ 161 0022 1846     		mov	r0, r3
+ 162 0024 0837     		adds	r7, r7, #8
+ 163              		.cfi_def_cfa_offset 8
+ 164 0026 BD46     		mov	sp, r7
+ 165              		.cfi_def_cfa_register 13
+ 166              		@ sp needed
+ 167 0028 80BD     		pop	{r7, pc}
+ 168              		.cfi_endproc
+ 169              	.LFE69:
+ 171              		.text
+ 172              	.Letext0:
+ 173              		.file 2 "/usr/arm-none-eabi/include/machine/_default_types.h"
+ 174              		.file 3 "/usr/arm-none-eabi/include/sys/_stdint.h"
+ 175              		.file 4 "../../../ext/stm32/cmsis_device_f1/Include/stm32f103xb.h"
+ 176              		.file 5 "../../../ext/stm32/stm32f1xx_hal_driver/Inc/stm32f1xx_hal_def.h"
+ 177              		.file 6 "../../../ext/stm32/stm32f1xx_hal_driver/Inc/stm32f1xx_hal_dma.h"
+ 178              		.file 7 "../../../ext/stm32/stm32f1xx_hal_driver/Inc/stm32f1xx_hal_i2c.h"
+ARM GAS  /tmp/ccR7hKqS.s 			page 5
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 bshal_i2cm_stm32.c
+     /tmp/ccR7hKqS.s:19     .text.bshal_stm32_i2cm_send:0000000000000000 $t
+     /tmp/ccR7hKqS.s:25     .text.bshal_stm32_i2cm_send:0000000000000000 bshal_stm32_i2cm_send
+     /tmp/ccR7hKqS.s:71     .text.bshal_stm32_i2cm_recv:0000000000000000 $t
+     /tmp/ccR7hKqS.s:77     .text.bshal_stm32_i2cm_recv:0000000000000000 bshal_stm32_i2cm_recv
+     /tmp/ccR7hKqS.s:127    .text.bshal_stm32_i2cm_isok:0000000000000000 $t
+     /tmp/ccR7hKqS.s:133    .text.bshal_stm32_i2cm_isok:0000000000000000 bshal_stm32_i2cm_isok
+                           .group:0000000000000000 wm4.0.2a10468dd89b593cd64cc189d36e5bb7
+                           .group:0000000000000000 wm4._newlib_version.h.4.529115dae5e4f67702b1de0b6e841f38
+                           .group:0000000000000000 wm4.features.h.33.3e67abe6fb64142d4f6fa9496796153c
+                           .group:0000000000000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:0000000000000000 wm4._intsup.h.10.48bafbb683905c4daa4565a85aeeb264
+                           .group:0000000000000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:0000000000000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:0000000000000000 wm4.ieeefp.h.77.25247dc27dbe3b23bfe98c2dc18f6ac5
+                           .group:0000000000000000 wm4.newlib.h.8.e83e89ee5a2baa7686bbb3d2021a9409
+                           .group:0000000000000000 wm4.config.h.224.18dfb280c62ae4ee788eb67b451eb1a6
+                           .group:0000000000000000 wm4._ansi.h.31.de524f58584151836e90d8620a16f8e8
+                           .group:0000000000000000 wm4.stdlib.h.13.4ed386f5c1a80d71e72172885d946ef2
+                           .group:0000000000000000 wm4.stddef.h.185.882514a1a6169ceba9142f401cbe27c6
+                           .group:0000000000000000 wm4.stddef.h.39.f07083f9b666a9e5c52a336c758fdd72
+                           .group:0000000000000000 wm4._types.h.20.dd0d04dca3800a0d2a6129b87f3adbb2
+                           .group:0000000000000000 wm4.stddef.h.158.5f30652bb2ea05b142c1bbee9108c999
+                           .group:0000000000000000 wm4._types.h.127.34941de1b2539d59d5cac00e0dd27a45
+                           .group:0000000000000000 wm4.reent.h.17.e292bf8b0bec6c96e131a54347145a30
+                           .group:0000000000000000 wm4.lock.h.2.1461d1fff82dffe8bfddc23307f6484f
+                           .group:0000000000000000 wm4.reent.h.77.dcd6129ff07fe81bd5636db29abe53b2
+                           .group:0000000000000000 wm4.cdefs.h.49.39045112216f6a021dbdffe3bf5accce
+                           .group:0000000000000000 wm4.alloca.h.8.dfc0c703c47ec3e69746825b17d9e66d
+                           .group:0000000000000000 wm4.stdlib.h.56.f4862cfbf4363a1db01842d5bdf72c18
+                           .group:0000000000000000 wm4.stm32f1xx.h.39.e8c98c5ce2cd95856eed179966374e12
+                           .group:0000000000000000 wm4.stm32f103xb.h.38.ec967d5ad9d3269cb0788eebda048e38
+                           .group:0000000000000000 wm4.cmsis_version.h.32.0f826810625204eca22a19868bdc7586
+                           .group:0000000000000000 wm4.core_cm3.h.66.fc46cac19810db8f98d67da7ef88f42c
+                           .group:0000000000000000 wm4.cmsis_gcc.h.26.549e8fd988111c6b396c357ef98aeb59
+                           .group:0000000000000000 wm4.core_cm3.h.127.aaed3d1df272b0aa79c526153017805c
+                           .group:0000000000000000 wm4.stm32f103xb.h.573.10249aa7473ca93be896fed94046a725
+                           .group:0000000000000000 wm4.stm32f1xx.h.162.96b09079a093c34dbd7f0b85cbd0ddee
+                           .group:0000000000000000 wm4.stm32f1xx_hal_conf.h.24.fb218a6cd2ee35d840b3eac0f5fb4119
+                           .group:0000000000000000 wm4.stm32_hal_legacy.h.22.3d81dc02d9b9459e9eac6fdca7f8f18e
+                           .group:0000000000000000 wm4.stm32f1xx_hal_def.h.56.dfe92d4f76983476d27bcb2e4d801fca
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc.h.94.78ba4ec8cedd7ba94683a5fabb61b31e
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc_ex.h.21.8406672c8a3f21f71eb8441fb8ecb4bd
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc.h.1201.89d14cbb1b46fba2de70512ccfd8d5ce
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio.h.21.0099da253a68660e916195d3e8928be3
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio_ex.h.21.93f1f3ec7660fa76375def81b976f73c
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio.h.262.7df79220ec7519ba80c1763e6b4854a6
+                           .group:0000000000000000 wm4.stm32f1xx_hal_exti.h.21.a7f1b393a0c9b2b56b72ccdbb8dee508
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma.h.21.11e5a204ed6aa790b1cdae2e4192bc9d
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma_ex.h.21.d438f745b4c04dc23f9f569190526864
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma.h.408.14794a3f8621230c9ac7fca0cacf3e57
+                           .group:0000000000000000 wm4.stm32f1xx_hal_can.h.21.d1dd4a884a3983bc975efc64fbbd5748
+                           .group:0000000000000000 wm4.stm32f1xx_hal_cortex.h.21.6ab92041a8778f53d2d2d96b3825535a
+                           .group:0000000000000000 wm4.stm32f1xx_hal_adc.h.21.8ae5a06b46334619d54b2469802d6db6
+                           .group:0000000000000000 wm4.stm32f1xx_hal_adc_ex.h.21.f5c9ba15472af26c826d75096ae3e02a
+                           .group:0000000000000000 wm4.stm32f1xx_hal_crc.h.21.b5b5d61856236c32a5704a7db1b8c77f
+ARM GAS  /tmp/ccR7hKqS.s 			page 6
+
+
+                           .group:0000000000000000 wm4.stm32f1xx_hal_flash.h.21.6df147ac02cc6dec8c4706cc1a34879c
+                           .group:0000000000000000 wm4.stm32f1xx_hal_flash_ex.h.21.33e24ce7a8607e16d5a38297454fd963
+                           .group:0000000000000000 wm4.stm32f1xx_hal_i2c.h.21.6a947c870feb456d84d10dd871ee01bd
+                           .group:0000000000000000 wm4.stm32f1xx_hal_iwdg.h.21.14afe1e30714751a311b81d0791714c2
+                           .group:0000000000000000 wm4.stm32f1xx_hal_pwr.h.21.ec3e2cfd4c26fffa32fc4ff0a8ac7390
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rtc.h.21.833c91cab3eef49edc59fd371d3c1ce0
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rtc_ex.h.21.b671683f6728965b6d8404d04009ed32
+                           .group:0000000000000000 wm4.stm32f1xx_hal_spi.h.21.59f3c581a47a8dea5d070b46998af27e
+                           .group:0000000000000000 wm4.stm32f1xx_hal_tim.h.21.76f9d96f76cba41ae3b6e27311c6f5ff
+                           .group:0000000000000000 wm4.stm32f1xx_hal_uart.h.21.ffd6508e5e0a88f651472e5c80a9d587
+                           .group:0000000000000000 wm4.stm32f1xx_hal_usart.h.21.0b32d58c93817e5f10bce7603c316c1e
+                           .group:0000000000000000 wm4.stm32f1xx_hal_irda.h.21.b44168150ccb55c331f6e6afe3cf4b88
+                           .group:0000000000000000 wm4.stm32f1xx_hal_smartcard.h.21.d256a98de9ec7b58600da5aa4b29abdb
+                           .group:0000000000000000 wm4.stm32f1xx_hal_wwdg.h.21.ac611fc4089566604f02b81297147d50
+                           .group:0000000000000000 wm4.stm32f1xx_ll_usb.h.21.4cb0f3c145693f977427d01b787de0c7
+                           .group:0000000000000000 wm4.stm32f1xx_hal_pcd.h.160.b1d545af3cea9ada15575c2dedd78cdc
+                           .group:0000000000000000 wm4.stm32f1xx_hal.h.87.60093b86a987865736d7cddecce3c235
+                           .group:0000000000000000 wm4.hal.h.171.2416996228cff7a433489242f7abe7d4
+                           .group:0000000000000000 wm4.stdbool.h.29.4a1c88fe569adb8d03217dd16982ca34
+                           .group:0000000000000000 wm4.bshal_i2cm.h.17.c7329ec6dbd3040670862aca99bbdc7c
+
+UNDEFINED SYMBOLS
+HAL_I2C_Master_Transmit
+HAL_I2C_Master_Receive
+HAL_I2C_IsDeviceReady

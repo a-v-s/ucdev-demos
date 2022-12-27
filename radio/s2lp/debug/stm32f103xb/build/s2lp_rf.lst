@@ -1,0 +1,3789 @@
+ARM GAS  /tmp/cc9iOMXq.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.arch armv7-m
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"s2lp_rf.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.file 1 "S2LP_Driver/s2lp_rf.c"
+  18              		.section	.text.S2LP_RF_SetChargePumpCurrent,"ax",%progbits
+  19              		.align	1
+  20              		.global	S2LP_RF_SetChargePumpCurrent
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  25              	S2LP_RF_SetChargePumpCurrent:
+  26              	.LFB67:
+   1:S2LP_Driver/s2lp_rf.c **** /*
+   2:S2LP_Driver/s2lp_rf.c ****  * s2lp_rf.c
+   3:S2LP_Driver/s2lp_rf.c ****  *
+   4:S2LP_Driver/s2lp_rf.c ****  *  Created on: 11 sie 2021
+   5:S2LP_Driver/s2lp_rf.c ****  *      Author: steelph0enix
+   6:S2LP_Driver/s2lp_rf.c ****  */
+   7:S2LP_Driver/s2lp_rf.c **** 
+   8:S2LP_Driver/s2lp_rf.c **** #include "s2lp_rf.h"
+   9:S2LP_Driver/s2lp_rf.c **** #include "bit_helpers.h"
+  10:S2LP_Driver/s2lp_rf.c **** #include "s2lp.h"
+  11:S2LP_Driver/s2lp_rf.c **** #include <math.h>
+  12:S2LP_Driver/s2lp_rf.c **** 
+  13:S2LP_Driver/s2lp_rf.c **** void S2LP_RF_SetChargePumpCurrent(S2LP_Handle* handle, S2LP_ChargePumpCurrent current) {
+  27              		.loc 1 13 88
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 16
+  30              		@ frame_needed = 1, uses_anonymous_args = 0
+  31 0000 80B5     		push	{r7, lr}
+  32              		.cfi_def_cfa_offset 8
+  33              		.cfi_offset 7, -8
+  34              		.cfi_offset 14, -4
+  35 0002 84B0     		sub	sp, sp, #16
+  36              		.cfi_def_cfa_offset 24
+  37 0004 00AF     		add	r7, sp, #0
+  38              		.cfi_def_cfa_register 7
+  39 0006 7860     		str	r0, [r7, #4]
+  40 0008 0B46     		mov	r3, r1
+  41 000a FB70     		strb	r3, [r7, #3]
+  14:S2LP_Driver/s2lp_rf.c **** 	uint8_t isel_value = 0;
+  42              		.loc 1 14 10
+  43 000c 0023     		movs	r3, #0
+  44 000e FB73     		strb	r3, [r7, #15]
+ARM GAS  /tmp/cc9iOMXq.s 			page 2
+
+
+  15:S2LP_Driver/s2lp_rf.c **** 	bool pfd_split = false;
+  45              		.loc 1 15 7
+  46 0010 0023     		movs	r3, #0
+  47 0012 BB73     		strb	r3, [r7, #14]
+  16:S2LP_Driver/s2lp_rf.c **** 
+  17:S2LP_Driver/s2lp_rf.c **** 	switch (current) {
+  48              		.loc 1 17 2
+  49 0014 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+  50 0016 032B     		cmp	r3, #3
+  51 0018 4FD8     		bhi	.L12
+  52 001a 01A2     		adr	r2, .L4
+  53 001c 52F823F0 		ldr	pc, [r2, r3, lsl #2]
+  54              		.p2align 2
+  55              	.L4:
+  56 0020 31000000 		.word	.L7+1
+  57 0024 3B000000 		.word	.L6+1
+  58 0028 45000000 		.word	.L5+1
+  59 002c 4F000000 		.word	.L3+1
+  60              		.p2align 1
+  61              	.L7:
+  18:S2LP_Driver/s2lp_rf.c **** 		case S2LP_CHARGE_PUMP_120UA:
+  19:S2LP_Driver/s2lp_rf.c **** 			isel_value = 0b010;
+  62              		.loc 1 19 15
+  63 0030 0223     		movs	r3, #2
+  64 0032 FB73     		strb	r3, [r7, #15]
+  20:S2LP_Driver/s2lp_rf.c **** 			pfd_split = false;
+  65              		.loc 1 20 14
+  66 0034 0023     		movs	r3, #0
+  67 0036 BB73     		strb	r3, [r7, #14]
+  21:S2LP_Driver/s2lp_rf.c **** 			break;
+  68              		.loc 1 21 4
+  69 0038 0EE0     		b	.L8
+  70              	.L6:
+  22:S2LP_Driver/s2lp_rf.c **** 		case S2LP_CHARGE_PUMP_200UA:
+  23:S2LP_Driver/s2lp_rf.c **** 			isel_value = 0b001;
+  71              		.loc 1 23 15
+  72 003a 0123     		movs	r3, #1
+  73 003c FB73     		strb	r3, [r7, #15]
+  24:S2LP_Driver/s2lp_rf.c **** 			pfd_split = true;
+  74              		.loc 1 24 14
+  75 003e 0123     		movs	r3, #1
+  76 0040 BB73     		strb	r3, [r7, #14]
+  25:S2LP_Driver/s2lp_rf.c **** 			break;
+  77              		.loc 1 25 4
+  78 0042 09E0     		b	.L8
+  79              	.L5:
+  26:S2LP_Driver/s2lp_rf.c **** 		case S2LP_CHARGE_PUMP_140UA:
+  27:S2LP_Driver/s2lp_rf.c **** 			isel_value = 0b011;
+  80              		.loc 1 27 15
+  81 0044 0323     		movs	r3, #3
+  82 0046 FB73     		strb	r3, [r7, #15]
+  28:S2LP_Driver/s2lp_rf.c **** 			pfd_split = false;
+  83              		.loc 1 28 14
+  84 0048 0023     		movs	r3, #0
+  85 004a BB73     		strb	r3, [r7, #14]
+  29:S2LP_Driver/s2lp_rf.c **** 			break;
+  86              		.loc 1 29 4
+ARM GAS  /tmp/cc9iOMXq.s 			page 3
+
+
+  87 004c 04E0     		b	.L8
+  88              	.L3:
+  30:S2LP_Driver/s2lp_rf.c **** 		case S2LP_CHARGE_PUMP_240UA:
+  31:S2LP_Driver/s2lp_rf.c **** 			isel_value = 0b010;
+  89              		.loc 1 31 15
+  90 004e 0223     		movs	r3, #2
+  91 0050 FB73     		strb	r3, [r7, #15]
+  32:S2LP_Driver/s2lp_rf.c **** 			pfd_split = true;
+  92              		.loc 1 32 14
+  93 0052 0123     		movs	r3, #1
+  94 0054 BB73     		strb	r3, [r7, #14]
+  33:S2LP_Driver/s2lp_rf.c **** 			break;
+  95              		.loc 1 33 4
+  96 0056 00BF     		nop
+  97              	.L8:
+  34:S2LP_Driver/s2lp_rf.c **** 		case S2LP_CHARGE_PUMP_INVALID:
+  35:S2LP_Driver/s2lp_rf.c **** 		default:
+  36:S2LP_Driver/s2lp_rf.c **** 			return;
+  37:S2LP_Driver/s2lp_rf.c **** 	}
+  38:S2LP_Driver/s2lp_rf.c **** 
+  39:S2LP_Driver/s2lp_rf.c **** 	uint8_t synt3_val = S2LP_ReadRegister(handle, S2LP_REG_SYNT3);
+  98              		.loc 1 39 22
+  99 0058 0521     		movs	r1, #5
+ 100 005a 7868     		ldr	r0, [r7, #4]
+ 101 005c FFF7FEFF 		bl	S2LP_ReadRegister
+ 102 0060 0346     		mov	r3, r0
+ 103 0062 3B73     		strb	r3, [r7, #12]
+  40:S2LP_Driver/s2lp_rf.c **** 	uint8_t synth_config_val = S2LP_ReadRegister(handle, S2LP_REG_SYNTH_CONFIG2);
+ 104              		.loc 1 40 29
+ 105 0064 6521     		movs	r1, #101
+ 106 0066 7868     		ldr	r0, [r7, #4]
+ 107 0068 FFF7FEFF 		bl	S2LP_ReadRegister
+ 108 006c 0346     		mov	r3, r0
+ 109 006e 7B73     		strb	r3, [r7, #13]
+  41:S2LP_Driver/s2lp_rf.c **** 
+  42:S2LP_Driver/s2lp_rf.c **** 	CLEARBITS(synt3_val, 0b111, 5);
+ 110              		.loc 1 42 2
+ 111 0070 3B7B     		ldrb	r3, [r7, #12]
+ 112 0072 03F01F03 		and	r3, r3, #31
+ 113 0076 3B73     		strb	r3, [r7, #12]
+  43:S2LP_Driver/s2lp_rf.c **** 	SETBITS(synt3_val, isel_value, 0b111, 5);
+ 114              		.loc 1 43 2
+ 115 0078 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 116 007a 5B01     		lsls	r3, r3, #5
+ 117 007c 5AB2     		sxtb	r2, r3
+ 118 007e 97F90C30 		ldrsb	r3, [r7, #12]
+ 119 0082 1343     		orrs	r3, r3, r2
+ 120 0084 5BB2     		sxtb	r3, r3
+ 121 0086 3B73     		strb	r3, [r7, #12]
+  44:S2LP_Driver/s2lp_rf.c **** 
+  45:S2LP_Driver/s2lp_rf.c **** 	if (pfd_split) {
+ 122              		.loc 1 45 5
+ 123 0088 BB7B     		ldrb	r3, [r7, #14]	@ zero_extendqisi2
+ 124 008a 002B     		cmp	r3, #0
+ 125 008c 04D0     		beq	.L10
+  46:S2LP_Driver/s2lp_rf.c **** 		SETBIT(synth_config_val, 2);
+ 126              		.loc 1 46 3
+ARM GAS  /tmp/cc9iOMXq.s 			page 4
+
+
+ 127 008e 7B7B     		ldrb	r3, [r7, #13]
+ 128 0090 43F00403 		orr	r3, r3, #4
+ 129 0094 7B73     		strb	r3, [r7, #13]
+ 130 0096 03E0     		b	.L11
+ 131              	.L10:
+  47:S2LP_Driver/s2lp_rf.c **** 	} else {
+  48:S2LP_Driver/s2lp_rf.c **** 		CLEARBIT(synth_config_val, 2);
+ 132              		.loc 1 48 3
+ 133 0098 7B7B     		ldrb	r3, [r7, #13]
+ 134 009a 23F00403 		bic	r3, r3, #4
+ 135 009e 7B73     		strb	r3, [r7, #13]
+ 136              	.L11:
+  49:S2LP_Driver/s2lp_rf.c **** 	}
+  50:S2LP_Driver/s2lp_rf.c **** 
+  51:S2LP_Driver/s2lp_rf.c **** 	S2LP_WriteRegister(handle, S2LP_REG_SYNT3, synt3_val);
+ 137              		.loc 1 51 2
+ 138 00a0 3B7B     		ldrb	r3, [r7, #12]	@ zero_extendqisi2
+ 139 00a2 1A46     		mov	r2, r3
+ 140 00a4 0521     		movs	r1, #5
+ 141 00a6 7868     		ldr	r0, [r7, #4]
+ 142 00a8 FFF7FEFF 		bl	S2LP_WriteRegister
+  52:S2LP_Driver/s2lp_rf.c **** 	S2LP_WriteRegister(handle, S2LP_REG_SYNTH_CONFIG2, synth_config_val);
+ 143              		.loc 1 52 2
+ 144 00ac 7B7B     		ldrb	r3, [r7, #13]	@ zero_extendqisi2
+ 145 00ae 1A46     		mov	r2, r3
+ 146 00b0 6521     		movs	r1, #101
+ 147 00b2 7868     		ldr	r0, [r7, #4]
+ 148 00b4 FFF7FEFF 		bl	S2LP_WriteRegister
+ 149 00b8 00E0     		b	.L1
+ 150              	.L12:
+  36:S2LP_Driver/s2lp_rf.c **** 	}
+ 151              		.loc 1 36 4
+ 152 00ba 00BF     		nop
+ 153              	.L1:
+  53:S2LP_Driver/s2lp_rf.c **** }
+ 154              		.loc 1 53 1
+ 155 00bc 1037     		adds	r7, r7, #16
+ 156              		.cfi_def_cfa_offset 8
+ 157 00be BD46     		mov	sp, r7
+ 158              		.cfi_def_cfa_register 13
+ 159              		@ sp needed
+ 160 00c0 80BD     		pop	{r7, pc}
+ 161              		.cfi_endproc
+ 162              	.LFE67:
+ 164 00c2 00BF     		.section	.text.S2LP_RF_SetSynthBand,"ax",%progbits
+ 165              		.align	1
+ 166              		.global	S2LP_RF_SetSynthBand
+ 167              		.syntax unified
+ 168              		.thumb
+ 169              		.thumb_func
+ 171              	S2LP_RF_SetSynthBand:
+ 172              	.LFB68:
+  54:S2LP_Driver/s2lp_rf.c **** 
+  55:S2LP_Driver/s2lp_rf.c **** void S2LP_RF_SetSynthBand(S2LP_Handle* handle, S2LP_SynthesizerBand band) {
+ 173              		.loc 1 55 75
+ 174              		.cfi_startproc
+ 175              		@ args = 0, pretend = 0, frame = 16
+ARM GAS  /tmp/cc9iOMXq.s 			page 5
+
+
+ 176              		@ frame_needed = 1, uses_anonymous_args = 0
+ 177 0000 80B5     		push	{r7, lr}
+ 178              		.cfi_def_cfa_offset 8
+ 179              		.cfi_offset 7, -8
+ 180              		.cfi_offset 14, -4
+ 181 0002 84B0     		sub	sp, sp, #16
+ 182              		.cfi_def_cfa_offset 24
+ 183 0004 00AF     		add	r7, sp, #0
+ 184              		.cfi_def_cfa_register 7
+ 185 0006 7860     		str	r0, [r7, #4]
+ 186 0008 0B46     		mov	r3, r1
+ 187 000a FB70     		strb	r3, [r7, #3]
+  56:S2LP_Driver/s2lp_rf.c **** 	uint8_t reg_val = S2LP_ReadRegister(handle, S2LP_REG_SYNT3);
+ 188              		.loc 1 56 20
+ 189 000c 0521     		movs	r1, #5
+ 190 000e 7868     		ldr	r0, [r7, #4]
+ 191 0010 FFF7FEFF 		bl	S2LP_ReadRegister
+ 192 0014 0346     		mov	r3, r0
+ 193 0016 FB73     		strb	r3, [r7, #15]
+  57:S2LP_Driver/s2lp_rf.c **** 	switch (band) {
+ 194              		.loc 1 57 2
+ 195 0018 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 196 001a 002B     		cmp	r3, #0
+ 197 001c 02D0     		beq	.L14
+ 198 001e 012B     		cmp	r3, #1
+ 199 0020 05D0     		beq	.L15
+  58:S2LP_Driver/s2lp_rf.c **** 		case S2LP_SYNTH_BAND_HIGH:
+  59:S2LP_Driver/s2lp_rf.c **** 			CLEARBIT(reg_val, 4);
+  60:S2LP_Driver/s2lp_rf.c **** 			break;
+  61:S2LP_Driver/s2lp_rf.c **** 		case S2LP_SYNTH_BAND_MID:
+  62:S2LP_Driver/s2lp_rf.c **** 			SETBIT(reg_val, 4);
+  63:S2LP_Driver/s2lp_rf.c **** 			break;
+  64:S2LP_Driver/s2lp_rf.c **** 		default:
+  65:S2LP_Driver/s2lp_rf.c **** 			break;
+ 200              		.loc 1 65 4
+ 201 0022 09E0     		b	.L17
+ 202              	.L14:
+  59:S2LP_Driver/s2lp_rf.c **** 			break;
+ 203              		.loc 1 59 4
+ 204 0024 FB7B     		ldrb	r3, [r7, #15]
+ 205 0026 23F01003 		bic	r3, r3, #16
+ 206 002a FB73     		strb	r3, [r7, #15]
+  60:S2LP_Driver/s2lp_rf.c **** 		case S2LP_SYNTH_BAND_MID:
+ 207              		.loc 1 60 4
+ 208 002c 04E0     		b	.L17
+ 209              	.L15:
+  62:S2LP_Driver/s2lp_rf.c **** 			break;
+ 210              		.loc 1 62 4
+ 211 002e FB7B     		ldrb	r3, [r7, #15]
+ 212 0030 43F01003 		orr	r3, r3, #16
+ 213 0034 FB73     		strb	r3, [r7, #15]
+  63:S2LP_Driver/s2lp_rf.c **** 		default:
+ 214              		.loc 1 63 4
+ 215 0036 00BF     		nop
+ 216              	.L17:
+  66:S2LP_Driver/s2lp_rf.c **** 	}
+  67:S2LP_Driver/s2lp_rf.c **** 
+ARM GAS  /tmp/cc9iOMXq.s 			page 6
+
+
+  68:S2LP_Driver/s2lp_rf.c **** 	S2LP_WriteRegister(handle, S2LP_REG_SYNT3, reg_val);
+ 217              		.loc 1 68 2
+ 218 0038 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 219 003a 1A46     		mov	r2, r3
+ 220 003c 0521     		movs	r1, #5
+ 221 003e 7868     		ldr	r0, [r7, #4]
+ 222 0040 FFF7FEFF 		bl	S2LP_WriteRegister
+  69:S2LP_Driver/s2lp_rf.c **** }
+ 223              		.loc 1 69 1
+ 224 0044 00BF     		nop
+ 225 0046 1037     		adds	r7, r7, #16
+ 226              		.cfi_def_cfa_offset 8
+ 227 0048 BD46     		mov	sp, r7
+ 228              		.cfi_def_cfa_register 13
+ 229              		@ sp needed
+ 230 004a 80BD     		pop	{r7, pc}
+ 231              		.cfi_endproc
+ 232              	.LFE68:
+ 234              		.section	.text.S2LP_RF_SetSynthValue,"ax",%progbits
+ 235              		.align	1
+ 236              		.global	S2LP_RF_SetSynthValue
+ 237              		.syntax unified
+ 238              		.thumb
+ 239              		.thumb_func
+ 241              	S2LP_RF_SetSynthValue:
+ 242              	.LFB69:
+  70:S2LP_Driver/s2lp_rf.c **** 
+  71:S2LP_Driver/s2lp_rf.c **** void S2LP_RF_SetSynthValue(S2LP_Handle* handle, uint32_t value) {
+ 243              		.loc 1 71 65
+ 244              		.cfi_startproc
+ 245              		@ args = 0, pretend = 0, frame = 16
+ 246              		@ frame_needed = 1, uses_anonymous_args = 0
+ 247 0000 80B5     		push	{r7, lr}
+ 248              		.cfi_def_cfa_offset 8
+ 249              		.cfi_offset 7, -8
+ 250              		.cfi_offset 14, -4
+ 251 0002 84B0     		sub	sp, sp, #16
+ 252              		.cfi_def_cfa_offset 24
+ 253 0004 00AF     		add	r7, sp, #0
+ 254              		.cfi_def_cfa_register 7
+ 255 0006 7860     		str	r0, [r7, #4]
+ 256 0008 3960     		str	r1, [r7]
+  72:S2LP_Driver/s2lp_rf.c **** 	// Register order is reversed (index 0 is SYNT3, 1 is SYNT2, and so on)
+  73:S2LP_Driver/s2lp_rf.c **** 	uint8_t reg_vals[4] = { 0 };
+ 257              		.loc 1 73 10
+ 258 000a 0023     		movs	r3, #0
+ 259 000c FB60     		str	r3, [r7, #12]
+  74:S2LP_Driver/s2lp_rf.c **** 
+  75:S2LP_Driver/s2lp_rf.c **** 	// 3 out of 4 SYNT registers are used only for storing divider,
+  76:S2LP_Driver/s2lp_rf.c **** 	// so i'm gonna read only SYNT3 as it contains other settings
+  77:S2LP_Driver/s2lp_rf.c **** 	reg_vals[0] = S2LP_ReadRegister(handle, S2LP_REG_SYNT3);
+ 260              		.loc 1 77 16
+ 261 000e 0521     		movs	r1, #5
+ 262 0010 7868     		ldr	r0, [r7, #4]
+ 263 0012 FFF7FEFF 		bl	S2LP_ReadRegister
+ 264 0016 0346     		mov	r3, r0
+ 265              		.loc 1 77 14
+ARM GAS  /tmp/cc9iOMXq.s 			page 7
+
+
+ 266 0018 3B73     		strb	r3, [r7, #12]
+  78:S2LP_Driver/s2lp_rf.c **** 	CLEARBITS(reg_vals[0], 0b1111, 0);
+ 267              		.loc 1 78 2
+ 268 001a 3B7B     		ldrb	r3, [r7, #12]	@ zero_extendqisi2
+ 269 001c 23F00F03 		bic	r3, r3, #15
+ 270 0020 DBB2     		uxtb	r3, r3
+ 271 0022 3B73     		strb	r3, [r7, #12]
+  79:S2LP_Driver/s2lp_rf.c **** 
+  80:S2LP_Driver/s2lp_rf.c **** 	// Write the values to correct registers
+  81:S2LP_Driver/s2lp_rf.c **** 	SETBITS(reg_vals[0], GETBITS(value, 0b1111, 24), 0b1111, 0);
+ 272              		.loc 1 81 2
+ 273 0024 3A7B     		ldrb	r2, [r7, #12]	@ zero_extendqisi2
+ 274 0026 3B68     		ldr	r3, [r7]
+ 275 0028 1B0E     		lsrs	r3, r3, #24
+ 276 002a DBB2     		uxtb	r3, r3
+ 277 002c 03F00F03 		and	r3, r3, #15
+ 278 0030 DBB2     		uxtb	r3, r3
+ 279 0032 1343     		orrs	r3, r3, r2
+ 280 0034 DBB2     		uxtb	r3, r3
+ 281 0036 3B73     		strb	r3, [r7, #12]
+  82:S2LP_Driver/s2lp_rf.c **** 	reg_vals[1] = GETBITS(value, 0xFF, 16);
+ 282              		.loc 1 82 16
+ 283 0038 3B68     		ldr	r3, [r7]
+ 284 003a 1B0C     		lsrs	r3, r3, #16
+ 285              		.loc 1 82 14
+ 286 003c DBB2     		uxtb	r3, r3
+ 287 003e 7B73     		strb	r3, [r7, #13]
+  83:S2LP_Driver/s2lp_rf.c **** 	reg_vals[2] = GETBITS(value, 0xFF, 8);
+ 288              		.loc 1 83 16
+ 289 0040 3B68     		ldr	r3, [r7]
+ 290 0042 1B0A     		lsrs	r3, r3, #8
+ 291              		.loc 1 83 14
+ 292 0044 DBB2     		uxtb	r3, r3
+ 293 0046 BB73     		strb	r3, [r7, #14]
+  84:S2LP_Driver/s2lp_rf.c **** 	reg_vals[3] = GETBITS(value, 0xFF, 0);
+ 294              		.loc 1 84 14
+ 295 0048 3B68     		ldr	r3, [r7]
+ 296 004a DBB2     		uxtb	r3, r3
+ 297 004c FB73     		strb	r3, [r7, #15]
+  85:S2LP_Driver/s2lp_rf.c **** 
+  86:S2LP_Driver/s2lp_rf.c **** 	S2LP_BatchWriteRegisters(handle, S2LP_REG_SYNT3, reg_vals, 4);
+ 298              		.loc 1 86 2
+ 299 004e 07F10C02 		add	r2, r7, #12
+ 300 0052 0423     		movs	r3, #4
+ 301 0054 0521     		movs	r1, #5
+ 302 0056 7868     		ldr	r0, [r7, #4]
+ 303 0058 FFF7FEFF 		bl	S2LP_BatchWriteRegisters
+  87:S2LP_Driver/s2lp_rf.c **** }
+ 304              		.loc 1 87 1
+ 305 005c 00BF     		nop
+ 306 005e 1037     		adds	r7, r7, #16
+ 307              		.cfi_def_cfa_offset 8
+ 308 0060 BD46     		mov	sp, r7
+ 309              		.cfi_def_cfa_register 13
+ 310              		@ sp needed
+ 311 0062 80BD     		pop	{r7, pc}
+ 312              		.cfi_endproc
+ARM GAS  /tmp/cc9iOMXq.s 			page 8
+
+
+ 313              	.LFE69:
+ 315              		.section	.text.S2LP_RF_SetBaseFrequency,"ax",%progbits
+ 316              		.align	1
+ 317              		.global	S2LP_RF_SetBaseFrequency
+ 318              		.syntax unified
+ 319              		.thumb
+ 320              		.thumb_func
+ 322              	S2LP_RF_SetBaseFrequency:
+ 323              	.LFB70:
+  88:S2LP_Driver/s2lp_rf.c **** 
+  89:S2LP_Driver/s2lp_rf.c **** void S2LP_RF_SetBaseFrequency(S2LP_Handle* handle, uint32_t frequency) {
+ 324              		.loc 1 89 72
+ 325              		.cfi_startproc
+ 326              		@ args = 0, pretend = 0, frame = 16
+ 327              		@ frame_needed = 1, uses_anonymous_args = 0
+ 328 0000 80B5     		push	{r7, lr}
+ 329              		.cfi_def_cfa_offset 8
+ 330              		.cfi_offset 7, -8
+ 331              		.cfi_offset 14, -4
+ 332 0002 84B0     		sub	sp, sp, #16
+ 333              		.cfi_def_cfa_offset 24
+ 334 0004 00AF     		add	r7, sp, #0
+ 335              		.cfi_def_cfa_register 7
+ 336 0006 7860     		str	r0, [r7, #4]
+ 337 0008 3960     		str	r1, [r7]
+  90:S2LP_Driver/s2lp_rf.c **** 	uint32_t sync_word = S2LP_RF_CalculateSyncForBaseFrequency(handle, frequency);
+ 338              		.loc 1 90 23
+ 339 000a 3968     		ldr	r1, [r7]
+ 340 000c 7868     		ldr	r0, [r7, #4]
+ 341 000e FFF7FEFF 		bl	S2LP_RF_CalculateSyncForBaseFrequency
+ 342 0012 F860     		str	r0, [r7, #12]
+  91:S2LP_Driver/s2lp_rf.c **** 	S2LP_RF_SetSynthValue(handle, sync_word);
+ 343              		.loc 1 91 2
+ 344 0014 F968     		ldr	r1, [r7, #12]
+ 345 0016 7868     		ldr	r0, [r7, #4]
+ 346 0018 FFF7FEFF 		bl	S2LP_RF_SetSynthValue
+  92:S2LP_Driver/s2lp_rf.c **** }
+ 347              		.loc 1 92 1
+ 348 001c 00BF     		nop
+ 349 001e 1037     		adds	r7, r7, #16
+ 350              		.cfi_def_cfa_offset 8
+ 351 0020 BD46     		mov	sp, r7
+ 352              		.cfi_def_cfa_register 13
+ 353              		@ sp needed
+ 354 0022 80BD     		pop	{r7, pc}
+ 355              		.cfi_endproc
+ 356              	.LFE70:
+ 358              		.section	.text.S2LP_RF_SetChannelSpacing,"ax",%progbits
+ 359              		.align	1
+ 360              		.global	S2LP_RF_SetChannelSpacing
+ 361              		.syntax unified
+ 362              		.thumb
+ 363              		.thumb_func
+ 365              	S2LP_RF_SetChannelSpacing:
+ 366              	.LFB71:
+  93:S2LP_Driver/s2lp_rf.c **** 
+  94:S2LP_Driver/s2lp_rf.c **** void S2LP_RF_SetChannelSpacing(S2LP_Handle* handle, uint8_t value) {
+ARM GAS  /tmp/cc9iOMXq.s 			page 9
+
+
+ 367              		.loc 1 94 68
+ 368              		.cfi_startproc
+ 369              		@ args = 0, pretend = 0, frame = 8
+ 370              		@ frame_needed = 1, uses_anonymous_args = 0
+ 371 0000 80B5     		push	{r7, lr}
+ 372              		.cfi_def_cfa_offset 8
+ 373              		.cfi_offset 7, -8
+ 374              		.cfi_offset 14, -4
+ 375 0002 82B0     		sub	sp, sp, #8
+ 376              		.cfi_def_cfa_offset 16
+ 377 0004 00AF     		add	r7, sp, #0
+ 378              		.cfi_def_cfa_register 7
+ 379 0006 7860     		str	r0, [r7, #4]
+ 380 0008 0B46     		mov	r3, r1
+ 381 000a FB70     		strb	r3, [r7, #3]
+  95:S2LP_Driver/s2lp_rf.c **** 	S2LP_WriteRegister(handle, S2LP_REG_CHSPACE, value);
+ 382              		.loc 1 95 2
+ 383 000c FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 384 000e 1A46     		mov	r2, r3
+ 385 0010 0C21     		movs	r1, #12
+ 386 0012 7868     		ldr	r0, [r7, #4]
+ 387 0014 FFF7FEFF 		bl	S2LP_WriteRegister
+  96:S2LP_Driver/s2lp_rf.c **** }
+ 388              		.loc 1 96 1
+ 389 0018 00BF     		nop
+ 390 001a 0837     		adds	r7, r7, #8
+ 391              		.cfi_def_cfa_offset 8
+ 392 001c BD46     		mov	sp, r7
+ 393              		.cfi_def_cfa_register 13
+ 394              		@ sp needed
+ 395 001e 80BD     		pop	{r7, pc}
+ 396              		.cfi_endproc
+ 397              	.LFE71:
+ 399              		.section	.text.S2LP_RF_SetChannelNumber,"ax",%progbits
+ 400              		.align	1
+ 401              		.global	S2LP_RF_SetChannelNumber
+ 402              		.syntax unified
+ 403              		.thumb
+ 404              		.thumb_func
+ 406              	S2LP_RF_SetChannelNumber:
+ 407              	.LFB72:
+  97:S2LP_Driver/s2lp_rf.c **** 
+  98:S2LP_Driver/s2lp_rf.c **** void S2LP_RF_SetChannelNumber(S2LP_Handle* handle, uint8_t number) {
+ 408              		.loc 1 98 68
+ 409              		.cfi_startproc
+ 410              		@ args = 0, pretend = 0, frame = 8
+ 411              		@ frame_needed = 1, uses_anonymous_args = 0
+ 412 0000 80B5     		push	{r7, lr}
+ 413              		.cfi_def_cfa_offset 8
+ 414              		.cfi_offset 7, -8
+ 415              		.cfi_offset 14, -4
+ 416 0002 82B0     		sub	sp, sp, #8
+ 417              		.cfi_def_cfa_offset 16
+ 418 0004 00AF     		add	r7, sp, #0
+ 419              		.cfi_def_cfa_register 7
+ 420 0006 7860     		str	r0, [r7, #4]
+ 421 0008 0B46     		mov	r3, r1
+ARM GAS  /tmp/cc9iOMXq.s 			page 10
+
+
+ 422 000a FB70     		strb	r3, [r7, #3]
+  99:S2LP_Driver/s2lp_rf.c **** 	S2LP_WriteRegister(handle, S2LP_REG_CHNUM, number);
+ 423              		.loc 1 99 2
+ 424 000c FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 425 000e 1A46     		mov	r2, r3
+ 426 0010 0D21     		movs	r1, #13
+ 427 0012 7868     		ldr	r0, [r7, #4]
+ 428 0014 FFF7FEFF 		bl	S2LP_WriteRegister
+ 100:S2LP_Driver/s2lp_rf.c **** }
+ 429              		.loc 1 100 1
+ 430 0018 00BF     		nop
+ 431 001a 0837     		adds	r7, r7, #8
+ 432              		.cfi_def_cfa_offset 8
+ 433 001c BD46     		mov	sp, r7
+ 434              		.cfi_def_cfa_register 13
+ 435              		@ sp needed
+ 436 001e 80BD     		pop	{r7, pc}
+ 437              		.cfi_endproc
+ 438              	.LFE72:
+ 440              		.section	.text.S2LP_RF_SetModulationType,"ax",%progbits
+ 441              		.align	1
+ 442              		.global	S2LP_RF_SetModulationType
+ 443              		.syntax unified
+ 444              		.thumb
+ 445              		.thumb_func
+ 447              	S2LP_RF_SetModulationType:
+ 448              	.LFB73:
+ 101:S2LP_Driver/s2lp_rf.c **** 
+ 102:S2LP_Driver/s2lp_rf.c **** void S2LP_RF_SetModulationType(S2LP_Handle* handle, S2LP_Modulation modulation) {
+ 449              		.loc 1 102 81
+ 450              		.cfi_startproc
+ 451              		@ args = 0, pretend = 0, frame = 16
+ 452              		@ frame_needed = 1, uses_anonymous_args = 0
+ 453 0000 80B5     		push	{r7, lr}
+ 454              		.cfi_def_cfa_offset 8
+ 455              		.cfi_offset 7, -8
+ 456              		.cfi_offset 14, -4
+ 457 0002 84B0     		sub	sp, sp, #16
+ 458              		.cfi_def_cfa_offset 24
+ 459 0004 00AF     		add	r7, sp, #0
+ 460              		.cfi_def_cfa_register 7
+ 461 0006 7860     		str	r0, [r7, #4]
+ 462 0008 0B46     		mov	r3, r1
+ 463 000a FB70     		strb	r3, [r7, #3]
+ 103:S2LP_Driver/s2lp_rf.c **** 	uint8_t reg_val = S2LP_ReadRegister(handle, S2LP_REG_MOD2);
+ 464              		.loc 1 103 20
+ 465 000c 1021     		movs	r1, #16
+ 466 000e 7868     		ldr	r0, [r7, #4]
+ 467 0010 FFF7FEFF 		bl	S2LP_ReadRegister
+ 468 0014 0346     		mov	r3, r0
+ 469 0016 FB73     		strb	r3, [r7, #15]
+ 104:S2LP_Driver/s2lp_rf.c **** 	CLEARBITS(reg_val, 0b1111, 4);
+ 470              		.loc 1 104 2
+ 471 0018 FB7B     		ldrb	r3, [r7, #15]
+ 472 001a 03F00F03 		and	r3, r3, #15
+ 473 001e FB73     		strb	r3, [r7, #15]
+ 105:S2LP_Driver/s2lp_rf.c **** 	SETBITS(reg_val, modulation, 0b1111, 4);
+ARM GAS  /tmp/cc9iOMXq.s 			page 11
+
+
+ 474              		.loc 1 105 2
+ 475 0020 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 476 0022 1B01     		lsls	r3, r3, #4
+ 477 0024 5AB2     		sxtb	r2, r3
+ 478 0026 97F90F30 		ldrsb	r3, [r7, #15]
+ 479 002a 1343     		orrs	r3, r3, r2
+ 480 002c 5BB2     		sxtb	r3, r3
+ 481 002e FB73     		strb	r3, [r7, #15]
+ 106:S2LP_Driver/s2lp_rf.c **** 	S2LP_WriteRegister(handle, S2LP_REG_MOD2, reg_val);
+ 482              		.loc 1 106 2
+ 483 0030 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 484 0032 1A46     		mov	r2, r3
+ 485 0034 1021     		movs	r1, #16
+ 486 0036 7868     		ldr	r0, [r7, #4]
+ 487 0038 FFF7FEFF 		bl	S2LP_WriteRegister
+ 107:S2LP_Driver/s2lp_rf.c **** }
+ 488              		.loc 1 107 1
+ 489 003c 00BF     		nop
+ 490 003e 1037     		adds	r7, r7, #16
+ 491              		.cfi_def_cfa_offset 8
+ 492 0040 BD46     		mov	sp, r7
+ 493              		.cfi_def_cfa_register 13
+ 494              		@ sp needed
+ 495 0042 80BD     		pop	{r7, pc}
+ 496              		.cfi_endproc
+ 497              	.LFE73:
+ 499              		.section	.rodata
+ 500              		.align	2
+ 501              	.LC0:
+ 502 0000 0000     		.ascii	"\000\000"
+ 503 0002 00       		.space	1
+ 504              		.section	.text.S2LP_RF_SetDataRateRaw,"ax",%progbits
+ 505              		.align	1
+ 506              		.global	S2LP_RF_SetDataRateRaw
+ 507              		.syntax unified
+ 508              		.thumb
+ 509              		.thumb_func
+ 511              	S2LP_RF_SetDataRateRaw:
+ 512              	.LFB74:
+ 108:S2LP_Driver/s2lp_rf.c **** 
+ 109:S2LP_Driver/s2lp_rf.c **** void S2LP_RF_SetDataRateRaw(S2LP_Handle* handle, uint16_t mantissa, uint8_t exponent) {
+ 513              		.loc 1 109 87
+ 514              		.cfi_startproc
+ 515              		@ args = 0, pretend = 0, frame = 16
+ 516              		@ frame_needed = 1, uses_anonymous_args = 0
+ 517 0000 80B5     		push	{r7, lr}
+ 518              		.cfi_def_cfa_offset 8
+ 519              		.cfi_offset 7, -8
+ 520              		.cfi_offset 14, -4
+ 521 0002 84B0     		sub	sp, sp, #16
+ 522              		.cfi_def_cfa_offset 24
+ 523 0004 00AF     		add	r7, sp, #0
+ 524              		.cfi_def_cfa_register 7
+ 525 0006 7860     		str	r0, [r7, #4]
+ 526 0008 0B46     		mov	r3, r1
+ 527 000a 7B80     		strh	r3, [r7, #2]	@ movhi
+ 528 000c 1346     		mov	r3, r2
+ARM GAS  /tmp/cc9iOMXq.s 			page 12
+
+
+ 529 000e 7B70     		strb	r3, [r7, #1]
+ 110:S2LP_Driver/s2lp_rf.c **** 	// Normalize exponent, just in case
+ 111:S2LP_Driver/s2lp_rf.c **** 	exponent = (exponent > 15 ? 15 : exponent);
+ 530              		.loc 1 111 11
+ 531 0010 7B78     		ldrb	r3, [r7, #1]	@ zero_extendqisi2
+ 532 0012 0F2B     		cmp	r3, #15
+ 533 0014 28BF     		it	cs
+ 534 0016 0F23     		movcs	r3, #15
+ 535 0018 7B70     		strb	r3, [r7, #1]
+ 112:S2LP_Driver/s2lp_rf.c **** 
+ 113:S2LP_Driver/s2lp_rf.c **** 	uint8_t reg_vals[3] = { 0 };
+ 536              		.loc 1 113 10
+ 537 001a 174B     		ldr	r3, .L24
+ 538 001c 1B88     		ldrh	r3, [r3]	@ movhi
+ 539 001e BB81     		strh	r3, [r7, #12]	@ movhi
+ 540 0020 0023     		movs	r3, #0
+ 541 0022 BB73     		strb	r3, [r7, #14]
+ 114:S2LP_Driver/s2lp_rf.c **** 	reg_vals[2] = S2LP_ReadRegister(handle, S2LP_REG_MOD2);
+ 542              		.loc 1 114 16
+ 543 0024 1021     		movs	r1, #16
+ 544 0026 7868     		ldr	r0, [r7, #4]
+ 545 0028 FFF7FEFF 		bl	S2LP_ReadRegister
+ 546 002c 0346     		mov	r3, r0
+ 547              		.loc 1 114 14
+ 548 002e BB73     		strb	r3, [r7, #14]
+ 115:S2LP_Driver/s2lp_rf.c **** 
+ 116:S2LP_Driver/s2lp_rf.c **** 	// Put mantissa in MOD4/MOD3, and exponent in MOD2
+ 117:S2LP_Driver/s2lp_rf.c **** 	reg_vals[0] = GETBITS(mantissa, 0xFF, 8);
+ 549              		.loc 1 117 16
+ 550 0030 7B88     		ldrh	r3, [r7, #2]
+ 551 0032 1B0A     		lsrs	r3, r3, #8
+ 552 0034 9BB2     		uxth	r3, r3
+ 553              		.loc 1 117 14
+ 554 0036 DBB2     		uxtb	r3, r3
+ 555 0038 3B73     		strb	r3, [r7, #12]
+ 118:S2LP_Driver/s2lp_rf.c **** 	reg_vals[1] = GETBITS(mantissa, 0xFF, 0);
+ 556              		.loc 1 118 14
+ 557 003a 7B88     		ldrh	r3, [r7, #2]	@ movhi
+ 558 003c DBB2     		uxtb	r3, r3
+ 559 003e 7B73     		strb	r3, [r7, #13]
+ 119:S2LP_Driver/s2lp_rf.c **** 	CLEARBITS(reg_vals[2], 0b1111, 0);
+ 560              		.loc 1 119 2
+ 561 0040 BB7B     		ldrb	r3, [r7, #14]	@ zero_extendqisi2
+ 562 0042 23F00F03 		bic	r3, r3, #15
+ 563 0046 DBB2     		uxtb	r3, r3
+ 564 0048 BB73     		strb	r3, [r7, #14]
+ 120:S2LP_Driver/s2lp_rf.c **** 	SETBITS(reg_vals[2], exponent, 0b1111, 0);
+ 565              		.loc 1 120 2
+ 566 004a BB7B     		ldrb	r3, [r7, #14]	@ zero_extendqisi2
+ 567 004c 5AB2     		sxtb	r2, r3
+ 568 004e 97F90130 		ldrsb	r3, [r7, #1]
+ 569 0052 03F00F03 		and	r3, r3, #15
+ 570 0056 5BB2     		sxtb	r3, r3
+ 571 0058 1343     		orrs	r3, r3, r2
+ 572 005a 5BB2     		sxtb	r3, r3
+ 573 005c DBB2     		uxtb	r3, r3
+ 574 005e BB73     		strb	r3, [r7, #14]
+ARM GAS  /tmp/cc9iOMXq.s 			page 13
+
+
+ 121:S2LP_Driver/s2lp_rf.c **** 
+ 122:S2LP_Driver/s2lp_rf.c **** 	S2LP_BatchWriteRegisters(handle, S2LP_REG_MOD4, reg_vals, 3);
+ 575              		.loc 1 122 2
+ 576 0060 07F10C02 		add	r2, r7, #12
+ 577 0064 0323     		movs	r3, #3
+ 578 0066 0E21     		movs	r1, #14
+ 579 0068 7868     		ldr	r0, [r7, #4]
+ 580 006a FFF7FEFF 		bl	S2LP_BatchWriteRegisters
+ 123:S2LP_Driver/s2lp_rf.c **** }
+ 581              		.loc 1 123 1
+ 582 006e 00BF     		nop
+ 583 0070 1037     		adds	r7, r7, #16
+ 584              		.cfi_def_cfa_offset 8
+ 585 0072 BD46     		mov	sp, r7
+ 586              		.cfi_def_cfa_register 13
+ 587              		@ sp needed
+ 588 0074 80BD     		pop	{r7, pc}
+ 589              	.L25:
+ 590 0076 00BF     		.align	2
+ 591              	.L24:
+ 592 0078 00000000 		.word	.LC0
+ 593              		.cfi_endproc
+ 594              	.LFE74:
+ 596              		.section	.text.S2LP_RF_SetDataRate,"ax",%progbits
+ 597              		.align	1
+ 598              		.global	S2LP_RF_SetDataRate
+ 599              		.syntax unified
+ 600              		.thumb
+ 601              		.thumb_func
+ 603              	S2LP_RF_SetDataRate:
+ 604              	.LFB75:
+ 124:S2LP_Driver/s2lp_rf.c **** 
+ 125:S2LP_Driver/s2lp_rf.c **** void S2LP_RF_SetDataRate(S2LP_Handle* handle, uint32_t datarate) {
+ 605              		.loc 1 125 66
+ 606              		.cfi_startproc
+ 607              		@ args = 0, pretend = 0, frame = 16
+ 608              		@ frame_needed = 1, uses_anonymous_args = 0
+ 609 0000 80B5     		push	{r7, lr}
+ 610              		.cfi_def_cfa_offset 8
+ 611              		.cfi_offset 7, -8
+ 612              		.cfi_offset 14, -4
+ 613 0002 84B0     		sub	sp, sp, #16
+ 614              		.cfi_def_cfa_offset 24
+ 615 0004 00AF     		add	r7, sp, #0
+ 616              		.cfi_def_cfa_register 7
+ 617 0006 7860     		str	r0, [r7, #4]
+ 618 0008 3960     		str	r1, [r7]
+ 126:S2LP_Driver/s2lp_rf.c **** 	uint8_t exponent = 0;
+ 619              		.loc 1 126 10
+ 620 000a 0023     		movs	r3, #0
+ 621 000c FB73     		strb	r3, [r7, #15]
+ 127:S2LP_Driver/s2lp_rf.c **** 	uint16_t mantissa = 0;
+ 622              		.loc 1 127 11
+ 623 000e 0023     		movs	r3, #0
+ 624 0010 BB81     		strh	r3, [r7, #12]	@ movhi
+ 128:S2LP_Driver/s2lp_rf.c **** 	S2LP_RF_CalculateDataRateCoeffs(handle, datarate, &mantissa, &exponent);
+ 625              		.loc 1 128 2
+ARM GAS  /tmp/cc9iOMXq.s 			page 14
+
+
+ 626 0012 07F10F03 		add	r3, r7, #15
+ 627 0016 07F10C02 		add	r2, r7, #12
+ 628 001a 3968     		ldr	r1, [r7]
+ 629 001c 7868     		ldr	r0, [r7, #4]
+ 630 001e FFF7FEFF 		bl	S2LP_RF_CalculateDataRateCoeffs
+ 129:S2LP_Driver/s2lp_rf.c **** 	S2LP_RF_SetDataRateRaw(handle, mantissa, exponent);
+ 631              		.loc 1 129 2
+ 632 0022 BB89     		ldrh	r3, [r7, #12]
+ 633 0024 FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 634 0026 1946     		mov	r1, r3
+ 635 0028 7868     		ldr	r0, [r7, #4]
+ 636 002a FFF7FEFF 		bl	S2LP_RF_SetDataRateRaw
+ 130:S2LP_Driver/s2lp_rf.c **** }
+ 637              		.loc 1 130 1
+ 638 002e 00BF     		nop
+ 639 0030 1037     		adds	r7, r7, #16
+ 640              		.cfi_def_cfa_offset 8
+ 641 0032 BD46     		mov	sp, r7
+ 642              		.cfi_def_cfa_register 13
+ 643              		@ sp needed
+ 644 0034 80BD     		pop	{r7, pc}
+ 645              		.cfi_endproc
+ 646              	.LFE75:
+ 648              		.section	.text.S2LP_RF_SetFrequencyDeviationRaw,"ax",%progbits
+ 649              		.align	1
+ 650              		.global	S2LP_RF_SetFrequencyDeviationRaw
+ 651              		.syntax unified
+ 652              		.thumb
+ 653              		.thumb_func
+ 655              	S2LP_RF_SetFrequencyDeviationRaw:
+ 656              	.LFB76:
+ 131:S2LP_Driver/s2lp_rf.c **** 
+ 132:S2LP_Driver/s2lp_rf.c **** void S2LP_RF_SetFrequencyDeviationRaw(S2LP_Handle* handle, uint8_t mantissa, uint8_t exponent) {
+ 657              		.loc 1 132 96
+ 658              		.cfi_startproc
+ 659              		@ args = 0, pretend = 0, frame = 16
+ 660              		@ frame_needed = 1, uses_anonymous_args = 0
+ 661 0000 80B5     		push	{r7, lr}
+ 662              		.cfi_def_cfa_offset 8
+ 663              		.cfi_offset 7, -8
+ 664              		.cfi_offset 14, -4
+ 665 0002 84B0     		sub	sp, sp, #16
+ 666              		.cfi_def_cfa_offset 24
+ 667 0004 00AF     		add	r7, sp, #0
+ 668              		.cfi_def_cfa_register 7
+ 669 0006 7860     		str	r0, [r7, #4]
+ 670 0008 0B46     		mov	r3, r1
+ 671 000a FB70     		strb	r3, [r7, #3]
+ 672 000c 1346     		mov	r3, r2
+ 673 000e BB70     		strb	r3, [r7, #2]
+ 133:S2LP_Driver/s2lp_rf.c **** 	if (exponent > 0b1111) {
+ 674              		.loc 1 133 5
+ 675 0010 BB78     		ldrb	r3, [r7, #2]	@ zero_extendqisi2
+ 676 0012 0F2B     		cmp	r3, #15
+ 677 0014 21D8     		bhi	.L30
+ 134:S2LP_Driver/s2lp_rf.c **** 		return;
+ 135:S2LP_Driver/s2lp_rf.c **** 	}
+ARM GAS  /tmp/cc9iOMXq.s 			page 15
+
+
+ 136:S2LP_Driver/s2lp_rf.c **** 
+ 137:S2LP_Driver/s2lp_rf.c **** 	uint8_t mod_vals[2] = { 0 };
+ 678              		.loc 1 137 10
+ 679 0016 0023     		movs	r3, #0
+ 680 0018 BB81     		strh	r3, [r7, #12]	@ movhi
+ 138:S2LP_Driver/s2lp_rf.c **** 	mod_vals[0] = S2LP_ReadRegister(handle, S2LP_REG_MOD1);
+ 681              		.loc 1 138 16
+ 682 001a 1121     		movs	r1, #17
+ 683 001c 7868     		ldr	r0, [r7, #4]
+ 684 001e FFF7FEFF 		bl	S2LP_ReadRegister
+ 685 0022 0346     		mov	r3, r0
+ 686              		.loc 1 138 14
+ 687 0024 3B73     		strb	r3, [r7, #12]
+ 139:S2LP_Driver/s2lp_rf.c **** 
+ 140:S2LP_Driver/s2lp_rf.c **** 	CLEARBITS(mod_vals[0], 0b1111, 0);
+ 688              		.loc 1 140 2
+ 689 0026 3B7B     		ldrb	r3, [r7, #12]	@ zero_extendqisi2
+ 690 0028 23F00F03 		bic	r3, r3, #15
+ 691 002c DBB2     		uxtb	r3, r3
+ 692 002e 3B73     		strb	r3, [r7, #12]
+ 141:S2LP_Driver/s2lp_rf.c **** 	SETBITS(mod_vals[0], exponent, 0b1111, 0);
+ 693              		.loc 1 141 2
+ 694 0030 3B7B     		ldrb	r3, [r7, #12]	@ zero_extendqisi2
+ 695 0032 5AB2     		sxtb	r2, r3
+ 696 0034 97F90230 		ldrsb	r3, [r7, #2]
+ 697 0038 03F00F03 		and	r3, r3, #15
+ 698 003c 5BB2     		sxtb	r3, r3
+ 699 003e 1343     		orrs	r3, r3, r2
+ 700 0040 5BB2     		sxtb	r3, r3
+ 701 0042 DBB2     		uxtb	r3, r3
+ 702 0044 3B73     		strb	r3, [r7, #12]
+ 142:S2LP_Driver/s2lp_rf.c **** 	mod_vals[1] = mantissa;
+ 703              		.loc 1 142 14
+ 704 0046 FB78     		ldrb	r3, [r7, #3]
+ 705 0048 7B73     		strb	r3, [r7, #13]
+ 143:S2LP_Driver/s2lp_rf.c **** 
+ 144:S2LP_Driver/s2lp_rf.c **** 	S2LP_BatchWriteRegisters(handle, S2LP_REG_MOD1, mod_vals, 2);
+ 706              		.loc 1 144 2
+ 707 004a 07F10C02 		add	r2, r7, #12
+ 708 004e 0223     		movs	r3, #2
+ 709 0050 1121     		movs	r1, #17
+ 710 0052 7868     		ldr	r0, [r7, #4]
+ 711 0054 FFF7FEFF 		bl	S2LP_BatchWriteRegisters
+ 712 0058 00E0     		b	.L27
+ 713              	.L30:
+ 134:S2LP_Driver/s2lp_rf.c **** 	}
+ 714              		.loc 1 134 3
+ 715 005a 00BF     		nop
+ 716              	.L27:
+ 145:S2LP_Driver/s2lp_rf.c **** }
+ 717              		.loc 1 145 1
+ 718 005c 1037     		adds	r7, r7, #16
+ 719              		.cfi_def_cfa_offset 8
+ 720 005e BD46     		mov	sp, r7
+ 721              		.cfi_def_cfa_register 13
+ 722              		@ sp needed
+ 723 0060 80BD     		pop	{r7, pc}
+ARM GAS  /tmp/cc9iOMXq.s 			page 16
+
+
+ 724              		.cfi_endproc
+ 725              	.LFE76:
+ 727              		.section	.text.S2LP_RF_SetFrequencyDeviation,"ax",%progbits
+ 728              		.align	1
+ 729              		.global	S2LP_RF_SetFrequencyDeviation
+ 730              		.syntax unified
+ 731              		.thumb
+ 732              		.thumb_func
+ 734              	S2LP_RF_SetFrequencyDeviation:
+ 735              	.LFB77:
+ 146:S2LP_Driver/s2lp_rf.c **** 
+ 147:S2LP_Driver/s2lp_rf.c **** void S2LP_RF_SetFrequencyDeviation(S2LP_Handle* handle, uint32_t deviation) {
+ 736              		.loc 1 147 77
+ 737              		.cfi_startproc
+ 738              		@ args = 0, pretend = 0, frame = 16
+ 739              		@ frame_needed = 1, uses_anonymous_args = 0
+ 740 0000 80B5     		push	{r7, lr}
+ 741              		.cfi_def_cfa_offset 8
+ 742              		.cfi_offset 7, -8
+ 743              		.cfi_offset 14, -4
+ 744 0002 84B0     		sub	sp, sp, #16
+ 745              		.cfi_def_cfa_offset 24
+ 746 0004 00AF     		add	r7, sp, #0
+ 747              		.cfi_def_cfa_register 7
+ 748 0006 7860     		str	r0, [r7, #4]
+ 749 0008 3960     		str	r1, [r7]
+ 148:S2LP_Driver/s2lp_rf.c **** 	uint8_t const exponent = S2LP_RF_CalculateFreqDevExponent(handle, deviation);
+ 750              		.loc 1 148 27
+ 751 000a 3968     		ldr	r1, [r7]
+ 752 000c 7868     		ldr	r0, [r7, #4]
+ 753 000e FFF7FEFF 		bl	S2LP_RF_CalculateFreqDevExponent
+ 754 0012 0346     		mov	r3, r0
+ 755 0014 FB73     		strb	r3, [r7, #15]
+ 149:S2LP_Driver/s2lp_rf.c **** 	uint8_t const mantissa = S2LP_RF_CalculateFreqDevMantissa(handle, exponent, deviation);
+ 756              		.loc 1 149 27
+ 757 0016 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 758 0018 3A68     		ldr	r2, [r7]
+ 759 001a 1946     		mov	r1, r3
+ 760 001c 7868     		ldr	r0, [r7, #4]
+ 761 001e FFF7FEFF 		bl	S2LP_RF_CalculateFreqDevMantissa
+ 762 0022 0346     		mov	r3, r0
+ 763 0024 BB73     		strb	r3, [r7, #14]
+ 150:S2LP_Driver/s2lp_rf.c **** 	S2LP_RF_SetFrequencyDeviationRaw(handle, mantissa, exponent);
+ 764              		.loc 1 150 2
+ 765 0026 FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 766 0028 BB7B     		ldrb	r3, [r7, #14]	@ zero_extendqisi2
+ 767 002a 1946     		mov	r1, r3
+ 768 002c 7868     		ldr	r0, [r7, #4]
+ 769 002e FFF7FEFF 		bl	S2LP_RF_SetFrequencyDeviationRaw
+ 151:S2LP_Driver/s2lp_rf.c **** }
+ 770              		.loc 1 151 1
+ 771 0032 00BF     		nop
+ 772 0034 1037     		adds	r7, r7, #16
+ 773              		.cfi_def_cfa_offset 8
+ 774 0036 BD46     		mov	sp, r7
+ 775              		.cfi_def_cfa_register 13
+ 776              		@ sp needed
+ARM GAS  /tmp/cc9iOMXq.s 			page 17
+
+
+ 777 0038 80BD     		pop	{r7, pc}
+ 778              		.cfi_endproc
+ 779              	.LFE77:
+ 781              		.section	.text.S2LP_RF_SetConstellationMapping,"ax",%progbits
+ 782              		.align	1
+ 783              		.global	S2LP_RF_SetConstellationMapping
+ 784              		.syntax unified
+ 785              		.thumb
+ 786              		.thumb_func
+ 788              	S2LP_RF_SetConstellationMapping:
+ 789              	.LFB78:
+ 152:S2LP_Driver/s2lp_rf.c **** 
+ 153:S2LP_Driver/s2lp_rf.c **** void S2LP_RF_SetConstellationMapping(S2LP_Handle* handle, uint8_t mapping) {
+ 790              		.loc 1 153 76
+ 791              		.cfi_startproc
+ 792              		@ args = 0, pretend = 0, frame = 16
+ 793              		@ frame_needed = 1, uses_anonymous_args = 0
+ 794 0000 80B5     		push	{r7, lr}
+ 795              		.cfi_def_cfa_offset 8
+ 796              		.cfi_offset 7, -8
+ 797              		.cfi_offset 14, -4
+ 798 0002 84B0     		sub	sp, sp, #16
+ 799              		.cfi_def_cfa_offset 24
+ 800 0004 00AF     		add	r7, sp, #0
+ 801              		.cfi_def_cfa_register 7
+ 802 0006 7860     		str	r0, [r7, #4]
+ 803 0008 0B46     		mov	r3, r1
+ 804 000a FB70     		strb	r3, [r7, #3]
+ 154:S2LP_Driver/s2lp_rf.c **** 	uint8_t reg_val = S2LP_ReadRegister(handle, S2LP_REG_MOD1);
+ 805              		.loc 1 154 20
+ 806 000c 1121     		movs	r1, #17
+ 807 000e 7868     		ldr	r0, [r7, #4]
+ 808 0010 FFF7FEFF 		bl	S2LP_ReadRegister
+ 809 0014 0346     		mov	r3, r0
+ 810 0016 FB73     		strb	r3, [r7, #15]
+ 155:S2LP_Driver/s2lp_rf.c **** 	CLEARBITS(reg_val, 0b11, 4);
+ 811              		.loc 1 155 2
+ 812 0018 FB7B     		ldrb	r3, [r7, #15]
+ 813 001a 23F03003 		bic	r3, r3, #48
+ 814 001e FB73     		strb	r3, [r7, #15]
+ 156:S2LP_Driver/s2lp_rf.c **** 	SETBITS(reg_val, mapping, 0b11, 4);
+ 815              		.loc 1 156 2
+ 816 0020 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 817 0022 1B01     		lsls	r3, r3, #4
+ 818 0024 5BB2     		sxtb	r3, r3
+ 819 0026 03F03003 		and	r3, r3, #48
+ 820 002a 5AB2     		sxtb	r2, r3
+ 821 002c 97F90F30 		ldrsb	r3, [r7, #15]
+ 822 0030 1343     		orrs	r3, r3, r2
+ 823 0032 5BB2     		sxtb	r3, r3
+ 824 0034 FB73     		strb	r3, [r7, #15]
+ 157:S2LP_Driver/s2lp_rf.c **** 	S2LP_WriteRegister(handle, S2LP_REG_MOD1, reg_val);
+ 825              		.loc 1 157 2
+ 826 0036 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 827 0038 1A46     		mov	r2, r3
+ 828 003a 1121     		movs	r1, #17
+ 829 003c 7868     		ldr	r0, [r7, #4]
+ARM GAS  /tmp/cc9iOMXq.s 			page 18
+
+
+ 830 003e FFF7FEFF 		bl	S2LP_WriteRegister
+ 158:S2LP_Driver/s2lp_rf.c **** }
+ 831              		.loc 1 158 1
+ 832 0042 00BF     		nop
+ 833 0044 1037     		adds	r7, r7, #16
+ 834              		.cfi_def_cfa_offset 8
+ 835 0046 BD46     		mov	sp, r7
+ 836              		.cfi_def_cfa_register 13
+ 837              		@ sp needed
+ 838 0048 80BD     		pop	{r7, pc}
+ 839              		.cfi_endproc
+ 840              	.LFE78:
+ 842              		.section	.text.S2LP_RF_SetFrequencyInterpolation,"ax",%progbits
+ 843              		.align	1
+ 844              		.global	S2LP_RF_SetFrequencyInterpolation
+ 845              		.syntax unified
+ 846              		.thumb
+ 847              		.thumb_func
+ 849              	S2LP_RF_SetFrequencyInterpolation:
+ 850              	.LFB79:
+ 159:S2LP_Driver/s2lp_rf.c **** 
+ 160:S2LP_Driver/s2lp_rf.c **** void S2LP_RF_SetFrequencyInterpolation(S2LP_Handle* handle, bool state) {
+ 851              		.loc 1 160 73
+ 852              		.cfi_startproc
+ 853              		@ args = 0, pretend = 0, frame = 16
+ 854              		@ frame_needed = 1, uses_anonymous_args = 0
+ 855 0000 80B5     		push	{r7, lr}
+ 856              		.cfi_def_cfa_offset 8
+ 857              		.cfi_offset 7, -8
+ 858              		.cfi_offset 14, -4
+ 859 0002 84B0     		sub	sp, sp, #16
+ 860              		.cfi_def_cfa_offset 24
+ 861 0004 00AF     		add	r7, sp, #0
+ 862              		.cfi_def_cfa_register 7
+ 863 0006 7860     		str	r0, [r7, #4]
+ 864 0008 0B46     		mov	r3, r1
+ 865 000a FB70     		strb	r3, [r7, #3]
+ 161:S2LP_Driver/s2lp_rf.c **** 	uint8_t reg_val = S2LP_ReadRegister(handle, S2LP_REG_MOD1);
+ 866              		.loc 1 161 20
+ 867 000c 1121     		movs	r1, #17
+ 868 000e 7868     		ldr	r0, [r7, #4]
+ 869 0010 FFF7FEFF 		bl	S2LP_ReadRegister
+ 870 0014 0346     		mov	r3, r0
+ 871 0016 FB73     		strb	r3, [r7, #15]
+ 162:S2LP_Driver/s2lp_rf.c **** 	if (state) {
+ 872              		.loc 1 162 5
+ 873 0018 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 874 001a 002B     		cmp	r3, #0
+ 875 001c 04D0     		beq	.L34
+ 163:S2LP_Driver/s2lp_rf.c **** 		SETBIT(reg_val, 6);
+ 876              		.loc 1 163 3
+ 877 001e FB7B     		ldrb	r3, [r7, #15]
+ 878 0020 43F04003 		orr	r3, r3, #64
+ 879 0024 FB73     		strb	r3, [r7, #15]
+ 880 0026 03E0     		b	.L35
+ 881              	.L34:
+ 164:S2LP_Driver/s2lp_rf.c **** 	} else {
+ARM GAS  /tmp/cc9iOMXq.s 			page 19
+
+
+ 165:S2LP_Driver/s2lp_rf.c **** 		CLEARBIT(reg_val, 6);
+ 882              		.loc 1 165 3
+ 883 0028 FB7B     		ldrb	r3, [r7, #15]
+ 884 002a 23F04003 		bic	r3, r3, #64
+ 885 002e FB73     		strb	r3, [r7, #15]
+ 886              	.L35:
+ 166:S2LP_Driver/s2lp_rf.c **** 	}
+ 167:S2LP_Driver/s2lp_rf.c **** 
+ 168:S2LP_Driver/s2lp_rf.c **** 	S2LP_WriteRegister(handle, S2LP_REG_MOD1, reg_val);
+ 887              		.loc 1 168 2
+ 888 0030 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 889 0032 1A46     		mov	r2, r3
+ 890 0034 1121     		movs	r1, #17
+ 891 0036 7868     		ldr	r0, [r7, #4]
+ 892 0038 FFF7FEFF 		bl	S2LP_WriteRegister
+ 169:S2LP_Driver/s2lp_rf.c **** }
+ 893              		.loc 1 169 1
+ 894 003c 00BF     		nop
+ 895 003e 1037     		adds	r7, r7, #16
+ 896              		.cfi_def_cfa_offset 8
+ 897 0040 BD46     		mov	sp, r7
+ 898              		.cfi_def_cfa_register 13
+ 899              		@ sp needed
+ 900 0042 80BD     		pop	{r7, pc}
+ 901              		.cfi_endproc
+ 902              	.LFE79:
+ 904              		.global	__aeabi_ui2d
+ 905              		.global	__aeabi_ddiv
+ 906              		.global	__aeabi_dmul
+ 907              		.global	__aeabi_d2uiz
+ 908              		.section	.text.S2LP_RF_CalculateSyncForBaseFrequency,"ax",%progbits
+ 909              		.align	1
+ 910              		.global	S2LP_RF_CalculateSyncForBaseFrequency
+ 911              		.syntax unified
+ 912              		.thumb
+ 913              		.thumb_func
+ 915              	S2LP_RF_CalculateSyncForBaseFrequency:
+ 916              	.LFB80:
+ 170:S2LP_Driver/s2lp_rf.c **** 
+ 171:S2LP_Driver/s2lp_rf.c **** uint32_t S2LP_RF_CalculateSyncForBaseFrequency(S2LP_Handle* handle, uint32_t frequency) {
+ 917              		.loc 1 171 89
+ 918              		.cfi_startproc
+ 919              		@ args = 0, pretend = 0, frame = 56
+ 920              		@ frame_needed = 1, uses_anonymous_args = 0
+ 921 0000 80B5     		push	{r7, lr}
+ 922              		.cfi_def_cfa_offset 8
+ 923              		.cfi_offset 7, -8
+ 924              		.cfi_offset 14, -4
+ 925 0002 8EB0     		sub	sp, sp, #56
+ 926              		.cfi_def_cfa_offset 64
+ 927 0004 00AF     		add	r7, sp, #0
+ 928              		.cfi_def_cfa_register 7
+ 929 0006 7860     		str	r0, [r7, #4]
+ 930 0008 3960     		str	r1, [r7]
+ 172:S2LP_Driver/s2lp_rf.c **** 	double const fbase = frequency;
+ 931              		.loc 1 172 15
+ 932 000a 3868     		ldr	r0, [r7]
+ARM GAS  /tmp/cc9iOMXq.s 			page 20
+
+
+ 933 000c FFF7FEFF 		bl	__aeabi_ui2d
+ 934 0010 0246     		mov	r2, r0
+ 935 0012 0B46     		mov	r3, r1
+ 936 0014 C7E90C23 		strd	r2, [r7, #48]
+ 173:S2LP_Driver/s2lp_rf.c **** 	double const pll_div = (S2LP_RF_GetSynthBand(handle) == S2LP_SYNTH_BAND_HIGH ? 4.0 : 8.0);
+ 937              		.loc 1 173 26
+ 938 0018 7868     		ldr	r0, [r7, #4]
+ 939 001a FFF7FEFF 		bl	S2LP_RF_GetSynthBand
+ 940 001e 0346     		mov	r3, r0
+ 941              		.loc 1 173 85
+ 942 0020 002B     		cmp	r3, #0
+ 943 0022 03D1     		bne	.L37
+ 944              		.loc 1 173 85 is_stmt 0 discriminator 1
+ 945 0024 4FF00002 		mov	r2, #0
+ 946 0028 2D4B     		ldr	r3, .L42
+ 947 002a 02E0     		b	.L38
+ 948              	.L37:
+ 949              		.loc 1 173 85 discriminator 2
+ 950 002c 4FF00002 		mov	r2, #0
+ 951 0030 2C4B     		ldr	r3, .L42+4
+ 952              	.L38:
+ 953              		.loc 1 173 15 is_stmt 1 discriminator 4
+ 954 0032 C7E90A23 		strd	r2, [r7, #40]
+ 174:S2LP_Driver/s2lp_rf.c **** 	double const ref_div = (S2LP_IsRefDivEnabled(handle) ? 2.0 : 1.0);
+ 955              		.loc 1 174 26 discriminator 4
+ 956 0036 7868     		ldr	r0, [r7, #4]
+ 957 0038 FFF7FEFF 		bl	S2LP_IsRefDivEnabled
+ 958 003c 0346     		mov	r3, r0
+ 959              		.loc 1 174 61 discriminator 4
+ 960 003e 002B     		cmp	r3, #0
+ 961 0040 04D0     		beq	.L39
+ 962              		.loc 1 174 61 is_stmt 0 discriminator 1
+ 963 0042 4FF00002 		mov	r2, #0
+ 964 0046 4FF08043 		mov	r3, #1073741824
+ 965 004a 02E0     		b	.L40
+ 966              	.L39:
+ 967              		.loc 1 174 61 discriminator 2
+ 968 004c 4FF00002 		mov	r2, #0
+ 969 0050 254B     		ldr	r3, .L42+8
+ 970              	.L40:
+ 971              		.loc 1 174 15 is_stmt 1 discriminator 4
+ 972 0052 C7E90823 		strd	r2, [r7, #32]
+ 175:S2LP_Driver/s2lp_rf.c **** 	double const fxo = S2LP_GetClockFrequency(handle);
+ 973              		.loc 1 175 21 discriminator 4
+ 974 0056 7868     		ldr	r0, [r7, #4]
+ 975 0058 FFF7FEFF 		bl	S2LP_GetClockFrequency
+ 976 005c 0346     		mov	r3, r0
+ 977              		.loc 1 175 15 discriminator 4
+ 978 005e 1846     		mov	r0, r3
+ 979 0060 FFF7FEFF 		bl	__aeabi_ui2d
+ 980 0064 0246     		mov	r2, r0
+ 981 0066 0B46     		mov	r3, r1
+ 982 0068 C7E90623 		strd	r2, [r7, #24]
+ 176:S2LP_Driver/s2lp_rf.c **** 	double const pow20 = (1 << 20);
+ 983              		.loc 1 176 15 discriminator 4
+ 984 006c 4FF00002 		mov	r2, #0
+ 985 0070 1E4B     		ldr	r3, .L42+12
+ARM GAS  /tmp/cc9iOMXq.s 			page 21
+
+
+ 986 0072 C7E90423 		strd	r2, [r7, #16]
+ 177:S2LP_Driver/s2lp_rf.c **** 
+ 178:S2LP_Driver/s2lp_rf.c **** 	double const div_const = ((pll_div / 2.0) * ref_div) / fxo;
+ 987              		.loc 1 178 37 discriminator 4
+ 988 0076 4FF00002 		mov	r2, #0
+ 989 007a 4FF08043 		mov	r3, #1073741824
+ 990 007e D7E90A01 		ldrd	r0, [r7, #40]
+ 991 0082 FFF7FEFF 		bl	__aeabi_ddiv
+ 992 0086 0246     		mov	r2, r0
+ 993 0088 0B46     		mov	r3, r1
+ 994 008a 1046     		mov	r0, r2
+ 995 008c 1946     		mov	r1, r3
+ 996              		.loc 1 178 44 discriminator 4
+ 997 008e D7E90823 		ldrd	r2, [r7, #32]
+ 998 0092 FFF7FEFF 		bl	__aeabi_dmul
+ 999 0096 0246     		mov	r2, r0
+ 1000 0098 0B46     		mov	r3, r1
+ 1001 009a 1046     		mov	r0, r2
+ 1002 009c 1946     		mov	r1, r3
+ 1003              		.loc 1 178 15 discriminator 4
+ 1004 009e D7E90623 		ldrd	r2, [r7, #24]
+ 1005 00a2 FFF7FEFF 		bl	__aeabi_ddiv
+ 1006 00a6 0246     		mov	r2, r0
+ 1007 00a8 0B46     		mov	r3, r1
+ 1008 00aa C7E90223 		strd	r2, [r7, #8]
+ 179:S2LP_Driver/s2lp_rf.c **** 	return (uint32_t) (fbase * div_const * pow20);
+ 1009              		.loc 1 179 27 discriminator 4
+ 1010 00ae D7E90223 		ldrd	r2, [r7, #8]
+ 1011 00b2 D7E90C01 		ldrd	r0, [r7, #48]
+ 1012 00b6 FFF7FEFF 		bl	__aeabi_dmul
+ 1013 00ba 0246     		mov	r2, r0
+ 1014 00bc 0B46     		mov	r3, r1
+ 1015 00be 1046     		mov	r0, r2
+ 1016 00c0 1946     		mov	r1, r3
+ 1017              		.loc 1 179 39 discriminator 4
+ 1018 00c2 D7E90423 		ldrd	r2, [r7, #16]
+ 1019 00c6 FFF7FEFF 		bl	__aeabi_dmul
+ 1020 00ca 0246     		mov	r2, r0
+ 1021 00cc 0B46     		mov	r3, r1
+ 1022              		.loc 1 179 9 discriminator 4
+ 1023 00ce 1046     		mov	r0, r2
+ 1024 00d0 1946     		mov	r1, r3
+ 1025 00d2 FFF7FEFF 		bl	__aeabi_d2uiz
+ 1026 00d6 0346     		mov	r3, r0
+ 180:S2LP_Driver/s2lp_rf.c **** }
+ 1027              		.loc 1 180 1 discriminator 4
+ 1028 00d8 1846     		mov	r0, r3
+ 1029 00da 3837     		adds	r7, r7, #56
+ 1030              		.cfi_def_cfa_offset 8
+ 1031 00dc BD46     		mov	sp, r7
+ 1032              		.cfi_def_cfa_register 13
+ 1033              		@ sp needed
+ 1034 00de 80BD     		pop	{r7, pc}
+ 1035              	.L43:
+ 1036              		.align	2
+ 1037              	.L42:
+ 1038 00e0 00001040 		.word	1074790400
+ARM GAS  /tmp/cc9iOMXq.s 			page 22
+
+
+ 1039 00e4 00002040 		.word	1075838976
+ 1040 00e8 0000F03F 		.word	1072693248
+ 1041 00ec 00003041 		.word	1093664768
+ 1042              		.cfi_endproc
+ 1043              	.LFE80:
+ 1045              		.global	__aeabi_i2d
+ 1046              		.global	__aeabi_dadd
+ 1047              		.section	.text.S2LP_RF_CalculateDataRateValue,"ax",%progbits
+ 1048              		.align	1
+ 1049              		.global	S2LP_RF_CalculateDataRateValue
+ 1050              		.syntax unified
+ 1051              		.thumb
+ 1052              		.thumb_func
+ 1054              	S2LP_RF_CalculateDataRateValue:
+ 1055              	.LFB81:
+ 181:S2LP_Driver/s2lp_rf.c **** 
+ 182:S2LP_Driver/s2lp_rf.c **** uint32_t S2LP_RF_CalculateDataRateValue(S2LP_Handle* handle, uint16_t mantissa, uint8_t exponent) {
+ 1056              		.loc 1 182 99
+ 1057              		.cfi_startproc
+ 1058              		@ args = 0, pretend = 0, frame = 64
+ 1059              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1060 0000 80B5     		push	{r7, lr}
+ 1061              		.cfi_def_cfa_offset 8
+ 1062              		.cfi_offset 7, -8
+ 1063              		.cfi_offset 14, -4
+ 1064 0002 90B0     		sub	sp, sp, #64
+ 1065              		.cfi_def_cfa_offset 72
+ 1066 0004 00AF     		add	r7, sp, #0
+ 1067              		.cfi_def_cfa_register 7
+ 1068 0006 7860     		str	r0, [r7, #4]
+ 1069 0008 0B46     		mov	r3, r1
+ 1070 000a 7B80     		strh	r3, [r7, #2]	@ movhi
+ 1071 000c 1346     		mov	r3, r2
+ 1072 000e 7B70     		strb	r3, [r7, #1]
+ 183:S2LP_Driver/s2lp_rf.c **** 	double datarate = 0;
+ 1073              		.loc 1 183 9
+ 1074 0010 4FF00002 		mov	r2, #0
+ 1075 0014 4FF00003 		mov	r3, #0
+ 1076 0018 C7E90E23 		strd	r2, [r7, #56]
+ 184:S2LP_Driver/s2lp_rf.c **** 	double fdig = S2LP_GetDigitalClockFrequency(handle);
+ 1077              		.loc 1 184 16
+ 1078 001c 7868     		ldr	r0, [r7, #4]
+ 1079 001e FFF7FEFF 		bl	S2LP_GetDigitalClockFrequency
+ 1080 0022 0346     		mov	r3, r0
+ 1081              		.loc 1 184 9
+ 1082 0024 1846     		mov	r0, r3
+ 1083 0026 FFF7FEFF 		bl	__aeabi_ui2d
+ 1084 002a 0246     		mov	r2, r0
+ 1085 002c 0B46     		mov	r3, r1
+ 1086 002e C7E90C23 		strd	r2, [r7, #48]
+ 185:S2LP_Driver/s2lp_rf.c **** 
+ 186:S2LP_Driver/s2lp_rf.c **** 	if (exponent == S2LP_DATARATE_EXPONENT_MIN) {
+ 1087              		.loc 1 186 5
+ 1088 0032 7B78     		ldrb	r3, [r7, #1]	@ zero_extendqisi2
+ 1089 0034 002B     		cmp	r3, #0
+ 1090 0036 17D1     		bne	.L45
+ 1091              	.LBB2:
+ARM GAS  /tmp/cc9iOMXq.s 			page 23
+
+
+ 187:S2LP_Driver/s2lp_rf.c **** 		double const pow_32 = (1ull << 32ull);
+ 1092              		.loc 1 187 16
+ 1093 0038 4FF00002 		mov	r2, #0
+ 1094 003c 394B     		ldr	r3, .L49
+ 1095 003e C7E90223 		strd	r2, [r7, #8]
+ 188:S2LP_Driver/s2lp_rf.c **** 		datarate = (double) fdig * ((double) mantissa / pow_32);
+ 1096              		.loc 1 188 31
+ 1097 0042 7B88     		ldrh	r3, [r7, #2]
+ 1098 0044 1846     		mov	r0, r3
+ 1099 0046 FFF7FEFF 		bl	__aeabi_ui2d
+ 1100              		.loc 1 188 49
+ 1101 004a D7E90223 		ldrd	r2, [r7, #8]
+ 1102 004e FFF7FEFF 		bl	__aeabi_ddiv
+ 1103 0052 0246     		mov	r2, r0
+ 1104 0054 0B46     		mov	r3, r1
+ 1105              		.loc 1 188 12
+ 1106 0056 D7E90C01 		ldrd	r0, [r7, #48]
+ 1107 005a FFF7FEFF 		bl	__aeabi_dmul
+ 1108 005e 0246     		mov	r2, r0
+ 1109 0060 0B46     		mov	r3, r1
+ 1110 0062 C7E90E23 		strd	r2, [r7, #56]
+ 1111              	.LBE2:
+ 1112 0066 4EE0     		b	.L46
+ 1113              	.L45:
+ 189:S2LP_Driver/s2lp_rf.c **** 	} else if (exponent == S2LP_DATARATE_EXPONENT_MAX) {
+ 1114              		.loc 1 189 12
+ 1115 0068 7B78     		ldrb	r3, [r7, #1]	@ zero_extendqisi2
+ 1116 006a 0F2B     		cmp	r3, #15
+ 1117 006c 13D1     		bne	.L47
+ 190:S2LP_Driver/s2lp_rf.c **** 		datarate = fdig / (8.0 * (double) mantissa);
+ 1118              		.loc 1 190 28
+ 1119 006e 7B88     		ldrh	r3, [r7, #2]
+ 1120 0070 1846     		mov	r0, r3
+ 1121 0072 FFF7FEFF 		bl	__aeabi_ui2d
+ 1122              		.loc 1 190 26
+ 1123 0076 4FF00002 		mov	r2, #0
+ 1124 007a 2B4B     		ldr	r3, .L49+4
+ 1125 007c FFF7FEFF 		bl	__aeabi_dmul
+ 1126 0080 0246     		mov	r2, r0
+ 1127 0082 0B46     		mov	r3, r1
+ 1128              		.loc 1 190 12
+ 1129 0084 D7E90C01 		ldrd	r0, [r7, #48]
+ 1130 0088 FFF7FEFF 		bl	__aeabi_ddiv
+ 1131 008c 0246     		mov	r2, r0
+ 1132 008e 0B46     		mov	r3, r1
+ 1133 0090 C7E90E23 		strd	r2, [r7, #56]
+ 1134 0094 37E0     		b	.L46
+ 1135              	.L47:
+ 1136              	.LBB3:
+ 191:S2LP_Driver/s2lp_rf.c **** 	} else {
+ 192:S2LP_Driver/s2lp_rf.c **** 		double const pow_33 = (1ull << 33ull);
+ 1137              		.loc 1 192 16
+ 1138 0096 4FF00002 		mov	r2, #0
+ 1139 009a 4FF08443 		mov	r3, #1107296256
+ 1140 009e C7E90A23 		strd	r2, [r7, #40]
+ 193:S2LP_Driver/s2lp_rf.c **** 		double const pow_16 = (1ull << 16ull);
+ 1141              		.loc 1 193 16
+ARM GAS  /tmp/cc9iOMXq.s 			page 24
+
+
+ 1142 00a2 4FF00002 		mov	r2, #0
+ 1143 00a6 214B     		ldr	r3, .L49+8
+ 1144 00a8 C7E90823 		strd	r2, [r7, #32]
+ 194:S2LP_Driver/s2lp_rf.c **** 		double const exponent_pow = (1 << exponent);
+ 1145              		.loc 1 194 34
+ 1146 00ac 7B78     		ldrb	r3, [r7, #1]	@ zero_extendqisi2
+ 1147 00ae 0122     		movs	r2, #1
+ 1148 00b0 02FA03F3 		lsl	r3, r2, r3
+ 1149              		.loc 1 194 16
+ 1150 00b4 1846     		mov	r0, r3
+ 1151 00b6 FFF7FEFF 		bl	__aeabi_i2d
+ 1152 00ba 0246     		mov	r2, r0
+ 1153 00bc 0B46     		mov	r3, r1
+ 1154 00be C7E90623 		strd	r2, [r7, #24]
+ 195:S2LP_Driver/s2lp_rf.c **** 		double const nominator = (pow_16 + (double) mantissa) * exponent_pow;
+ 1155              		.loc 1 195 38
+ 1156 00c2 7B88     		ldrh	r3, [r7, #2]
+ 1157 00c4 1846     		mov	r0, r3
+ 1158 00c6 FFF7FEFF 		bl	__aeabi_ui2d
+ 1159              		.loc 1 195 36
+ 1160 00ca D7E90823 		ldrd	r2, [r7, #32]
+ 1161 00ce FFF7FEFF 		bl	__aeabi_dadd
+ 1162 00d2 0246     		mov	r2, r0
+ 1163 00d4 0B46     		mov	r3, r1
+ 1164              		.loc 1 195 16
+ 1165 00d6 D7E90601 		ldrd	r0, [r7, #24]
+ 1166 00da FFF7FEFF 		bl	__aeabi_dmul
+ 1167 00de 0246     		mov	r2, r0
+ 1168 00e0 0B46     		mov	r3, r1
+ 1169 00e2 C7E90423 		strd	r2, [r7, #16]
+ 196:S2LP_Driver/s2lp_rf.c **** 		datarate = (double) fdig * (nominator / pow_33);
+ 1170              		.loc 1 196 41
+ 1171 00e6 D7E90A23 		ldrd	r2, [r7, #40]
+ 1172 00ea D7E90401 		ldrd	r0, [r7, #16]
+ 1173 00ee FFF7FEFF 		bl	__aeabi_ddiv
+ 1174 00f2 0246     		mov	r2, r0
+ 1175 00f4 0B46     		mov	r3, r1
+ 1176              		.loc 1 196 12
+ 1177 00f6 D7E90C01 		ldrd	r0, [r7, #48]
+ 1178 00fa FFF7FEFF 		bl	__aeabi_dmul
+ 1179 00fe 0246     		mov	r2, r0
+ 1180 0100 0B46     		mov	r3, r1
+ 1181 0102 C7E90E23 		strd	r2, [r7, #56]
+ 1182              	.L46:
+ 1183              	.LBE3:
+ 197:S2LP_Driver/s2lp_rf.c **** 	}
+ 198:S2LP_Driver/s2lp_rf.c **** 
+ 199:S2LP_Driver/s2lp_rf.c **** 	return (uint32_t) round(datarate);
+ 1184              		.loc 1 199 20
+ 1185 0106 D7E90E01 		ldrd	r0, [r7, #56]
+ 1186 010a FFF7FEFF 		bl	round
+ 1187 010e 0246     		mov	r2, r0
+ 1188 0110 0B46     		mov	r3, r1
+ 1189              		.loc 1 199 9
+ 1190 0112 1046     		mov	r0, r2
+ 1191 0114 1946     		mov	r1, r3
+ 1192 0116 FFF7FEFF 		bl	__aeabi_d2uiz
+ARM GAS  /tmp/cc9iOMXq.s 			page 25
+
+
+ 1193 011a 0346     		mov	r3, r0
+ 200:S2LP_Driver/s2lp_rf.c **** }
+ 1194              		.loc 1 200 1
+ 1195 011c 1846     		mov	r0, r3
+ 1196 011e 4037     		adds	r7, r7, #64
+ 1197              		.cfi_def_cfa_offset 8
+ 1198 0120 BD46     		mov	sp, r7
+ 1199              		.cfi_def_cfa_register 13
+ 1200              		@ sp needed
+ 1201 0122 80BD     		pop	{r7, pc}
+ 1202              	.L50:
+ 1203              		.align	2
+ 1204              	.L49:
+ 1205 0124 0000F041 		.word	1106247680
+ 1206 0128 00002040 		.word	1075838976
+ 1207 012c 0000F040 		.word	1089470464
+ 1208              		.cfi_endproc
+ 1209              	.LFE81:
+ 1211              		.section	.text.S2LP_RF_CalculateDataRateExponent,"ax",%progbits
+ 1212              		.align	1
+ 1213              		.global	S2LP_RF_CalculateDataRateExponent
+ 1214              		.syntax unified
+ 1215              		.thumb
+ 1216              		.thumb_func
+ 1218              	S2LP_RF_CalculateDataRateExponent:
+ 1219              	.LFB82:
+ 201:S2LP_Driver/s2lp_rf.c **** 
+ 202:S2LP_Driver/s2lp_rf.c **** uint8_t S2LP_RF_CalculateDataRateExponent(S2LP_Handle* handle, uint32_t datarate) {
+ 1220              		.loc 1 202 83
+ 1221              		.cfi_startproc
+ 1222              		@ args = 0, pretend = 0, frame = 16
+ 1223              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1224 0000 80B5     		push	{r7, lr}
+ 1225              		.cfi_def_cfa_offset 8
+ 1226              		.cfi_offset 7, -8
+ 1227              		.cfi_offset 14, -4
+ 1228 0002 84B0     		sub	sp, sp, #16
+ 1229              		.cfi_def_cfa_offset 24
+ 1230 0004 00AF     		add	r7, sp, #0
+ 1231              		.cfi_def_cfa_register 7
+ 1232 0006 7860     		str	r0, [r7, #4]
+ 1233 0008 3960     		str	r1, [r7]
+ 1234              	.LBB4:
+ 203:S2LP_Driver/s2lp_rf.c **** 	for (uint8_t exponent = S2LP_DATARATE_EXPONENT_MIN; exponent <= S2LP_DATARATE_EXPONENT_MAX; expone
+ 1235              		.loc 1 203 15
+ 1236 000a 0023     		movs	r3, #0
+ 1237 000c FB73     		strb	r3, [r7, #15]
+ 1238              		.loc 1 203 2
+ 1239 000e 0FE0     		b	.L52
+ 1240              	.L55:
+ 204:S2LP_Driver/s2lp_rf.c **** 		if (S2LP_RF_CalculateDataRateValue(handle, S2LP_DATARATE_MANTISSA_MAX, exponent) > datarate) {
+ 1241              		.loc 1 204 7
+ 1242 0010 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1243 0012 1A46     		mov	r2, r3
+ 1244 0014 4FF6FF71 		movw	r1, #65535
+ 1245 0018 7868     		ldr	r0, [r7, #4]
+ 1246 001a FFF7FEFF 		bl	S2LP_RF_CalculateDataRateValue
+ARM GAS  /tmp/cc9iOMXq.s 			page 26
+
+
+ 1247 001e 0246     		mov	r2, r0
+ 1248              		.loc 1 204 6
+ 1249 0020 3B68     		ldr	r3, [r7]
+ 1250 0022 9342     		cmp	r3, r2
+ 1251 0024 01D2     		bcs	.L53
+ 205:S2LP_Driver/s2lp_rf.c **** 			return exponent;
+ 1252              		.loc 1 205 11
+ 1253 0026 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1254 0028 06E0     		b	.L54
+ 1255              	.L53:
+ 203:S2LP_Driver/s2lp_rf.c **** 	for (uint8_t exponent = S2LP_DATARATE_EXPONENT_MIN; exponent <= S2LP_DATARATE_EXPONENT_MAX; expone
+ 1256              		.loc 1 203 102 discriminator 2
+ 1257 002a FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1258 002c 0133     		adds	r3, r3, #1
+ 1259 002e FB73     		strb	r3, [r7, #15]
+ 1260              	.L52:
+ 203:S2LP_Driver/s2lp_rf.c **** 	for (uint8_t exponent = S2LP_DATARATE_EXPONENT_MIN; exponent <= S2LP_DATARATE_EXPONENT_MAX; expone
+ 1261              		.loc 1 203 63 discriminator 1
+ 1262 0030 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1263 0032 0F2B     		cmp	r3, #15
+ 1264 0034 ECD9     		bls	.L55
+ 1265              	.LBE4:
+ 206:S2LP_Driver/s2lp_rf.c **** 		}
+ 207:S2LP_Driver/s2lp_rf.c **** 	}
+ 208:S2LP_Driver/s2lp_rf.c **** 
+ 209:S2LP_Driver/s2lp_rf.c **** 	return S2LP_DATARATE_EXPONENT_INVALID;
+ 1266              		.loc 1 209 9
+ 1267 0036 FF23     		movs	r3, #255
+ 1268              	.L54:
+ 210:S2LP_Driver/s2lp_rf.c **** }
+ 1269              		.loc 1 210 1
+ 1270 0038 1846     		mov	r0, r3
+ 1271 003a 1037     		adds	r7, r7, #16
+ 1272              		.cfi_def_cfa_offset 8
+ 1273 003c BD46     		mov	sp, r7
+ 1274              		.cfi_def_cfa_register 13
+ 1275              		@ sp needed
+ 1276 003e 80BD     		pop	{r7, pc}
+ 1277              		.cfi_endproc
+ 1278              	.LFE82:
+ 1280              		.global	__aeabi_dsub
+ 1281              		.section	.text.S2LP_RF_CalculateDataRateMantissa,"ax",%progbits
+ 1282              		.align	1
+ 1283              		.global	S2LP_RF_CalculateDataRateMantissa
+ 1284              		.syntax unified
+ 1285              		.thumb
+ 1286              		.thumb_func
+ 1288              	S2LP_RF_CalculateDataRateMantissa:
+ 1289              	.LFB83:
+ 211:S2LP_Driver/s2lp_rf.c **** 
+ 212:S2LP_Driver/s2lp_rf.c **** uint16_t S2LP_RF_CalculateDataRateMantissa(S2LP_Handle* handle, uint32_t datarate, uint8_t exponent
+ 1290              		.loc 1 212 102
+ 1291              		.cfi_startproc
+ 1292              		@ args = 0, pretend = 0, frame = 80
+ 1293              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1294 0000 80B5     		push	{r7, lr}
+ 1295              		.cfi_def_cfa_offset 8
+ARM GAS  /tmp/cc9iOMXq.s 			page 27
+
+
+ 1296              		.cfi_offset 7, -8
+ 1297              		.cfi_offset 14, -4
+ 1298 0002 94B0     		sub	sp, sp, #80
+ 1299              		.cfi_def_cfa_offset 88
+ 1300 0004 00AF     		add	r7, sp, #0
+ 1301              		.cfi_def_cfa_register 7
+ 1302 0006 F860     		str	r0, [r7, #12]
+ 1303 0008 B960     		str	r1, [r7, #8]
+ 1304 000a 1346     		mov	r3, r2
+ 1305 000c FB71     		strb	r3, [r7, #7]
+ 213:S2LP_Driver/s2lp_rf.c **** 	double mantissa = 0;
+ 1306              		.loc 1 213 9
+ 1307 000e 4FF00002 		mov	r2, #0
+ 1308 0012 4FF00003 		mov	r3, #0
+ 1309 0016 C7E91223 		strd	r2, [r7, #72]
+ 214:S2LP_Driver/s2lp_rf.c **** 	double fdig = S2LP_GetDigitalClockFrequency(handle);
+ 1310              		.loc 1 214 16
+ 1311 001a F868     		ldr	r0, [r7, #12]
+ 1312 001c FFF7FEFF 		bl	S2LP_GetDigitalClockFrequency
+ 1313 0020 0346     		mov	r3, r0
+ 1314              		.loc 1 214 9
+ 1315 0022 1846     		mov	r0, r3
+ 1316 0024 FFF7FEFF 		bl	__aeabi_ui2d
+ 1317 0028 0246     		mov	r2, r0
+ 1318 002a 0B46     		mov	r3, r1
+ 1319 002c C7E91023 		strd	r2, [r7, #64]
+ 215:S2LP_Driver/s2lp_rf.c **** 
+ 216:S2LP_Driver/s2lp_rf.c **** 	if (exponent == S2LP_DATARATE_EXPONENT_MIN) {
+ 1320              		.loc 1 216 5
+ 1321 0030 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1322 0032 002B     		cmp	r3, #0
+ 1323 0034 18D1     		bne	.L57
+ 1324              	.LBB5:
+ 217:S2LP_Driver/s2lp_rf.c **** 		double const pow_32 = (1ull << 32ull);
+ 1325              		.loc 1 217 16
+ 1326 0036 4FF00002 		mov	r2, #0
+ 1327 003a 3E4B     		ldr	r3, .L61
+ 1328 003c C7E90423 		strd	r2, [r7, #16]
+ 218:S2LP_Driver/s2lp_rf.c **** 		mantissa = (pow_32 * (double) datarate) / fdig;
+ 1329              		.loc 1 218 24
+ 1330 0040 B868     		ldr	r0, [r7, #8]
+ 1331 0042 FFF7FEFF 		bl	__aeabi_ui2d
+ 1332              		.loc 1 218 22
+ 1333 0046 D7E90423 		ldrd	r2, [r7, #16]
+ 1334 004a FFF7FEFF 		bl	__aeabi_dmul
+ 1335 004e 0246     		mov	r2, r0
+ 1336 0050 0B46     		mov	r3, r1
+ 1337 0052 1046     		mov	r0, r2
+ 1338 0054 1946     		mov	r1, r3
+ 1339              		.loc 1 218 12
+ 1340 0056 D7E91023 		ldrd	r2, [r7, #64]
+ 1341 005a FFF7FEFF 		bl	__aeabi_ddiv
+ 1342 005e 0246     		mov	r2, r0
+ 1343 0060 0B46     		mov	r3, r1
+ 1344 0062 C7E91223 		strd	r2, [r7, #72]
+ 1345              	.LBE5:
+ 1346 0066 54E0     		b	.L58
+ARM GAS  /tmp/cc9iOMXq.s 			page 28
+
+
+ 1347              	.L57:
+ 219:S2LP_Driver/s2lp_rf.c **** 	} else if (exponent == S2LP_DATARATE_EXPONENT_MAX) {
+ 1348              		.loc 1 219 12
+ 1349 0068 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1350 006a 0F2B     		cmp	r3, #15
+ 1351 006c 12D1     		bne	.L59
+ 220:S2LP_Driver/s2lp_rf.c **** 		mantissa = fdig / (8.0 * datarate);
+ 1352              		.loc 1 220 26
+ 1353 006e B868     		ldr	r0, [r7, #8]
+ 1354 0070 FFF7FEFF 		bl	__aeabi_ui2d
+ 1355 0074 4FF00002 		mov	r2, #0
+ 1356 0078 2F4B     		ldr	r3, .L61+4
+ 1357 007a FFF7FEFF 		bl	__aeabi_dmul
+ 1358 007e 0246     		mov	r2, r0
+ 1359 0080 0B46     		mov	r3, r1
+ 1360              		.loc 1 220 12
+ 1361 0082 D7E91001 		ldrd	r0, [r7, #64]
+ 1362 0086 FFF7FEFF 		bl	__aeabi_ddiv
+ 1363 008a 0246     		mov	r2, r0
+ 1364 008c 0B46     		mov	r3, r1
+ 1365 008e C7E91223 		strd	r2, [r7, #72]
+ 1366 0092 3EE0     		b	.L58
+ 1367              	.L59:
+ 1368              	.LBB6:
+ 221:S2LP_Driver/s2lp_rf.c **** 	} else {
+ 222:S2LP_Driver/s2lp_rf.c **** 		double const pow_33 = (1ull << 33ull);
+ 1369              		.loc 1 222 16
+ 1370 0094 4FF00002 		mov	r2, #0
+ 1371 0098 4FF08443 		mov	r3, #1107296256
+ 1372 009c C7E90E23 		strd	r2, [r7, #56]
+ 223:S2LP_Driver/s2lp_rf.c **** 		double const pow_16 = (1ull << 16ull);
+ 1373              		.loc 1 223 16
+ 1374 00a0 4FF00002 		mov	r2, #0
+ 1375 00a4 254B     		ldr	r3, .L61+8
+ 1376 00a6 C7E90C23 		strd	r2, [r7, #48]
+ 224:S2LP_Driver/s2lp_rf.c **** 		double const exponent_pow = (1 << exponent);
+ 1377              		.loc 1 224 34
+ 1378 00aa FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1379 00ac 0122     		movs	r2, #1
+ 1380 00ae 02FA03F3 		lsl	r3, r2, r3
+ 1381              		.loc 1 224 16
+ 1382 00b2 1846     		mov	r0, r3
+ 1383 00b4 FFF7FEFF 		bl	__aeabi_i2d
+ 1384 00b8 0246     		mov	r2, r0
+ 1385 00ba 0B46     		mov	r3, r1
+ 1386 00bc C7E90A23 		strd	r2, [r7, #40]
+ 225:S2LP_Driver/s2lp_rf.c **** 		double const nominator = pow_33 * datarate;
+ 1387              		.loc 1 225 35
+ 1388 00c0 B868     		ldr	r0, [r7, #8]
+ 1389 00c2 FFF7FEFF 		bl	__aeabi_ui2d
+ 1390 00c6 0246     		mov	r2, r0
+ 1391 00c8 0B46     		mov	r3, r1
+ 1392              		.loc 1 225 16
+ 1393 00ca D7E90E01 		ldrd	r0, [r7, #56]
+ 1394 00ce FFF7FEFF 		bl	__aeabi_dmul
+ 1395 00d2 0246     		mov	r2, r0
+ 1396 00d4 0B46     		mov	r3, r1
+ARM GAS  /tmp/cc9iOMXq.s 			page 29
+
+
+ 1397 00d6 C7E90823 		strd	r2, [r7, #32]
+ 226:S2LP_Driver/s2lp_rf.c **** 		double const denominator = fdig * exponent_pow;
+ 1398              		.loc 1 226 16
+ 1399 00da D7E90A23 		ldrd	r2, [r7, #40]
+ 1400 00de D7E91001 		ldrd	r0, [r7, #64]
+ 1401 00e2 FFF7FEFF 		bl	__aeabi_dmul
+ 1402 00e6 0246     		mov	r2, r0
+ 1403 00e8 0B46     		mov	r3, r1
+ 1404 00ea C7E90623 		strd	r2, [r7, #24]
+ 227:S2LP_Driver/s2lp_rf.c **** 		mantissa = (nominator / denominator) - pow_16;
+ 1405              		.loc 1 227 25
+ 1406 00ee D7E90623 		ldrd	r2, [r7, #24]
+ 1407 00f2 D7E90801 		ldrd	r0, [r7, #32]
+ 1408 00f6 FFF7FEFF 		bl	__aeabi_ddiv
+ 1409 00fa 0246     		mov	r2, r0
+ 1410 00fc 0B46     		mov	r3, r1
+ 1411 00fe 1046     		mov	r0, r2
+ 1412 0100 1946     		mov	r1, r3
+ 1413              		.loc 1 227 12
+ 1414 0102 D7E90C23 		ldrd	r2, [r7, #48]
+ 1415 0106 FFF7FEFF 		bl	__aeabi_dsub
+ 1416 010a 0246     		mov	r2, r0
+ 1417 010c 0B46     		mov	r3, r1
+ 1418 010e C7E91223 		strd	r2, [r7, #72]
+ 1419              	.L58:
+ 1420              	.LBE6:
+ 228:S2LP_Driver/s2lp_rf.c **** 	}
+ 229:S2LP_Driver/s2lp_rf.c **** 
+ 230:S2LP_Driver/s2lp_rf.c **** 	return (uint16_t) round(mantissa);
+ 1421              		.loc 1 230 20
+ 1422 0112 D7E91201 		ldrd	r0, [r7, #72]
+ 1423 0116 FFF7FEFF 		bl	round
+ 1424 011a 0246     		mov	r2, r0
+ 1425 011c 0B46     		mov	r3, r1
+ 1426              		.loc 1 230 9
+ 1427 011e 1046     		mov	r0, r2
+ 1428 0120 1946     		mov	r1, r3
+ 1429 0122 FFF7FEFF 		bl	__aeabi_d2uiz
+ 1430 0126 0346     		mov	r3, r0
+ 1431 0128 9BB2     		uxth	r3, r3
+ 231:S2LP_Driver/s2lp_rf.c **** }
+ 1432              		.loc 1 231 1
+ 1433 012a 1846     		mov	r0, r3
+ 1434 012c 5037     		adds	r7, r7, #80
+ 1435              		.cfi_def_cfa_offset 8
+ 1436 012e BD46     		mov	sp, r7
+ 1437              		.cfi_def_cfa_register 13
+ 1438              		@ sp needed
+ 1439 0130 80BD     		pop	{r7, pc}
+ 1440              	.L62:
+ 1441 0132 00BF     		.align	2
+ 1442              	.L61:
+ 1443 0134 0000F041 		.word	1106247680
+ 1444 0138 00002040 		.word	1075838976
+ 1445 013c 0000F040 		.word	1089470464
+ 1446              		.cfi_endproc
+ 1447              	.LFE83:
+ARM GAS  /tmp/cc9iOMXq.s 			page 30
+
+
+ 1449              		.section	.text.S2LP_RF_CalculateDataRateCoeffs,"ax",%progbits
+ 1450              		.align	1
+ 1451              		.global	S2LP_RF_CalculateDataRateCoeffs
+ 1452              		.syntax unified
+ 1453              		.thumb
+ 1454              		.thumb_func
+ 1456              	S2LP_RF_CalculateDataRateCoeffs:
+ 1457              	.LFB84:
+ 232:S2LP_Driver/s2lp_rf.c **** 
+ 233:S2LP_Driver/s2lp_rf.c **** void S2LP_RF_CalculateDataRateCoeffs(S2LP_Handle* handle, uint32_t datarate, uint16_t* mantissa, ui
+ 1458              		.loc 1 233 117
+ 1459              		.cfi_startproc
+ 1460              		@ args = 0, pretend = 0, frame = 16
+ 1461              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1462 0000 80B5     		push	{r7, lr}
+ 1463              		.cfi_def_cfa_offset 8
+ 1464              		.cfi_offset 7, -8
+ 1465              		.cfi_offset 14, -4
+ 1466 0002 84B0     		sub	sp, sp, #16
+ 1467              		.cfi_def_cfa_offset 24
+ 1468 0004 00AF     		add	r7, sp, #0
+ 1469              		.cfi_def_cfa_register 7
+ 1470 0006 F860     		str	r0, [r7, #12]
+ 1471 0008 B960     		str	r1, [r7, #8]
+ 1472 000a 7A60     		str	r2, [r7, #4]
+ 1473 000c 3B60     		str	r3, [r7]
+ 234:S2LP_Driver/s2lp_rf.c **** 	*exponent = S2LP_RF_CalculateDataRateExponent(handle, datarate);
+ 1474              		.loc 1 234 14
+ 1475 000e B968     		ldr	r1, [r7, #8]
+ 1476 0010 F868     		ldr	r0, [r7, #12]
+ 1477 0012 FFF7FEFF 		bl	S2LP_RF_CalculateDataRateExponent
+ 1478 0016 0346     		mov	r3, r0
+ 1479 0018 1A46     		mov	r2, r3
+ 1480              		.loc 1 234 12
+ 1481 001a 3B68     		ldr	r3, [r7]
+ 1482 001c 1A70     		strb	r2, [r3]
+ 235:S2LP_Driver/s2lp_rf.c **** 	*mantissa = S2LP_RF_CalculateDataRateMantissa(handle, datarate, *exponent);
+ 1483              		.loc 1 235 14
+ 1484 001e 3B68     		ldr	r3, [r7]
+ 1485 0020 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1486 0022 1A46     		mov	r2, r3
+ 1487 0024 B968     		ldr	r1, [r7, #8]
+ 1488 0026 F868     		ldr	r0, [r7, #12]
+ 1489 0028 FFF7FEFF 		bl	S2LP_RF_CalculateDataRateMantissa
+ 1490 002c 0346     		mov	r3, r0
+ 1491 002e 1A46     		mov	r2, r3
+ 1492              		.loc 1 235 12
+ 1493 0030 7B68     		ldr	r3, [r7, #4]
+ 1494 0032 1A80     		strh	r2, [r3]	@ movhi
+ 236:S2LP_Driver/s2lp_rf.c **** }
+ 1495              		.loc 1 236 1
+ 1496 0034 00BF     		nop
+ 1497 0036 1037     		adds	r7, r7, #16
+ 1498              		.cfi_def_cfa_offset 8
+ 1499 0038 BD46     		mov	sp, r7
+ 1500              		.cfi_def_cfa_register 13
+ 1501              		@ sp needed
+ARM GAS  /tmp/cc9iOMXq.s 			page 31
+
+
+ 1502 003a 80BD     		pop	{r7, pc}
+ 1503              		.cfi_endproc
+ 1504              	.LFE84:
+ 1506              		.section	.text.S2LP_RF_CalculateBaseFrequency,"ax",%progbits
+ 1507              		.align	1
+ 1508              		.global	S2LP_RF_CalculateBaseFrequency
+ 1509              		.syntax unified
+ 1510              		.thumb
+ 1511              		.thumb_func
+ 1513              	S2LP_RF_CalculateBaseFrequency:
+ 1514              	.LFB85:
+ 237:S2LP_Driver/s2lp_rf.c **** 
+ 238:S2LP_Driver/s2lp_rf.c **** double S2LP_RF_CalculateBaseFrequency(S2LP_Handle* handle, uint32_t synth_value) {
+ 1515              		.loc 1 238 82
+ 1516              		.cfi_startproc
+ 1517              		@ args = 0, pretend = 0, frame = 48
+ 1518              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1519 0000 80B5     		push	{r7, lr}
+ 1520              		.cfi_def_cfa_offset 8
+ 1521              		.cfi_offset 7, -8
+ 1522              		.cfi_offset 14, -4
+ 1523 0002 8CB0     		sub	sp, sp, #48
+ 1524              		.cfi_def_cfa_offset 56
+ 1525 0004 00AF     		add	r7, sp, #0
+ 1526              		.cfi_def_cfa_register 7
+ 1527 0006 7860     		str	r0, [r7, #4]
+ 1528 0008 3960     		str	r1, [r7]
+ 239:S2LP_Driver/s2lp_rf.c **** 	double const pll_div = (S2LP_RF_GetSynthBand(handle) == S2LP_SYNTH_BAND_HIGH ? 4.0 : 8.0);
+ 1529              		.loc 1 239 26
+ 1530 000a 7868     		ldr	r0, [r7, #4]
+ 1531 000c FFF7FEFF 		bl	S2LP_RF_GetSynthBand
+ 1532 0010 0346     		mov	r3, r0
+ 1533              		.loc 1 239 85
+ 1534 0012 002B     		cmp	r3, #0
+ 1535 0014 03D1     		bne	.L65
+ 1536              		.loc 1 239 85 is_stmt 0 discriminator 1
+ 1537 0016 4FF00002 		mov	r2, #0
+ 1538 001a 2D4B     		ldr	r3, .L70
+ 1539 001c 02E0     		b	.L66
+ 1540              	.L65:
+ 1541              		.loc 1 239 85 discriminator 2
+ 1542 001e 4FF00002 		mov	r2, #0
+ 1543 0022 2C4B     		ldr	r3, .L70+4
+ 1544              	.L66:
+ 1545              		.loc 1 239 15 is_stmt 1 discriminator 4
+ 1546 0024 C7E90A23 		strd	r2, [r7, #40]
+ 240:S2LP_Driver/s2lp_rf.c **** 	double const ref_div = (S2LP_IsRefDivEnabled(handle) ? 2.0 : 1.0);
+ 1547              		.loc 1 240 26 discriminator 4
+ 1548 0028 7868     		ldr	r0, [r7, #4]
+ 1549 002a FFF7FEFF 		bl	S2LP_IsRefDivEnabled
+ 1550 002e 0346     		mov	r3, r0
+ 1551              		.loc 1 240 61 discriminator 4
+ 1552 0030 002B     		cmp	r3, #0
+ 1553 0032 04D0     		beq	.L67
+ 1554              		.loc 1 240 61 is_stmt 0 discriminator 1
+ 1555 0034 4FF00002 		mov	r2, #0
+ 1556 0038 4FF08043 		mov	r3, #1073741824
+ARM GAS  /tmp/cc9iOMXq.s 			page 32
+
+
+ 1557 003c 02E0     		b	.L68
+ 1558              	.L67:
+ 1559              		.loc 1 240 61 discriminator 2
+ 1560 003e 4FF00002 		mov	r2, #0
+ 1561 0042 254B     		ldr	r3, .L70+8
+ 1562              	.L68:
+ 1563              		.loc 1 240 15 is_stmt 1 discriminator 4
+ 1564 0044 C7E90823 		strd	r2, [r7, #32]
+ 241:S2LP_Driver/s2lp_rf.c **** 	double const fxo = S2LP_GetClockFrequency(handle);
+ 1565              		.loc 1 241 21 discriminator 4
+ 1566 0048 7868     		ldr	r0, [r7, #4]
+ 1567 004a FFF7FEFF 		bl	S2LP_GetClockFrequency
+ 1568 004e 0346     		mov	r3, r0
+ 1569              		.loc 1 241 15 discriminator 4
+ 1570 0050 1846     		mov	r0, r3
+ 1571 0052 FFF7FEFF 		bl	__aeabi_ui2d
+ 1572 0056 0246     		mov	r2, r0
+ 1573 0058 0B46     		mov	r3, r1
+ 1574 005a C7E90623 		strd	r2, [r7, #24]
+ 242:S2LP_Driver/s2lp_rf.c **** 
+ 243:S2LP_Driver/s2lp_rf.c **** 	double const synth_divided = synth_value / ((double) (1ull << 20ull));
+ 1575              		.loc 1 243 43 discriminator 4
+ 1576 005e 3868     		ldr	r0, [r7]
+ 1577 0060 FFF7FEFF 		bl	__aeabi_ui2d
+ 1578              		.loc 1 243 15 discriminator 4
+ 1579 0064 4FF00002 		mov	r2, #0
+ 1580 0068 1C4B     		ldr	r3, .L70+12
+ 1581 006a FFF7FEFF 		bl	__aeabi_ddiv
+ 1582 006e 0246     		mov	r2, r0
+ 1583 0070 0B46     		mov	r3, r1
+ 1584 0072 C7E90423 		strd	r2, [r7, #16]
+ 244:S2LP_Driver/s2lp_rf.c **** 	double const fxo_denominator = (pll_div / 2.0) * ref_div;
+ 1585              		.loc 1 244 42 discriminator 4
+ 1586 0076 4FF00002 		mov	r2, #0
+ 1587 007a 4FF08043 		mov	r3, #1073741824
+ 1588 007e D7E90A01 		ldrd	r0, [r7, #40]
+ 1589 0082 FFF7FEFF 		bl	__aeabi_ddiv
+ 1590 0086 0246     		mov	r2, r0
+ 1591 0088 0B46     		mov	r3, r1
+ 1592              		.loc 1 244 15 discriminator 4
+ 1593 008a D7E90801 		ldrd	r0, [r7, #32]
+ 1594 008e FFF7FEFF 		bl	__aeabi_dmul
+ 1595 0092 0246     		mov	r2, r0
+ 1596 0094 0B46     		mov	r3, r1
+ 1597 0096 C7E90223 		strd	r2, [r7, #8]
+ 245:S2LP_Driver/s2lp_rf.c **** 	return round((fxo / fxo_denominator) * synth_divided);
+ 1598              		.loc 1 245 20 discriminator 4
+ 1599 009a D7E90223 		ldrd	r2, [r7, #8]
+ 1600 009e D7E90601 		ldrd	r0, [r7, #24]
+ 1601 00a2 FFF7FEFF 		bl	__aeabi_ddiv
+ 1602 00a6 0246     		mov	r2, r0
+ 1603 00a8 0B46     		mov	r3, r1
+ 1604 00aa 1046     		mov	r0, r2
+ 1605 00ac 1946     		mov	r1, r3
+ 1606              		.loc 1 245 9 discriminator 4
+ 1607 00ae D7E90423 		ldrd	r2, [r7, #16]
+ 1608 00b2 FFF7FEFF 		bl	__aeabi_dmul
+ARM GAS  /tmp/cc9iOMXq.s 			page 33
+
+
+ 1609 00b6 0246     		mov	r2, r0
+ 1610 00b8 0B46     		mov	r3, r1
+ 1611 00ba 1046     		mov	r0, r2
+ 1612 00bc 1946     		mov	r1, r3
+ 1613 00be FFF7FEFF 		bl	round
+ 1614 00c2 0246     		mov	r2, r0
+ 1615 00c4 0B46     		mov	r3, r1
+ 246:S2LP_Driver/s2lp_rf.c **** }
+ 1616              		.loc 1 246 1 discriminator 4
+ 1617 00c6 1046     		mov	r0, r2
+ 1618 00c8 1946     		mov	r1, r3
+ 1619 00ca 3037     		adds	r7, r7, #48
+ 1620              		.cfi_def_cfa_offset 8
+ 1621 00cc BD46     		mov	sp, r7
+ 1622              		.cfi_def_cfa_register 13
+ 1623              		@ sp needed
+ 1624 00ce 80BD     		pop	{r7, pc}
+ 1625              	.L71:
+ 1626              		.align	2
+ 1627              	.L70:
+ 1628 00d0 00001040 		.word	1074790400
+ 1629 00d4 00002040 		.word	1075838976
+ 1630 00d8 0000F03F 		.word	1072693248
+ 1631 00dc 00003041 		.word	1093664768
+ 1632              		.cfi_endproc
+ 1633              	.LFE85:
+ 1635              		.section	.text.S2LP_RF_CalculateCenterFrequency,"ax",%progbits
+ 1636              		.align	1
+ 1637              		.global	S2LP_RF_CalculateCenterFrequency
+ 1638              		.syntax unified
+ 1639              		.thumb
+ 1640              		.thumb_func
+ 1642              	S2LP_RF_CalculateCenterFrequency:
+ 1643              	.LFB86:
+ 247:S2LP_Driver/s2lp_rf.c **** 
+ 248:S2LP_Driver/s2lp_rf.c **** double S2LP_RF_CalculateCenterFrequency(S2LP_Handle* handle, double base_frequency, uint8_t channel
+ 249:S2LP_Driver/s2lp_rf.c **** 		uint8_t channel_number) {
+ 1644              		.loc 1 249 27
+ 1645              		.cfi_startproc
+ 1646              		@ args = 8, pretend = 0, frame = 32
+ 1647              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1648 0000 B0B5     		push	{r4, r5, r7, lr}
+ 1649              		.cfi_def_cfa_offset 16
+ 1650              		.cfi_offset 4, -16
+ 1651              		.cfi_offset 5, -12
+ 1652              		.cfi_offset 7, -8
+ 1653              		.cfi_offset 14, -4
+ 1654 0002 88B0     		sub	sp, sp, #32
+ 1655              		.cfi_def_cfa_offset 48
+ 1656 0004 00AF     		add	r7, sp, #0
+ 1657              		.cfi_def_cfa_register 7
+ 1658 0006 F860     		str	r0, [r7, #12]
+ 1659 0008 C7E90023 		strd	r2, [r7]
+ 250:S2LP_Driver/s2lp_rf.c **** 	double const fxo = S2LP_GetClockFrequency(handle);
+ 1660              		.loc 1 250 21
+ 1661 000c F868     		ldr	r0, [r7, #12]
+ 1662 000e FFF7FEFF 		bl	S2LP_GetClockFrequency
+ARM GAS  /tmp/cc9iOMXq.s 			page 34
+
+
+ 1663 0012 0346     		mov	r3, r0
+ 1664              		.loc 1 250 15
+ 1665 0014 1846     		mov	r0, r3
+ 1666 0016 FFF7FEFF 		bl	__aeabi_ui2d
+ 1667 001a 0246     		mov	r2, r0
+ 1668 001c 0B46     		mov	r3, r1
+ 1669 001e C7E90623 		strd	r2, [r7, #24]
+ 251:S2LP_Driver/s2lp_rf.c **** 	double const fxo_divided = fxo / (double) (1ull << 15ull);
+ 1670              		.loc 1 251 15
+ 1671 0022 4FF00002 		mov	r2, #0
+ 1672 0026 1B4B     		ldr	r3, .L74
+ 1673 0028 D7E90601 		ldrd	r0, [r7, #24]
+ 1674 002c FFF7FEFF 		bl	__aeabi_ddiv
+ 1675 0030 0246     		mov	r2, r0
+ 1676 0032 0B46     		mov	r3, r1
+ 1677 0034 C7E90423 		strd	r2, [r7, #16]
+ 252:S2LP_Driver/s2lp_rf.c **** 	return round(base_frequency + (fxo_divided * (double) channel_spacing) * (double) channel_number);
+ 1678              		.loc 1 252 47
+ 1679 0038 97F83030 		ldrb	r3, [r7, #48]	@ zero_extendqisi2
+ 1680 003c 1846     		mov	r0, r3
+ 1681 003e FFF7FEFF 		bl	__aeabi_ui2d
+ 1682              		.loc 1 252 45
+ 1683 0042 D7E90423 		ldrd	r2, [r7, #16]
+ 1684 0046 FFF7FEFF 		bl	__aeabi_dmul
+ 1685 004a 0246     		mov	r2, r0
+ 1686 004c 0B46     		mov	r3, r1
+ 1687 004e 1446     		mov	r4, r2
+ 1688 0050 1D46     		mov	r5, r3
+ 1689              		.loc 1 252 75
+ 1690 0052 97F83430 		ldrb	r3, [r7, #52]	@ zero_extendqisi2
+ 1691 0056 1846     		mov	r0, r3
+ 1692 0058 FFF7FEFF 		bl	__aeabi_ui2d
+ 1693 005c 0246     		mov	r2, r0
+ 1694 005e 0B46     		mov	r3, r1
+ 1695              		.loc 1 252 73
+ 1696 0060 2046     		mov	r0, r4
+ 1697 0062 2946     		mov	r1, r5
+ 1698 0064 FFF7FEFF 		bl	__aeabi_dmul
+ 1699 0068 0246     		mov	r2, r0
+ 1700 006a 0B46     		mov	r3, r1
+ 1701 006c 1046     		mov	r0, r2
+ 1702 006e 1946     		mov	r1, r3
+ 1703              		.loc 1 252 9
+ 1704 0070 D7E90023 		ldrd	r2, [r7]
+ 1705 0074 FFF7FEFF 		bl	__aeabi_dadd
+ 1706 0078 0246     		mov	r2, r0
+ 1707 007a 0B46     		mov	r3, r1
+ 1708 007c 1046     		mov	r0, r2
+ 1709 007e 1946     		mov	r1, r3
+ 1710 0080 FFF7FEFF 		bl	round
+ 1711 0084 0246     		mov	r2, r0
+ 1712 0086 0B46     		mov	r3, r1
+ 253:S2LP_Driver/s2lp_rf.c **** }
+ 1713              		.loc 1 253 1
+ 1714 0088 1046     		mov	r0, r2
+ 1715 008a 1946     		mov	r1, r3
+ 1716 008c 2037     		adds	r7, r7, #32
+ARM GAS  /tmp/cc9iOMXq.s 			page 35
+
+
+ 1717              		.cfi_def_cfa_offset 16
+ 1718 008e BD46     		mov	sp, r7
+ 1719              		.cfi_def_cfa_register 13
+ 1720              		@ sp needed
+ 1721 0090 B0BD     		pop	{r4, r5, r7, pc}
+ 1722              	.L75:
+ 1723 0092 00BF     		.align	2
+ 1724              	.L74:
+ 1725 0094 0000E040 		.word	1088421888
+ 1726              		.cfi_endproc
+ 1727              	.LFE86:
+ 1729              		.section	.text.S2LP_RF_CalculateBaseFreqResolution,"ax",%progbits
+ 1730              		.align	1
+ 1731              		.global	S2LP_RF_CalculateBaseFreqResolution
+ 1732              		.syntax unified
+ 1733              		.thumb
+ 1734              		.thumb_func
+ 1736              	S2LP_RF_CalculateBaseFreqResolution:
+ 1737              	.LFB87:
+ 254:S2LP_Driver/s2lp_rf.c **** 
+ 255:S2LP_Driver/s2lp_rf.c **** double S2LP_RF_CalculateBaseFreqResolution(S2LP_Handle* handle) {
+ 1738              		.loc 1 255 65
+ 1739              		.cfi_startproc
+ 1740              		@ args = 0, pretend = 0, frame = 24
+ 1741              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1742 0000 80B5     		push	{r7, lr}
+ 1743              		.cfi_def_cfa_offset 8
+ 1744              		.cfi_offset 7, -8
+ 1745              		.cfi_offset 14, -4
+ 1746 0002 86B0     		sub	sp, sp, #24
+ 1747              		.cfi_def_cfa_offset 32
+ 1748 0004 00AF     		add	r7, sp, #0
+ 1749              		.cfi_def_cfa_register 7
+ 1750 0006 7860     		str	r0, [r7, #4]
+ 256:S2LP_Driver/s2lp_rf.c **** 	double const first_freq = S2LP_RF_CalculateBaseFrequency(handle, 100000);
+ 1751              		.loc 1 256 28
+ 1752 0008 0C49     		ldr	r1, .L78
+ 1753 000a 7868     		ldr	r0, [r7, #4]
+ 1754 000c FFF7FEFF 		bl	S2LP_RF_CalculateBaseFrequency
+ 1755 0010 C7E90401 		strd	r0, [r7, #16]
+ 257:S2LP_Driver/s2lp_rf.c **** 	double const second_freq = S2LP_RF_CalculateBaseFrequency(handle, 100001);
+ 1756              		.loc 1 257 29
+ 1757 0014 0A49     		ldr	r1, .L78+4
+ 1758 0016 7868     		ldr	r0, [r7, #4]
+ 1759 0018 FFF7FEFF 		bl	S2LP_RF_CalculateBaseFrequency
+ 1760 001c C7E90201 		strd	r0, [r7, #8]
+ 258:S2LP_Driver/s2lp_rf.c **** 	return second_freq - first_freq;
+ 1761              		.loc 1 258 21
+ 1762 0020 D7E90423 		ldrd	r2, [r7, #16]
+ 1763 0024 D7E90201 		ldrd	r0, [r7, #8]
+ 1764 0028 FFF7FEFF 		bl	__aeabi_dsub
+ 1765 002c 0246     		mov	r2, r0
+ 1766 002e 0B46     		mov	r3, r1
+ 259:S2LP_Driver/s2lp_rf.c **** }
+ 1767              		.loc 1 259 1
+ 1768 0030 1046     		mov	r0, r2
+ 1769 0032 1946     		mov	r1, r3
+ARM GAS  /tmp/cc9iOMXq.s 			page 36
+
+
+ 1770 0034 1837     		adds	r7, r7, #24
+ 1771              		.cfi_def_cfa_offset 8
+ 1772 0036 BD46     		mov	sp, r7
+ 1773              		.cfi_def_cfa_register 13
+ 1774              		@ sp needed
+ 1775 0038 80BD     		pop	{r7, pc}
+ 1776              	.L79:
+ 1777 003a 00BF     		.align	2
+ 1778              	.L78:
+ 1779 003c A0860100 		.word	100000
+ 1780 0040 A1860100 		.word	100001
+ 1781              		.cfi_endproc
+ 1782              	.LFE87:
+ 1784              		.section	.text.S2LP_RF_CalculateChannelResolution,"ax",%progbits
+ 1785              		.align	1
+ 1786              		.global	S2LP_RF_CalculateChannelResolution
+ 1787              		.syntax unified
+ 1788              		.thumb
+ 1789              		.thumb_func
+ 1791              	S2LP_RF_CalculateChannelResolution:
+ 1792              	.LFB88:
+ 260:S2LP_Driver/s2lp_rf.c **** 
+ 261:S2LP_Driver/s2lp_rf.c **** double S2LP_RF_CalculateChannelResolution(S2LP_Handle* handle, double base_frequency) {
+ 1793              		.loc 1 261 87
+ 1794              		.cfi_startproc
+ 1795              		@ args = 0, pretend = 0, frame = 32
+ 1796              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1797 0000 80B5     		push	{r7, lr}
+ 1798              		.cfi_def_cfa_offset 8
+ 1799              		.cfi_offset 7, -8
+ 1800              		.cfi_offset 14, -4
+ 1801 0002 8AB0     		sub	sp, sp, #40
+ 1802              		.cfi_def_cfa_offset 48
+ 1803 0004 02AF     		add	r7, sp, #8
+ 1804              		.cfi_def_cfa 7, 40
+ 1805 0006 F860     		str	r0, [r7, #12]
+ 1806 0008 C7E90023 		strd	r2, [r7]
+ 262:S2LP_Driver/s2lp_rf.c **** 	double const first_freq = S2LP_RF_CalculateCenterFrequency(handle, base_frequency, 100, 100);
+ 1807              		.loc 1 262 28
+ 1808 000c 6423     		movs	r3, #100
+ 1809 000e 0193     		str	r3, [sp, #4]
+ 1810 0010 6423     		movs	r3, #100
+ 1811 0012 0093     		str	r3, [sp]
+ 1812 0014 D7E90023 		ldrd	r2, [r7]
+ 1813 0018 F868     		ldr	r0, [r7, #12]
+ 1814 001a FFF7FEFF 		bl	S2LP_RF_CalculateCenterFrequency
+ 1815 001e C7E90601 		strd	r0, [r7, #24]
+ 263:S2LP_Driver/s2lp_rf.c **** 	double const second_freq = S2LP_RF_CalculateCenterFrequency(handle, base_frequency, 100, 101);
+ 1816              		.loc 1 263 29
+ 1817 0022 6523     		movs	r3, #101
+ 1818 0024 0193     		str	r3, [sp, #4]
+ 1819 0026 6423     		movs	r3, #100
+ 1820 0028 0093     		str	r3, [sp]
+ 1821 002a D7E90023 		ldrd	r2, [r7]
+ 1822 002e F868     		ldr	r0, [r7, #12]
+ 1823 0030 FFF7FEFF 		bl	S2LP_RF_CalculateCenterFrequency
+ 1824 0034 C7E90401 		strd	r0, [r7, #16]
+ARM GAS  /tmp/cc9iOMXq.s 			page 37
+
+
+ 264:S2LP_Driver/s2lp_rf.c **** // I really have no idea why does it have to be divided by 100,
+ 265:S2LP_Driver/s2lp_rf.c **** // but the value corresponds to value in datasheet so i guess it's OK
+ 266:S2LP_Driver/s2lp_rf.c **** 	return (second_freq - first_freq) / 100.;
+ 1825              		.loc 1 266 22
+ 1826 0038 D7E90623 		ldrd	r2, [r7, #24]
+ 1827 003c D7E90401 		ldrd	r0, [r7, #16]
+ 1828 0040 FFF7FEFF 		bl	__aeabi_dsub
+ 1829 0044 0246     		mov	r2, r0
+ 1830 0046 0B46     		mov	r3, r1
+ 1831 0048 1046     		mov	r0, r2
+ 1832 004a 1946     		mov	r1, r3
+ 1833              		.loc 1 266 36
+ 1834 004c 4FF00002 		mov	r2, #0
+ 1835 0050 044B     		ldr	r3, .L82
+ 1836 0052 FFF7FEFF 		bl	__aeabi_ddiv
+ 1837 0056 0246     		mov	r2, r0
+ 1838 0058 0B46     		mov	r3, r1
+ 267:S2LP_Driver/s2lp_rf.c **** }
+ 1839              		.loc 1 267 1
+ 1840 005a 1046     		mov	r0, r2
+ 1841 005c 1946     		mov	r1, r3
+ 1842 005e 2037     		adds	r7, r7, #32
+ 1843              		.cfi_def_cfa_offset 8
+ 1844 0060 BD46     		mov	sp, r7
+ 1845              		.cfi_def_cfa_register 13
+ 1846              		@ sp needed
+ 1847 0062 80BD     		pop	{r7, pc}
+ 1848              	.L83:
+ 1849              		.align	2
+ 1850              	.L82:
+ 1851 0064 00005940 		.word	1079574528
+ 1852              		.cfi_endproc
+ 1853              	.LFE88:
+ 1855              		.global	__aeabi_ul2d
+ 1856              		.section	.text.S2LP_RF_CalculateFrequencyDeviation,"ax",%progbits
+ 1857              		.align	1
+ 1858              		.global	S2LP_RF_CalculateFrequencyDeviation
+ 1859              		.syntax unified
+ 1860              		.thumb
+ 1861              		.thumb_func
+ 1863              	S2LP_RF_CalculateFrequencyDeviation:
+ 1864              	.LFB89:
+ 268:S2LP_Driver/s2lp_rf.c **** 
+ 269:S2LP_Driver/s2lp_rf.c **** double S2LP_RF_CalculateFrequencyDeviation(S2LP_Handle* handle, uint8_t mantissa, uint8_t exponent)
+ 1865              		.loc 1 269 101
+ 1866              		.cfi_startproc
+ 1867              		@ args = 0, pretend = 0, frame = 80
+ 1868              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1869 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 1870              		.cfi_def_cfa_offset 20
+ 1871              		.cfi_offset 4, -20
+ 1872              		.cfi_offset 5, -16
+ 1873              		.cfi_offset 6, -12
+ 1874              		.cfi_offset 7, -8
+ 1875              		.cfi_offset 14, -4
+ 1876 0002 95B0     		sub	sp, sp, #84
+ 1877              		.cfi_def_cfa_offset 104
+ARM GAS  /tmp/cc9iOMXq.s 			page 38
+
+
+ 1878 0004 00AF     		add	r7, sp, #0
+ 1879              		.cfi_def_cfa_register 7
+ 1880 0006 7860     		str	r0, [r7, #4]
+ 1881 0008 0B46     		mov	r3, r1
+ 1882 000a FB70     		strb	r3, [r7, #3]
+ 1883 000c 1346     		mov	r3, r2
+ 1884 000e BB70     		strb	r3, [r7, #2]
+ 270:S2LP_Driver/s2lp_rf.c **** 	double const fxo = S2LP_GetClockFrequency(handle);
+ 1885              		.loc 1 270 21
+ 1886 0010 7868     		ldr	r0, [r7, #4]
+ 1887 0012 FFF7FEFF 		bl	S2LP_GetClockFrequency
+ 1888 0016 0346     		mov	r3, r0
+ 1889              		.loc 1 270 15
+ 1890 0018 1846     		mov	r0, r3
+ 1891 001a FFF7FEFF 		bl	__aeabi_ui2d
+ 1892 001e 0246     		mov	r2, r0
+ 1893 0020 0B46     		mov	r3, r1
+ 1894 0022 C7E91223 		strd	r2, [r7, #72]
+ 271:S2LP_Driver/s2lp_rf.c **** 	double const fxo_divided = fxo / (double) (1ull << 19ull);
+ 1895              		.loc 1 271 15
+ 1896 0026 4FF00002 		mov	r2, #0
+ 1897 002a 654B     		ldr	r3, .L91
+ 1898 002c D7E91201 		ldrd	r0, [r7, #72]
+ 1899 0030 FFF7FEFF 		bl	__aeabi_ddiv
+ 1900 0034 0246     		mov	r2, r0
+ 1901 0036 0B46     		mov	r3, r1
+ 1902 0038 C7E91023 		strd	r2, [r7, #64]
+ 272:S2LP_Driver/s2lp_rf.c **** 	double const pll_div = (S2LP_RF_GetSynthBand(handle) == S2LP_SYNTH_BAND_HIGH ? 4.0 : 8.0);
+ 1903              		.loc 1 272 26
+ 1904 003c 7868     		ldr	r0, [r7, #4]
+ 1905 003e FFF7FEFF 		bl	S2LP_RF_GetSynthBand
+ 1906 0042 0346     		mov	r3, r0
+ 1907              		.loc 1 272 85
+ 1908 0044 002B     		cmp	r3, #0
+ 1909 0046 03D1     		bne	.L85
+ 1910              		.loc 1 272 85 is_stmt 0 discriminator 1
+ 1911 0048 4FF00002 		mov	r2, #0
+ 1912 004c 5D4B     		ldr	r3, .L91+4
+ 1913 004e 02E0     		b	.L86
+ 1914              	.L85:
+ 1915              		.loc 1 272 85 discriminator 2
+ 1916 0050 4FF00002 		mov	r2, #0
+ 1917 0054 5C4B     		ldr	r3, .L91+8
+ 1918              	.L86:
+ 1919              		.loc 1 272 15 is_stmt 1 discriminator 4
+ 1920 0056 C7E90E23 		strd	r2, [r7, #56]
+ 273:S2LP_Driver/s2lp_rf.c **** 	double const ref_div = (S2LP_IsRefDivEnabled(handle) ? 2.0 : 1.0);
+ 1921              		.loc 1 273 26 discriminator 4
+ 1922 005a 7868     		ldr	r0, [r7, #4]
+ 1923 005c FFF7FEFF 		bl	S2LP_IsRefDivEnabled
+ 1924 0060 0346     		mov	r3, r0
+ 1925              		.loc 1 273 61 discriminator 4
+ 1926 0062 002B     		cmp	r3, #0
+ 1927 0064 04D0     		beq	.L87
+ 1928              		.loc 1 273 61 is_stmt 0 discriminator 1
+ 1929 0066 4FF00002 		mov	r2, #0
+ 1930 006a 4FF08043 		mov	r3, #1073741824
+ARM GAS  /tmp/cc9iOMXq.s 			page 39
+
+
+ 1931 006e 02E0     		b	.L88
+ 1932              	.L87:
+ 1933              		.loc 1 273 61 discriminator 2
+ 1934 0070 4FF00002 		mov	r2, #0
+ 1935 0074 554B     		ldr	r3, .L91+12
+ 1936              	.L88:
+ 1937              		.loc 1 273 15 is_stmt 1 discriminator 4
+ 1938 0076 C7E90C23 		strd	r2, [r7, #48]
+ 274:S2LP_Driver/s2lp_rf.c **** 	double const denominator = pll_div * ref_div;
+ 1939              		.loc 1 274 15 discriminator 4
+ 1940 007a D7E90C23 		ldrd	r2, [r7, #48]
+ 1941 007e D7E90E01 		ldrd	r0, [r7, #56]
+ 1942 0082 FFF7FEFF 		bl	__aeabi_dmul
+ 1943 0086 0246     		mov	r2, r0
+ 1944 0088 0B46     		mov	r3, r1
+ 1945 008a C7E90A23 		strd	r2, [r7, #40]
+ 275:S2LP_Driver/s2lp_rf.c **** 
+ 276:S2LP_Driver/s2lp_rf.c **** 	if (exponent == 0) {
+ 1946              		.loc 1 276 5 discriminator 4
+ 1947 008e BB78     		ldrb	r3, [r7, #2]	@ zero_extendqisi2
+ 1948 0090 002B     		cmp	r3, #0
+ 1949 0092 31D1     		bne	.L89
+ 1950              	.LBB7:
+ 277:S2LP_Driver/s2lp_rf.c **** 		double const nominator = round(ref_div * (double) mantissa * (pll_div / 8.0));
+ 1951              		.loc 1 277 44
+ 1952 0094 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 1953 0096 1846     		mov	r0, r3
+ 1954 0098 FFF7FEFF 		bl	__aeabi_ui2d
+ 1955              		.loc 1 277 42
+ 1956 009c D7E90C23 		ldrd	r2, [r7, #48]
+ 1957 00a0 FFF7FEFF 		bl	__aeabi_dmul
+ 1958 00a4 0246     		mov	r2, r0
+ 1959 00a6 0B46     		mov	r3, r1
+ 1960 00a8 1446     		mov	r4, r2
+ 1961 00aa 1D46     		mov	r5, r3
+ 1962              		.loc 1 277 73
+ 1963 00ac 4FF00002 		mov	r2, #0
+ 1964 00b0 454B     		ldr	r3, .L91+8
+ 1965 00b2 D7E90E01 		ldrd	r0, [r7, #56]
+ 1966 00b6 FFF7FEFF 		bl	__aeabi_ddiv
+ 1967 00ba 0246     		mov	r2, r0
+ 1968 00bc 0B46     		mov	r3, r1
+ 1969              		.loc 1 277 28
+ 1970 00be 2046     		mov	r0, r4
+ 1971 00c0 2946     		mov	r1, r5
+ 1972 00c2 FFF7FEFF 		bl	__aeabi_dmul
+ 1973 00c6 0246     		mov	r2, r0
+ 1974 00c8 0B46     		mov	r3, r1
+ 1975 00ca 1046     		mov	r0, r2
+ 1976 00cc 1946     		mov	r1, r3
+ 1977 00ce FFF7FEFF 		bl	round
+ 1978 00d2 C7E90201 		strd	r0, [r7, #8]
+ 278:S2LP_Driver/s2lp_rf.c **** 		return fxo_divided * (nominator / denominator);
+ 1979              		.loc 1 278 35
+ 1980 00d6 D7E90A23 		ldrd	r2, [r7, #40]
+ 1981 00da D7E90201 		ldrd	r0, [r7, #8]
+ 1982 00de FFF7FEFF 		bl	__aeabi_ddiv
+ARM GAS  /tmp/cc9iOMXq.s 			page 40
+
+
+ 1983 00e2 0246     		mov	r2, r0
+ 1984 00e4 0B46     		mov	r3, r1
+ 1985 00e6 1046     		mov	r0, r2
+ 1986 00e8 1946     		mov	r1, r3
+ 1987              		.loc 1 278 22
+ 1988 00ea D7E91023 		ldrd	r2, [r7, #64]
+ 1989 00ee FFF7FEFF 		bl	__aeabi_dmul
+ 1990 00f2 0246     		mov	r2, r0
+ 1991 00f4 0B46     		mov	r3, r1
+ 1992 00f6 5DE0     		b	.L90
+ 1993              	.L89:
+ 1994              	.LBE7:
+ 1995              	.LBB8:
+ 279:S2LP_Driver/s2lp_rf.c **** 	} else {
+ 280:S2LP_Driver/s2lp_rf.c **** 		double const d_fdev = ref_div * (256.0 + (double) mantissa);
+ 1996              		.loc 1 280 44
+ 1997 00f8 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 1998 00fa 1846     		mov	r0, r3
+ 1999 00fc FFF7FEFF 		bl	__aeabi_ui2d
+ 2000              		.loc 1 280 42
+ 2001 0100 4FF00002 		mov	r2, #0
+ 2002 0104 324B     		ldr	r3, .L91+16
+ 2003 0106 FFF7FEFF 		bl	__aeabi_dadd
+ 2004 010a 0246     		mov	r2, r0
+ 2005 010c 0B46     		mov	r3, r1
+ 2006              		.loc 1 280 16
+ 2007 010e D7E90C01 		ldrd	r0, [r7, #48]
+ 2008 0112 FFF7FEFF 		bl	__aeabi_dmul
+ 2009 0116 0246     		mov	r2, r0
+ 2010 0118 0B46     		mov	r3, r1
+ 2011 011a C7E90823 		strd	r2, [r7, #32]
+ 281:S2LP_Driver/s2lp_rf.c **** 		double const exponent_pow = (1ull << (exponent - 1));
+ 2012              		.loc 1 281 50
+ 2013 011e BB78     		ldrb	r3, [r7, #2]	@ zero_extendqisi2
+ 2014 0120 591E     		subs	r1, r3, #1
+ 2015              		.loc 1 281 37
+ 2016 0122 4FF00102 		mov	r2, #1
+ 2017 0126 4FF00003 		mov	r3, #0
+ 2018 012a A1F12006 		sub	r6, r1, #32
+ 2019 012e C1F12000 		rsb	r0, r1, #32
+ 2020 0132 03FA01F5 		lsl	r5, r3, r1
+ 2021 0136 02FA06F6 		lsl	r6, r2, r6
+ 2022 013a 3543     		orrs	r5, r5, r6
+ 2023 013c 22FA00F0 		lsr	r0, r2, r0
+ 2024 0140 0543     		orrs	r5, r5, r0
+ 2025 0142 02FA01F4 		lsl	r4, r2, r1
+ 2026              		.loc 1 281 16
+ 2027 0146 2046     		mov	r0, r4
+ 2028 0148 2946     		mov	r1, r5
+ 2029 014a FFF7FEFF 		bl	__aeabi_ul2d
+ 2030 014e 0246     		mov	r2, r0
+ 2031 0150 0B46     		mov	r3, r1
+ 2032 0152 C7E90623 		strd	r2, [r7, #24]
+ 282:S2LP_Driver/s2lp_rf.c **** 		double const nominator = round(d_fdev * exponent_pow * (pll_div / 8.0));
+ 2033              		.loc 1 282 41
+ 2034 0156 D7E90623 		ldrd	r2, [r7, #24]
+ 2035 015a D7E90801 		ldrd	r0, [r7, #32]
+ARM GAS  /tmp/cc9iOMXq.s 			page 41
+
+
+ 2036 015e FFF7FEFF 		bl	__aeabi_dmul
+ 2037 0162 0246     		mov	r2, r0
+ 2038 0164 0B46     		mov	r3, r1
+ 2039 0166 1446     		mov	r4, r2
+ 2040 0168 1D46     		mov	r5, r3
+ 2041              		.loc 1 282 67
+ 2042 016a 4FF00002 		mov	r2, #0
+ 2043 016e 164B     		ldr	r3, .L91+8
+ 2044 0170 D7E90E01 		ldrd	r0, [r7, #56]
+ 2045 0174 FFF7FEFF 		bl	__aeabi_ddiv
+ 2046 0178 0246     		mov	r2, r0
+ 2047 017a 0B46     		mov	r3, r1
+ 2048              		.loc 1 282 28
+ 2049 017c 2046     		mov	r0, r4
+ 2050 017e 2946     		mov	r1, r5
+ 2051 0180 FFF7FEFF 		bl	__aeabi_dmul
+ 2052 0184 0246     		mov	r2, r0
+ 2053 0186 0B46     		mov	r3, r1
+ 2054 0188 1046     		mov	r0, r2
+ 2055 018a 1946     		mov	r1, r3
+ 2056 018c FFF7FEFF 		bl	round
+ 2057 0190 C7E90401 		strd	r0, [r7, #16]
+ 283:S2LP_Driver/s2lp_rf.c **** 		return fxo_divided * (nominator / denominator);
+ 2058              		.loc 1 283 35
+ 2059 0194 D7E90A23 		ldrd	r2, [r7, #40]
+ 2060 0198 D7E90401 		ldrd	r0, [r7, #16]
+ 2061 019c FFF7FEFF 		bl	__aeabi_ddiv
+ 2062 01a0 0246     		mov	r2, r0
+ 2063 01a2 0B46     		mov	r3, r1
+ 2064 01a4 1046     		mov	r0, r2
+ 2065 01a6 1946     		mov	r1, r3
+ 2066              		.loc 1 283 22
+ 2067 01a8 D7E91023 		ldrd	r2, [r7, #64]
+ 2068 01ac FFF7FEFF 		bl	__aeabi_dmul
+ 2069 01b0 0246     		mov	r2, r0
+ 2070 01b2 0B46     		mov	r3, r1
+ 2071              	.L90:
+ 2072              	.LBE8:
+ 284:S2LP_Driver/s2lp_rf.c **** 	}
+ 285:S2LP_Driver/s2lp_rf.c **** }
+ 2073              		.loc 1 285 1
+ 2074 01b4 1046     		mov	r0, r2
+ 2075 01b6 1946     		mov	r1, r3
+ 2076 01b8 5437     		adds	r7, r7, #84
+ 2077              		.cfi_def_cfa_offset 20
+ 2078 01ba BD46     		mov	sp, r7
+ 2079              		.cfi_def_cfa_register 13
+ 2080              		@ sp needed
+ 2081 01bc F0BD     		pop	{r4, r5, r6, r7, pc}
+ 2082              	.L92:
+ 2083 01be 00BF     		.align	2
+ 2084              	.L91:
+ 2085 01c0 00002041 		.word	1092616192
+ 2086 01c4 00001040 		.word	1074790400
+ 2087 01c8 00002040 		.word	1075838976
+ 2088 01cc 0000F03F 		.word	1072693248
+ 2089 01d0 00007040 		.word	1081081856
+ARM GAS  /tmp/cc9iOMXq.s 			page 42
+
+
+ 2090              		.cfi_endproc
+ 2091              	.LFE89:
+ 2093              		.global	__aeabi_dcmpgt
+ 2094              		.section	.text.S2LP_RF_CalculateFreqDevExponent,"ax",%progbits
+ 2095              		.align	1
+ 2096              		.global	S2LP_RF_CalculateFreqDevExponent
+ 2097              		.syntax unified
+ 2098              		.thumb
+ 2099              		.thumb_func
+ 2101              	S2LP_RF_CalculateFreqDevExponent:
+ 2102              	.LFB90:
+ 286:S2LP_Driver/s2lp_rf.c **** 
+ 287:S2LP_Driver/s2lp_rf.c **** uint8_t S2LP_RF_CalculateFreqDevExponent(S2LP_Handle* handle, uint32_t deviation) {
+ 2103              		.loc 1 287 83
+ 2104              		.cfi_startproc
+ 2105              		@ args = 0, pretend = 0, frame = 16
+ 2106              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2107 0000 B0B5     		push	{r4, r5, r7, lr}
+ 2108              		.cfi_def_cfa_offset 16
+ 2109              		.cfi_offset 4, -16
+ 2110              		.cfi_offset 5, -12
+ 2111              		.cfi_offset 7, -8
+ 2112              		.cfi_offset 14, -4
+ 2113 0002 84B0     		sub	sp, sp, #16
+ 2114              		.cfi_def_cfa_offset 32
+ 2115 0004 00AF     		add	r7, sp, #0
+ 2116              		.cfi_def_cfa_register 7
+ 2117 0006 7860     		str	r0, [r7, #4]
+ 2118 0008 3960     		str	r1, [r7]
+ 2119              	.LBB9:
+ 288:S2LP_Driver/s2lp_rf.c **** 	for (uint8_t exponent = S2LP_FDEV_EXPONENT_MIN; exponent <= S2LP_FDEV_EXPONENT_MAX; exponent++) {
+ 2120              		.loc 1 288 15
+ 2121 000a 0023     		movs	r3, #0
+ 2122 000c FB73     		strb	r3, [r7, #15]
+ 2123              		.loc 1 288 2
+ 2124 000e 18E0     		b	.L94
+ 2125              	.L98:
+ 289:S2LP_Driver/s2lp_rf.c **** 		if (S2LP_RF_CalculateFrequencyDeviation(handle, S2LP_FDEV_MANTISSA_MAX, exponent) > deviation) {
+ 2126              		.loc 1 289 7
+ 2127 0010 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 2128 0012 1A46     		mov	r2, r3
+ 2129 0014 FF21     		movs	r1, #255
+ 2130 0016 7868     		ldr	r0, [r7, #4]
+ 2131 0018 FFF7FEFF 		bl	S2LP_RF_CalculateFrequencyDeviation
+ 2132 001c 0446     		mov	r4, r0
+ 2133 001e 0D46     		mov	r5, r1
+ 2134              		.loc 1 289 85
+ 2135 0020 3868     		ldr	r0, [r7]
+ 2136 0022 FFF7FEFF 		bl	__aeabi_ui2d
+ 2137 0026 0246     		mov	r2, r0
+ 2138 0028 0B46     		mov	r3, r1
+ 2139              		.loc 1 289 6
+ 2140 002a 2046     		mov	r0, r4
+ 2141 002c 2946     		mov	r1, r5
+ 2142 002e FFF7FEFF 		bl	__aeabi_dcmpgt
+ 2143 0032 0346     		mov	r3, r0
+ 2144 0034 002B     		cmp	r3, #0
+ARM GAS  /tmp/cc9iOMXq.s 			page 43
+
+
+ 2145 0036 01D0     		beq	.L100
+ 290:S2LP_Driver/s2lp_rf.c **** 			return exponent;
+ 2146              		.loc 1 290 11
+ 2147 0038 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 2148 003a 06E0     		b	.L97
+ 2149              	.L100:
+ 288:S2LP_Driver/s2lp_rf.c **** 	for (uint8_t exponent = S2LP_FDEV_EXPONENT_MIN; exponent <= S2LP_FDEV_EXPONENT_MAX; exponent++) {
+ 2150              		.loc 1 288 94 discriminator 2
+ 2151 003c FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 2152 003e 0133     		adds	r3, r3, #1
+ 2153 0040 FB73     		strb	r3, [r7, #15]
+ 2154              	.L94:
+ 288:S2LP_Driver/s2lp_rf.c **** 	for (uint8_t exponent = S2LP_FDEV_EXPONENT_MIN; exponent <= S2LP_FDEV_EXPONENT_MAX; exponent++) {
+ 2155              		.loc 1 288 59 discriminator 1
+ 2156 0042 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 2157 0044 0F2B     		cmp	r3, #15
+ 2158 0046 E3D9     		bls	.L98
+ 2159              	.LBE9:
+ 291:S2LP_Driver/s2lp_rf.c **** 		}
+ 292:S2LP_Driver/s2lp_rf.c **** 	}
+ 293:S2LP_Driver/s2lp_rf.c **** 
+ 294:S2LP_Driver/s2lp_rf.c **** 	return S2LP_FDEV_EXPONENT_INVALID;
+ 2160              		.loc 1 294 9
+ 2161 0048 FF23     		movs	r3, #255
+ 2162              	.L97:
+ 295:S2LP_Driver/s2lp_rf.c **** }
+ 2163              		.loc 1 295 1
+ 2164 004a 1846     		mov	r0, r3
+ 2165 004c 1037     		adds	r7, r7, #16
+ 2166              		.cfi_def_cfa_offset 16
+ 2167 004e BD46     		mov	sp, r7
+ 2168              		.cfi_def_cfa_register 13
+ 2169              		@ sp needed
+ 2170 0050 B0BD     		pop	{r4, r5, r7, pc}
+ 2171              		.cfi_endproc
+ 2172              	.LFE90:
+ 2174              		.section	.text.S2LP_RF_CalculateFreqDevMantissa,"ax",%progbits
+ 2175              		.align	1
+ 2176              		.global	S2LP_RF_CalculateFreqDevMantissa
+ 2177              		.syntax unified
+ 2178              		.thumb
+ 2179              		.thumb_func
+ 2181              	S2LP_RF_CalculateFreqDevMantissa:
+ 2182              	.LFB91:
+ 296:S2LP_Driver/s2lp_rf.c **** 
+ 297:S2LP_Driver/s2lp_rf.c **** uint8_t S2LP_RF_CalculateFreqDevMantissa(S2LP_Handle* handle, uint8_t exponent, uint32_t deviation)
+ 2183              		.loc 1 297 101
+ 2184              		.cfi_startproc
+ 2185              		@ args = 0, pretend = 0, frame = 48
+ 2186              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2187 0000 B0B5     		push	{r4, r5, r7, lr}
+ 2188              		.cfi_def_cfa_offset 16
+ 2189              		.cfi_offset 4, -16
+ 2190              		.cfi_offset 5, -12
+ 2191              		.cfi_offset 7, -8
+ 2192              		.cfi_offset 14, -4
+ 2193 0002 8CB0     		sub	sp, sp, #48
+ARM GAS  /tmp/cc9iOMXq.s 			page 44
+
+
+ 2194              		.cfi_def_cfa_offset 64
+ 2195 0004 00AF     		add	r7, sp, #0
+ 2196              		.cfi_def_cfa_register 7
+ 2197 0006 F860     		str	r0, [r7, #12]
+ 2198 0008 0B46     		mov	r3, r1
+ 2199 000a 7A60     		str	r2, [r7, #4]
+ 2200 000c FB72     		strb	r3, [r7, #11]
+ 298:S2LP_Driver/s2lp_rf.c **** 	uint32_t const frequency_max = S2LP_RF_CalculateFrequencyDeviation(handle,
+ 2201              		.loc 1 298 33
+ 2202 000e FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 2203 0010 1A46     		mov	r2, r3
+ 2204 0012 FF21     		movs	r1, #255
+ 2205 0014 F868     		ldr	r0, [r7, #12]
+ 2206 0016 FFF7FEFF 		bl	S2LP_RF_CalculateFrequencyDeviation
+ 2207 001a 0246     		mov	r2, r0
+ 2208 001c 0B46     		mov	r3, r1
+ 2209              		.loc 1 298 17
+ 2210 001e 1046     		mov	r0, r2
+ 2211 0020 1946     		mov	r1, r3
+ 2212 0022 FFF7FEFF 		bl	__aeabi_d2uiz
+ 2213 0026 0346     		mov	r3, r0
+ 2214 0028 FB62     		str	r3, [r7, #44]
+ 299:S2LP_Driver/s2lp_rf.c **** 	S2LP_FDEV_MANTISSA_MAX, exponent);
+ 300:S2LP_Driver/s2lp_rf.c **** 	uint32_t const frequency_min = (exponent > 0 ? S2LP_RF_CalculateFrequencyDeviation(handle,
+ 2215              		.loc 1 300 17
+ 2216 002a FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 2217 002c 002B     		cmp	r3, #0
+ 2218 002e 0FD0     		beq	.L102
+ 2219              		.loc 1 300 49 discriminator 1
+ 2220 0030 FB7A     		ldrb	r3, [r7, #11]
+ 2221 0032 013B     		subs	r3, r3, #1
+ 2222 0034 DBB2     		uxtb	r3, r3
+ 2223 0036 1A46     		mov	r2, r3
+ 2224 0038 FF21     		movs	r1, #255
+ 2225 003a F868     		ldr	r0, [r7, #12]
+ 2226 003c FFF7FEFF 		bl	S2LP_RF_CalculateFrequencyDeviation
+ 2227 0040 0246     		mov	r2, r0
+ 2228 0042 0B46     		mov	r3, r1
+ 2229              		.loc 1 300 17 discriminator 1
+ 2230 0044 1046     		mov	r0, r2
+ 2231 0046 1946     		mov	r1, r3
+ 2232 0048 FFF7FEFF 		bl	__aeabi_d2uiz
+ 2233 004c 0346     		mov	r3, r0
+ 2234 004e 00E0     		b	.L103
+ 2235              	.L102:
+ 2236              		.loc 1 300 17 is_stmt 0 discriminator 2
+ 2237 0050 0023     		movs	r3, #0
+ 2238              	.L103:
+ 2239              		.loc 1 300 17 discriminator 4
+ 2240 0052 BB62     		str	r3, [r7, #40]
+ 301:S2LP_Driver/s2lp_rf.c **** 	S2LP_FDEV_MANTISSA_MAX, exponent - 1) :
+ 302:S2LP_Driver/s2lp_rf.c **** 													0);
+ 303:S2LP_Driver/s2lp_rf.c **** 
+ 304:S2LP_Driver/s2lp_rf.c **** 	uint32_t const frequency_range = frequency_max - frequency_min;
+ 2241              		.loc 1 304 17 is_stmt 1 discriminator 4
+ 2242 0054 FA6A     		ldr	r2, [r7, #44]
+ 2243 0056 BB6A     		ldr	r3, [r7, #40]
+ARM GAS  /tmp/cc9iOMXq.s 			page 45
+
+
+ 2244 0058 D31A     		subs	r3, r2, r3
+ 2245 005a 7B62     		str	r3, [r7, #36]
+ 305:S2LP_Driver/s2lp_rf.c **** 	uint32_t const corrected_frequency_start = deviation - frequency_min;
+ 2246              		.loc 1 305 17 discriminator 4
+ 2247 005c 7A68     		ldr	r2, [r7, #4]
+ 2248 005e BB6A     		ldr	r3, [r7, #40]
+ 2249 0060 D31A     		subs	r3, r2, r3
+ 2250 0062 3B62     		str	r3, [r7, #32]
+ 306:S2LP_Driver/s2lp_rf.c **** 	double const frequency_position = (double) (corrected_frequency_start) / (double) (frequency_range
+ 2251              		.loc 1 306 36 discriminator 4
+ 2252 0064 386A     		ldr	r0, [r7, #32]
+ 2253 0066 FFF7FEFF 		bl	__aeabi_ui2d
+ 2254 006a 0446     		mov	r4, r0
+ 2255 006c 0D46     		mov	r5, r1
+ 2256              		.loc 1 306 75 discriminator 4
+ 2257 006e 786A     		ldr	r0, [r7, #36]
+ 2258 0070 FFF7FEFF 		bl	__aeabi_ui2d
+ 2259 0074 0246     		mov	r2, r0
+ 2260 0076 0B46     		mov	r3, r1
+ 2261              		.loc 1 306 15 discriminator 4
+ 2262 0078 2046     		mov	r0, r4
+ 2263 007a 2946     		mov	r1, r5
+ 2264 007c FFF7FEFF 		bl	__aeabi_ddiv
+ 2265 0080 0246     		mov	r2, r0
+ 2266 0082 0B46     		mov	r3, r1
+ 2267 0084 C7E90623 		strd	r2, [r7, #24]
+ 307:S2LP_Driver/s2lp_rf.c **** 	double approx_mantissa = (double) (S2LP_FDEV_MANTISSA_MIN) * (1.0 - frequency_position)
+ 2268              		.loc 1 307 68 discriminator 4
+ 2269 0088 D7E90623 		ldrd	r2, [r7, #24]
+ 2270 008c 4FF00000 		mov	r0, #0
+ 2271 0090 1B49     		ldr	r1, .L105+8
+ 2272 0092 FFF7FEFF 		bl	__aeabi_dsub
+ 2273 0096 0246     		mov	r2, r0
+ 2274 0098 0B46     		mov	r3, r1
+ 2275 009a 1046     		mov	r0, r2
+ 2276 009c 1946     		mov	r1, r3
+ 2277              		.loc 1 307 61 discriminator 4
+ 2278 009e 4FF00002 		mov	r2, #0
+ 2279 00a2 4FF00003 		mov	r3, #0
+ 2280 00a6 FFF7FEFF 		bl	__aeabi_dmul
+ 2281 00aa 0246     		mov	r2, r0
+ 2282 00ac 0B46     		mov	r3, r1
+ 2283 00ae 1446     		mov	r4, r2
+ 2284 00b0 1D46     		mov	r5, r3
+ 308:S2LP_Driver/s2lp_rf.c **** 			+ ((double) (S2LP_FDEV_MANTISSA_MAX) * frequency_position);
+ 2285              		.loc 1 308 41 discriminator 4
+ 2286 00b2 11A3     		adr	r3, .L105
+ 2287 00b4 D3E90023 		ldrd	r2, [r3]
+ 2288 00b8 D7E90601 		ldrd	r0, [r7, #24]
+ 2289 00bc FFF7FEFF 		bl	__aeabi_dmul
+ 2290 00c0 0246     		mov	r2, r0
+ 2291 00c2 0B46     		mov	r3, r1
+ 307:S2LP_Driver/s2lp_rf.c **** 	double approx_mantissa = (double) (S2LP_FDEV_MANTISSA_MIN) * (1.0 - frequency_position)
+ 2292              		.loc 1 307 9 discriminator 4
+ 2293 00c4 2046     		mov	r0, r4
+ 2294 00c6 2946     		mov	r1, r5
+ 2295 00c8 FFF7FEFF 		bl	__aeabi_dadd
+ARM GAS  /tmp/cc9iOMXq.s 			page 46
+
+
+ 2296 00cc 0246     		mov	r2, r0
+ 2297 00ce 0B46     		mov	r3, r1
+ 2298 00d0 C7E90423 		strd	r2, [r7, #16]
+ 309:S2LP_Driver/s2lp_rf.c **** 
+ 310:S2LP_Driver/s2lp_rf.c **** 	return (uint8_t) round(approx_mantissa);
+ 2299              		.loc 1 310 19 discriminator 4
+ 2300 00d4 D7E90401 		ldrd	r0, [r7, #16]
+ 2301 00d8 FFF7FEFF 		bl	round
+ 2302 00dc 0246     		mov	r2, r0
+ 2303 00de 0B46     		mov	r3, r1
+ 2304              		.loc 1 310 9 discriminator 4
+ 2305 00e0 1046     		mov	r0, r2
+ 2306 00e2 1946     		mov	r1, r3
+ 2307 00e4 FFF7FEFF 		bl	__aeabi_d2uiz
+ 2308 00e8 0346     		mov	r3, r0
+ 2309 00ea DBB2     		uxtb	r3, r3
+ 311:S2LP_Driver/s2lp_rf.c **** }
+ 2310              		.loc 1 311 1 discriminator 4
+ 2311 00ec 1846     		mov	r0, r3
+ 2312 00ee 3037     		adds	r7, r7, #48
+ 2313              		.cfi_def_cfa_offset 16
+ 2314 00f0 BD46     		mov	sp, r7
+ 2315              		.cfi_def_cfa_register 13
+ 2316              		@ sp needed
+ 2317 00f2 B0BD     		pop	{r4, r5, r7, pc}
+ 2318              	.L106:
+ 2319 00f4 AFF30080 		.align	3
+ 2320              	.L105:
+ 2321 00f8 00000000 		.word	0
+ 2322 00fc 00E06F40 		.word	1081073664
+ 2323 0100 0000F03F 		.word	1072693248
+ 2324              		.cfi_endproc
+ 2325              	.LFE91:
+ 2327              		.section	.text.S2LP_RF_GetChargePumpCurrent,"ax",%progbits
+ 2328              		.align	1
+ 2329              		.global	S2LP_RF_GetChargePumpCurrent
+ 2330              		.syntax unified
+ 2331              		.thumb
+ 2332              		.thumb_func
+ 2334              	S2LP_RF_GetChargePumpCurrent:
+ 2335              	.LFB92:
+ 312:S2LP_Driver/s2lp_rf.c **** 
+ 313:S2LP_Driver/s2lp_rf.c **** S2LP_ChargePumpCurrent S2LP_RF_GetChargePumpCurrent(S2LP_Handle* handle) {
+ 2336              		.loc 1 313 74
+ 2337              		.cfi_startproc
+ 2338              		@ args = 0, pretend = 0, frame = 16
+ 2339              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2340 0000 80B5     		push	{r7, lr}
+ 2341              		.cfi_def_cfa_offset 8
+ 2342              		.cfi_offset 7, -8
+ 2343              		.cfi_offset 14, -4
+ 2344 0002 84B0     		sub	sp, sp, #16
+ 2345              		.cfi_def_cfa_offset 24
+ 2346 0004 00AF     		add	r7, sp, #0
+ 2347              		.cfi_def_cfa_register 7
+ 2348 0006 7860     		str	r0, [r7, #4]
+ 314:S2LP_Driver/s2lp_rf.c **** 	uint8_t synt3_val = S2LP_ReadRegister(handle, S2LP_REG_SYNT3);
+ARM GAS  /tmp/cc9iOMXq.s 			page 47
+
+
+ 2349              		.loc 1 314 22
+ 2350 0008 0521     		movs	r1, #5
+ 2351 000a 7868     		ldr	r0, [r7, #4]
+ 2352 000c FFF7FEFF 		bl	S2LP_ReadRegister
+ 2353 0010 0346     		mov	r3, r0
+ 2354 0012 FB73     		strb	r3, [r7, #15]
+ 315:S2LP_Driver/s2lp_rf.c **** 	uint8_t synth_config_val = S2LP_ReadRegister(handle, S2LP_REG_SYNTH_CONFIG2);
+ 2355              		.loc 1 315 29
+ 2356 0014 6521     		movs	r1, #101
+ 2357 0016 7868     		ldr	r0, [r7, #4]
+ 2358 0018 FFF7FEFF 		bl	S2LP_ReadRegister
+ 2359 001c 0346     		mov	r3, r0
+ 2360 001e BB73     		strb	r3, [r7, #14]
+ 316:S2LP_Driver/s2lp_rf.c **** 
+ 317:S2LP_Driver/s2lp_rf.c **** 	uint8_t isel = GETBITS(synt3_val, 0b111, 5);
+ 2361              		.loc 1 317 10
+ 2362 0020 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 2363 0022 5B09     		lsrs	r3, r3, #5
+ 2364 0024 7B73     		strb	r3, [r7, #13]
+ 318:S2LP_Driver/s2lp_rf.c **** 	bool split_en = GETBIT(synth_config_val, 2);
+ 2365              		.loc 1 318 18
+ 2366 0026 BB7B     		ldrb	r3, [r7, #14]	@ zero_extendqisi2
+ 2367 0028 9B08     		lsrs	r3, r3, #2
+ 2368 002a 03F00103 		and	r3, r3, #1
+ 2369              		.loc 1 318 7
+ 2370 002e 002B     		cmp	r3, #0
+ 2371 0030 14BF     		ite	ne
+ 2372 0032 0123     		movne	r3, #1
+ 2373 0034 0023     		moveq	r3, #0
+ 2374 0036 3B73     		strb	r3, [r7, #12]
+ 319:S2LP_Driver/s2lp_rf.c **** 
+ 320:S2LP_Driver/s2lp_rf.c **** 	if (isel == 0b010 && !split_en) {
+ 2375              		.loc 1 320 5
+ 2376 0038 7B7B     		ldrb	r3, [r7, #13]	@ zero_extendqisi2
+ 2377 003a 022B     		cmp	r3, #2
+ 2378 003c 07D1     		bne	.L108
+ 2379              		.loc 1 320 23 discriminator 1
+ 2380 003e 3B7B     		ldrb	r3, [r7, #12]
+ 2381 0040 83F00103 		eor	r3, r3, #1
+ 2382 0044 DBB2     		uxtb	r3, r3
+ 2383              		.loc 1 320 20 discriminator 1
+ 2384 0046 002B     		cmp	r3, #0
+ 2385 0048 01D0     		beq	.L108
+ 321:S2LP_Driver/s2lp_rf.c **** 		return S2LP_CHARGE_PUMP_120UA;
+ 2386              		.loc 1 321 10
+ 2387 004a 0023     		movs	r3, #0
+ 2388 004c 1BE0     		b	.L109
+ 2389              	.L108:
+ 322:S2LP_Driver/s2lp_rf.c **** 	} else if (isel == 0b001 && split_en) {
+ 2390              		.loc 1 322 12
+ 2391 004e 7B7B     		ldrb	r3, [r7, #13]	@ zero_extendqisi2
+ 2392 0050 012B     		cmp	r3, #1
+ 2393 0052 04D1     		bne	.L110
+ 2394              		.loc 1 322 27 discriminator 1
+ 2395 0054 3B7B     		ldrb	r3, [r7, #12]	@ zero_extendqisi2
+ 2396 0056 002B     		cmp	r3, #0
+ 2397 0058 01D0     		beq	.L110
+ARM GAS  /tmp/cc9iOMXq.s 			page 48
+
+
+ 323:S2LP_Driver/s2lp_rf.c **** 		return S2LP_CHARGE_PUMP_200UA;
+ 2398              		.loc 1 323 10
+ 2399 005a 0123     		movs	r3, #1
+ 2400 005c 13E0     		b	.L109
+ 2401              	.L110:
+ 324:S2LP_Driver/s2lp_rf.c **** 	} else if (isel == 0b011 && !split_en) {
+ 2402              		.loc 1 324 12
+ 2403 005e 7B7B     		ldrb	r3, [r7, #13]	@ zero_extendqisi2
+ 2404 0060 032B     		cmp	r3, #3
+ 2405 0062 07D1     		bne	.L111
+ 2406              		.loc 1 324 30 discriminator 1
+ 2407 0064 3B7B     		ldrb	r3, [r7, #12]
+ 2408 0066 83F00103 		eor	r3, r3, #1
+ 2409 006a DBB2     		uxtb	r3, r3
+ 2410              		.loc 1 324 27 discriminator 1
+ 2411 006c 002B     		cmp	r3, #0
+ 2412 006e 01D0     		beq	.L111
+ 325:S2LP_Driver/s2lp_rf.c **** 		return S2LP_CHARGE_PUMP_140UA;
+ 2413              		.loc 1 325 10
+ 2414 0070 0223     		movs	r3, #2
+ 2415 0072 08E0     		b	.L109
+ 2416              	.L111:
+ 326:S2LP_Driver/s2lp_rf.c **** 	} else if (isel == 0b010 && split_en) {
+ 2417              		.loc 1 326 12
+ 2418 0074 7B7B     		ldrb	r3, [r7, #13]	@ zero_extendqisi2
+ 2419 0076 022B     		cmp	r3, #2
+ 2420 0078 04D1     		bne	.L112
+ 2421              		.loc 1 326 27 discriminator 1
+ 2422 007a 3B7B     		ldrb	r3, [r7, #12]	@ zero_extendqisi2
+ 2423 007c 002B     		cmp	r3, #0
+ 2424 007e 01D0     		beq	.L112
+ 327:S2LP_Driver/s2lp_rf.c **** 		return S2LP_CHARGE_PUMP_240UA;
+ 2425              		.loc 1 327 10
+ 2426 0080 0323     		movs	r3, #3
+ 2427 0082 00E0     		b	.L109
+ 2428              	.L112:
+ 328:S2LP_Driver/s2lp_rf.c **** 	}
+ 329:S2LP_Driver/s2lp_rf.c **** 
+ 330:S2LP_Driver/s2lp_rf.c **** 	return S2LP_CHARGE_PUMP_INVALID;
+ 2429              		.loc 1 330 9
+ 2430 0084 0423     		movs	r3, #4
+ 2431              	.L109:
+ 331:S2LP_Driver/s2lp_rf.c **** }
+ 2432              		.loc 1 331 1
+ 2433 0086 1846     		mov	r0, r3
+ 2434 0088 1037     		adds	r7, r7, #16
+ 2435              		.cfi_def_cfa_offset 8
+ 2436 008a BD46     		mov	sp, r7
+ 2437              		.cfi_def_cfa_register 13
+ 2438              		@ sp needed
+ 2439 008c 80BD     		pop	{r7, pc}
+ 2440              		.cfi_endproc
+ 2441              	.LFE92:
+ 2443              		.section	.text.S2LP_RF_GetSynthBand,"ax",%progbits
+ 2444              		.align	1
+ 2445              		.global	S2LP_RF_GetSynthBand
+ 2446              		.syntax unified
+ARM GAS  /tmp/cc9iOMXq.s 			page 49
+
+
+ 2447              		.thumb
+ 2448              		.thumb_func
+ 2450              	S2LP_RF_GetSynthBand:
+ 2451              	.LFB93:
+ 332:S2LP_Driver/s2lp_rf.c **** 
+ 333:S2LP_Driver/s2lp_rf.c **** S2LP_SynthesizerBand S2LP_RF_GetSynthBand(S2LP_Handle* handle) {
+ 2452              		.loc 1 333 64
+ 2453              		.cfi_startproc
+ 2454              		@ args = 0, pretend = 0, frame = 16
+ 2455              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2456 0000 80B5     		push	{r7, lr}
+ 2457              		.cfi_def_cfa_offset 8
+ 2458              		.cfi_offset 7, -8
+ 2459              		.cfi_offset 14, -4
+ 2460 0002 84B0     		sub	sp, sp, #16
+ 2461              		.cfi_def_cfa_offset 24
+ 2462 0004 00AF     		add	r7, sp, #0
+ 2463              		.cfi_def_cfa_register 7
+ 2464 0006 7860     		str	r0, [r7, #4]
+ 334:S2LP_Driver/s2lp_rf.c **** 	uint8_t reg_val = S2LP_ReadRegister(handle, S2LP_REG_SYNT3);
+ 2465              		.loc 1 334 20
+ 2466 0008 0521     		movs	r1, #5
+ 2467 000a 7868     		ldr	r0, [r7, #4]
+ 2468 000c FFF7FEFF 		bl	S2LP_ReadRegister
+ 2469 0010 0346     		mov	r3, r0
+ 2470 0012 FB73     		strb	r3, [r7, #15]
+ 335:S2LP_Driver/s2lp_rf.c **** 	return (S2LP_SynthesizerBand) GETBIT(reg_val, 4);
+ 2471              		.loc 1 335 32
+ 2472 0014 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 2473 0016 1B09     		lsrs	r3, r3, #4
+ 2474 0018 03F00103 		and	r3, r3, #1
+ 2475              		.loc 1 335 9
+ 2476 001c DBB2     		uxtb	r3, r3
+ 336:S2LP_Driver/s2lp_rf.c **** }
+ 2477              		.loc 1 336 1
+ 2478 001e 1846     		mov	r0, r3
+ 2479 0020 1037     		adds	r7, r7, #16
+ 2480              		.cfi_def_cfa_offset 8
+ 2481 0022 BD46     		mov	sp, r7
+ 2482              		.cfi_def_cfa_register 13
+ 2483              		@ sp needed
+ 2484 0024 80BD     		pop	{r7, pc}
+ 2485              		.cfi_endproc
+ 2486              	.LFE93:
+ 2488              		.section	.text.S2LP_RF_GetSynthValue,"ax",%progbits
+ 2489              		.align	1
+ 2490              		.global	S2LP_RF_GetSynthValue
+ 2491              		.syntax unified
+ 2492              		.thumb
+ 2493              		.thumb_func
+ 2495              	S2LP_RF_GetSynthValue:
+ 2496              	.LFB94:
+ 337:S2LP_Driver/s2lp_rf.c **** 
+ 338:S2LP_Driver/s2lp_rf.c **** uint32_t S2LP_RF_GetSynthValue(S2LP_Handle* handle) {
+ 2497              		.loc 1 338 53
+ 2498              		.cfi_startproc
+ 2499              		@ args = 0, pretend = 0, frame = 16
+ARM GAS  /tmp/cc9iOMXq.s 			page 50
+
+
+ 2500              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2501 0000 80B5     		push	{r7, lr}
+ 2502              		.cfi_def_cfa_offset 8
+ 2503              		.cfi_offset 7, -8
+ 2504              		.cfi_offset 14, -4
+ 2505 0002 84B0     		sub	sp, sp, #16
+ 2506              		.cfi_def_cfa_offset 24
+ 2507 0004 00AF     		add	r7, sp, #0
+ 2508              		.cfi_def_cfa_register 7
+ 2509 0006 7860     		str	r0, [r7, #4]
+ 339:S2LP_Driver/s2lp_rf.c **** 	uint8_t reg_vals[4] = { 0 };
+ 2510              		.loc 1 339 10
+ 2511 0008 0023     		movs	r3, #0
+ 2512 000a BB60     		str	r3, [r7, #8]
+ 340:S2LP_Driver/s2lp_rf.c **** 	S2LP_BatchReadRegisters(handle, S2LP_REG_SYNT3, reg_vals, 4);
+ 2513              		.loc 1 340 2
+ 2514 000c 07F10802 		add	r2, r7, #8
+ 2515 0010 0423     		movs	r3, #4
+ 2516 0012 0521     		movs	r1, #5
+ 2517 0014 7868     		ldr	r0, [r7, #4]
+ 2518 0016 FFF7FEFF 		bl	S2LP_BatchReadRegisters
+ 341:S2LP_Driver/s2lp_rf.c **** 
+ 342:S2LP_Driver/s2lp_rf.c **** 	uint32_t synth = 0;
+ 2519              		.loc 1 342 11
+ 2520 001a 0023     		movs	r3, #0
+ 2521 001c FB60     		str	r3, [r7, #12]
+ 343:S2LP_Driver/s2lp_rf.c **** 	SETBITS(synth, reg_vals[3], 0xFF, 0);
+ 2522              		.loc 1 343 2
+ 2523 001e FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 2524 0020 1A46     		mov	r2, r3
+ 2525 0022 FB68     		ldr	r3, [r7, #12]
+ 2526 0024 1343     		orrs	r3, r3, r2
+ 2527 0026 FB60     		str	r3, [r7, #12]
+ 344:S2LP_Driver/s2lp_rf.c **** 	SETBITS(synth, reg_vals[2], 0xFF, 8);
+ 2528              		.loc 1 344 2
+ 2529 0028 BB7A     		ldrb	r3, [r7, #10]	@ zero_extendqisi2
+ 2530 002a 1B02     		lsls	r3, r3, #8
+ 2531 002c FA68     		ldr	r2, [r7, #12]
+ 2532 002e 1343     		orrs	r3, r3, r2
+ 2533 0030 FB60     		str	r3, [r7, #12]
+ 345:S2LP_Driver/s2lp_rf.c **** 	SETBITS(synth, reg_vals[1], 0xFF, 16);
+ 2534              		.loc 1 345 2
+ 2535 0032 7B7A     		ldrb	r3, [r7, #9]	@ zero_extendqisi2
+ 2536 0034 1B04     		lsls	r3, r3, #16
+ 2537 0036 FA68     		ldr	r2, [r7, #12]
+ 2538 0038 1343     		orrs	r3, r3, r2
+ 2539 003a FB60     		str	r3, [r7, #12]
+ 346:S2LP_Driver/s2lp_rf.c **** 	SETBITS(synth, GETBITS(reg_vals[0], 0xF, 0), 0xF, 24);
+ 2540              		.loc 1 346 2
+ 2541 003c 3B7A     		ldrb	r3, [r7, #8]	@ zero_extendqisi2
+ 2542 003e 1B06     		lsls	r3, r3, #24
+ 2543 0040 03F07063 		and	r3, r3, #251658240
+ 2544 0044 FA68     		ldr	r2, [r7, #12]
+ 2545 0046 1343     		orrs	r3, r3, r2
+ 2546 0048 FB60     		str	r3, [r7, #12]
+ 347:S2LP_Driver/s2lp_rf.c **** 
+ 348:S2LP_Driver/s2lp_rf.c **** 	return synth;
+ARM GAS  /tmp/cc9iOMXq.s 			page 51
+
+
+ 2547              		.loc 1 348 9
+ 2548 004a FB68     		ldr	r3, [r7, #12]
+ 349:S2LP_Driver/s2lp_rf.c **** }
+ 2549              		.loc 1 349 1
+ 2550 004c 1846     		mov	r0, r3
+ 2551 004e 1037     		adds	r7, r7, #16
+ 2552              		.cfi_def_cfa_offset 8
+ 2553 0050 BD46     		mov	sp, r7
+ 2554              		.cfi_def_cfa_register 13
+ 2555              		@ sp needed
+ 2556 0052 80BD     		pop	{r7, pc}
+ 2557              		.cfi_endproc
+ 2558              	.LFE94:
+ 2560              		.section	.text.S2LP_RF_GetChannelSpacing,"ax",%progbits
+ 2561              		.align	1
+ 2562              		.global	S2LP_RF_GetChannelSpacing
+ 2563              		.syntax unified
+ 2564              		.thumb
+ 2565              		.thumb_func
+ 2567              	S2LP_RF_GetChannelSpacing:
+ 2568              	.LFB95:
+ 350:S2LP_Driver/s2lp_rf.c **** 
+ 351:S2LP_Driver/s2lp_rf.c **** uint8_t S2LP_RF_GetChannelSpacing(S2LP_Handle* handle) {
+ 2569              		.loc 1 351 56
+ 2570              		.cfi_startproc
+ 2571              		@ args = 0, pretend = 0, frame = 8
+ 2572              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2573 0000 80B5     		push	{r7, lr}
+ 2574              		.cfi_def_cfa_offset 8
+ 2575              		.cfi_offset 7, -8
+ 2576              		.cfi_offset 14, -4
+ 2577 0002 82B0     		sub	sp, sp, #8
+ 2578              		.cfi_def_cfa_offset 16
+ 2579 0004 00AF     		add	r7, sp, #0
+ 2580              		.cfi_def_cfa_register 7
+ 2581 0006 7860     		str	r0, [r7, #4]
+ 352:S2LP_Driver/s2lp_rf.c **** 	return S2LP_ReadRegister(handle, S2LP_REG_CHSPACE);
+ 2582              		.loc 1 352 9
+ 2583 0008 0C21     		movs	r1, #12
+ 2584 000a 7868     		ldr	r0, [r7, #4]
+ 2585 000c FFF7FEFF 		bl	S2LP_ReadRegister
+ 2586 0010 0346     		mov	r3, r0
+ 353:S2LP_Driver/s2lp_rf.c **** }
+ 2587              		.loc 1 353 1
+ 2588 0012 1846     		mov	r0, r3
+ 2589 0014 0837     		adds	r7, r7, #8
+ 2590              		.cfi_def_cfa_offset 8
+ 2591 0016 BD46     		mov	sp, r7
+ 2592              		.cfi_def_cfa_register 13
+ 2593              		@ sp needed
+ 2594 0018 80BD     		pop	{r7, pc}
+ 2595              		.cfi_endproc
+ 2596              	.LFE95:
+ 2598              		.section	.text.S2LP_RF_GetChannelNumber,"ax",%progbits
+ 2599              		.align	1
+ 2600              		.global	S2LP_RF_GetChannelNumber
+ 2601              		.syntax unified
+ARM GAS  /tmp/cc9iOMXq.s 			page 52
+
+
+ 2602              		.thumb
+ 2603              		.thumb_func
+ 2605              	S2LP_RF_GetChannelNumber:
+ 2606              	.LFB96:
+ 354:S2LP_Driver/s2lp_rf.c **** 
+ 355:S2LP_Driver/s2lp_rf.c **** uint8_t S2LP_RF_GetChannelNumber(S2LP_Handle* handle) {
+ 2607              		.loc 1 355 55
+ 2608              		.cfi_startproc
+ 2609              		@ args = 0, pretend = 0, frame = 8
+ 2610              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2611 0000 80B5     		push	{r7, lr}
+ 2612              		.cfi_def_cfa_offset 8
+ 2613              		.cfi_offset 7, -8
+ 2614              		.cfi_offset 14, -4
+ 2615 0002 82B0     		sub	sp, sp, #8
+ 2616              		.cfi_def_cfa_offset 16
+ 2617 0004 00AF     		add	r7, sp, #0
+ 2618              		.cfi_def_cfa_register 7
+ 2619 0006 7860     		str	r0, [r7, #4]
+ 356:S2LP_Driver/s2lp_rf.c **** 	return S2LP_ReadRegister(handle, S2LP_REG_CHNUM);
+ 2620              		.loc 1 356 9
+ 2621 0008 0D21     		movs	r1, #13
+ 2622 000a 7868     		ldr	r0, [r7, #4]
+ 2623 000c FFF7FEFF 		bl	S2LP_ReadRegister
+ 2624 0010 0346     		mov	r3, r0
+ 357:S2LP_Driver/s2lp_rf.c **** }
+ 2625              		.loc 1 357 1
+ 2626 0012 1846     		mov	r0, r3
+ 2627 0014 0837     		adds	r7, r7, #8
+ 2628              		.cfi_def_cfa_offset 8
+ 2629 0016 BD46     		mov	sp, r7
+ 2630              		.cfi_def_cfa_register 13
+ 2631              		@ sp needed
+ 2632 0018 80BD     		pop	{r7, pc}
+ 2633              		.cfi_endproc
+ 2634              	.LFE96:
+ 2636              		.section	.text.S2LP_RF_GetModulationType,"ax",%progbits
+ 2637              		.align	1
+ 2638              		.global	S2LP_RF_GetModulationType
+ 2639              		.syntax unified
+ 2640              		.thumb
+ 2641              		.thumb_func
+ 2643              	S2LP_RF_GetModulationType:
+ 2644              	.LFB97:
+ 358:S2LP_Driver/s2lp_rf.c **** 
+ 359:S2LP_Driver/s2lp_rf.c **** S2LP_Modulation S2LP_RF_GetModulationType(S2LP_Handle* handle) {
+ 2645              		.loc 1 359 64
+ 2646              		.cfi_startproc
+ 2647              		@ args = 0, pretend = 0, frame = 16
+ 2648              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2649 0000 80B5     		push	{r7, lr}
+ 2650              		.cfi_def_cfa_offset 8
+ 2651              		.cfi_offset 7, -8
+ 2652              		.cfi_offset 14, -4
+ 2653 0002 84B0     		sub	sp, sp, #16
+ 2654              		.cfi_def_cfa_offset 24
+ 2655 0004 00AF     		add	r7, sp, #0
+ARM GAS  /tmp/cc9iOMXq.s 			page 53
+
+
+ 2656              		.cfi_def_cfa_register 7
+ 2657 0006 7860     		str	r0, [r7, #4]
+ 360:S2LP_Driver/s2lp_rf.c **** 	uint8_t reg_val = S2LP_ReadRegister(handle, S2LP_REG_MOD2);
+ 2658              		.loc 1 360 20
+ 2659 0008 1021     		movs	r1, #16
+ 2660 000a 7868     		ldr	r0, [r7, #4]
+ 2661 000c FFF7FEFF 		bl	S2LP_ReadRegister
+ 2662 0010 0346     		mov	r3, r0
+ 2663 0012 FB73     		strb	r3, [r7, #15]
+ 361:S2LP_Driver/s2lp_rf.c **** 	return (S2LP_Modulation) GETBITS(reg_val, 0xF, 4);
+ 2664              		.loc 1 361 9
+ 2665 0014 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 2666 0016 1B09     		lsrs	r3, r3, #4
+ 2667 0018 DBB2     		uxtb	r3, r3
+ 362:S2LP_Driver/s2lp_rf.c **** }
+ 2668              		.loc 1 362 1
+ 2669 001a 1846     		mov	r0, r3
+ 2670 001c 1037     		adds	r7, r7, #16
+ 2671              		.cfi_def_cfa_offset 8
+ 2672 001e BD46     		mov	sp, r7
+ 2673              		.cfi_def_cfa_register 13
+ 2674              		@ sp needed
+ 2675 0020 80BD     		pop	{r7, pc}
+ 2676              		.cfi_endproc
+ 2677              	.LFE97:
+ 2679              		.section	.text.S2LP_RF_GetDataRate,"ax",%progbits
+ 2680              		.align	1
+ 2681              		.global	S2LP_RF_GetDataRate
+ 2682              		.syntax unified
+ 2683              		.thumb
+ 2684              		.thumb_func
+ 2686              	S2LP_RF_GetDataRate:
+ 2687              	.LFB98:
+ 363:S2LP_Driver/s2lp_rf.c **** 
+ 364:S2LP_Driver/s2lp_rf.c **** uint32_t S2LP_RF_GetDataRate(S2LP_Handle* handle) {
+ 2688              		.loc 1 364 51
+ 2689              		.cfi_startproc
+ 2690              		@ args = 0, pretend = 0, frame = 16
+ 2691              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2692 0000 80B5     		push	{r7, lr}
+ 2693              		.cfi_def_cfa_offset 8
+ 2694              		.cfi_offset 7, -8
+ 2695              		.cfi_offset 14, -4
+ 2696 0002 84B0     		sub	sp, sp, #16
+ 2697              		.cfi_def_cfa_offset 24
+ 2698 0004 00AF     		add	r7, sp, #0
+ 2699              		.cfi_def_cfa_register 7
+ 2700 0006 7860     		str	r0, [r7, #4]
+ 365:S2LP_Driver/s2lp_rf.c **** 	uint16_t mantissa = S2LP_RF_GetDataRateMantissa(handle);
+ 2701              		.loc 1 365 22
+ 2702 0008 7868     		ldr	r0, [r7, #4]
+ 2703 000a FFF7FEFF 		bl	S2LP_RF_GetDataRateMantissa
+ 2704 000e 0346     		mov	r3, r0
+ 2705 0010 FB81     		strh	r3, [r7, #14]	@ movhi
+ 366:S2LP_Driver/s2lp_rf.c **** 	uint8_t exponent = S2LP_RF_GetDataRateExponent(handle);
+ 2706              		.loc 1 366 21
+ 2707 0012 7868     		ldr	r0, [r7, #4]
+ARM GAS  /tmp/cc9iOMXq.s 			page 54
+
+
+ 2708 0014 FFF7FEFF 		bl	S2LP_RF_GetDataRateExponent
+ 2709 0018 0346     		mov	r3, r0
+ 2710 001a 7B73     		strb	r3, [r7, #13]
+ 367:S2LP_Driver/s2lp_rf.c **** 	return S2LP_RF_CalculateDataRateValue(handle, mantissa, exponent);
+ 2711              		.loc 1 367 9
+ 2712 001c 7A7B     		ldrb	r2, [r7, #13]	@ zero_extendqisi2
+ 2713 001e FB89     		ldrh	r3, [r7, #14]
+ 2714 0020 1946     		mov	r1, r3
+ 2715 0022 7868     		ldr	r0, [r7, #4]
+ 2716 0024 FFF7FEFF 		bl	S2LP_RF_CalculateDataRateValue
+ 2717 0028 0346     		mov	r3, r0
+ 368:S2LP_Driver/s2lp_rf.c **** }
+ 2718              		.loc 1 368 1
+ 2719 002a 1846     		mov	r0, r3
+ 2720 002c 1037     		adds	r7, r7, #16
+ 2721              		.cfi_def_cfa_offset 8
+ 2722 002e BD46     		mov	sp, r7
+ 2723              		.cfi_def_cfa_register 13
+ 2724              		@ sp needed
+ 2725 0030 80BD     		pop	{r7, pc}
+ 2726              		.cfi_endproc
+ 2727              	.LFE98:
+ 2729              		.section	.text.S2LP_RF_GetDataRateMantissa,"ax",%progbits
+ 2730              		.align	1
+ 2731              		.global	S2LP_RF_GetDataRateMantissa
+ 2732              		.syntax unified
+ 2733              		.thumb
+ 2734              		.thumb_func
+ 2736              	S2LP_RF_GetDataRateMantissa:
+ 2737              	.LFB99:
+ 369:S2LP_Driver/s2lp_rf.c **** 
+ 370:S2LP_Driver/s2lp_rf.c **** uint16_t S2LP_RF_GetDataRateMantissa(S2LP_Handle* handle) {
+ 2738              		.loc 1 370 59
+ 2739              		.cfi_startproc
+ 2740              		@ args = 0, pretend = 0, frame = 16
+ 2741              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2742 0000 80B5     		push	{r7, lr}
+ 2743              		.cfi_def_cfa_offset 8
+ 2744              		.cfi_offset 7, -8
+ 2745              		.cfi_offset 14, -4
+ 2746 0002 84B0     		sub	sp, sp, #16
+ 2747              		.cfi_def_cfa_offset 24
+ 2748 0004 00AF     		add	r7, sp, #0
+ 2749              		.cfi_def_cfa_register 7
+ 2750 0006 7860     		str	r0, [r7, #4]
+ 371:S2LP_Driver/s2lp_rf.c **** 	uint8_t mod_val[2] = { 0 };
+ 2751              		.loc 1 371 10
+ 2752 0008 0023     		movs	r3, #0
+ 2753 000a BB81     		strh	r3, [r7, #12]	@ movhi
+ 372:S2LP_Driver/s2lp_rf.c **** 	S2LP_BatchReadRegisters(handle, S2LP_REG_MOD4, mod_val, 2);
+ 2754              		.loc 1 372 2
+ 2755 000c 07F10C02 		add	r2, r7, #12
+ 2756 0010 0223     		movs	r3, #2
+ 2757 0012 0E21     		movs	r1, #14
+ 2758 0014 7868     		ldr	r0, [r7, #4]
+ 2759 0016 FFF7FEFF 		bl	S2LP_BatchReadRegisters
+ 373:S2LP_Driver/s2lp_rf.c **** 
+ARM GAS  /tmp/cc9iOMXq.s 			page 55
+
+
+ 374:S2LP_Driver/s2lp_rf.c **** 	uint16_t mantissa = 0;
+ 2760              		.loc 1 374 11
+ 2761 001a 0023     		movs	r3, #0
+ 2762 001c FB81     		strh	r3, [r7, #14]	@ movhi
+ 375:S2LP_Driver/s2lp_rf.c **** 	SETBITS(mantissa, mod_val[1], 0xFF, 0);
+ 2763              		.loc 1 375 2
+ 2764 001e 7B7B     		ldrb	r3, [r7, #13]	@ zero_extendqisi2
+ 2765 0020 1A46     		mov	r2, r3
+ 2766 0022 FB89     		ldrh	r3, [r7, #14]	@ movhi
+ 2767 0024 1343     		orrs	r3, r3, r2
+ 2768 0026 FB81     		strh	r3, [r7, #14]	@ movhi
+ 376:S2LP_Driver/s2lp_rf.c **** 	SETBITS(mantissa, mod_val[0], 0xFF, 8);
+ 2769              		.loc 1 376 2
+ 2770 0028 3B7B     		ldrb	r3, [r7, #12]	@ zero_extendqisi2
+ 2771 002a 1B02     		lsls	r3, r3, #8
+ 2772 002c 1AB2     		sxth	r2, r3
+ 2773 002e B7F90E30 		ldrsh	r3, [r7, #14]
+ 2774 0032 1343     		orrs	r3, r3, r2
+ 2775 0034 1BB2     		sxth	r3, r3
+ 2776 0036 FB81     		strh	r3, [r7, #14]	@ movhi
+ 377:S2LP_Driver/s2lp_rf.c **** 	return mantissa;
+ 2777              		.loc 1 377 9
+ 2778 0038 FB89     		ldrh	r3, [r7, #14]
+ 378:S2LP_Driver/s2lp_rf.c **** }
+ 2779              		.loc 1 378 1
+ 2780 003a 1846     		mov	r0, r3
+ 2781 003c 1037     		adds	r7, r7, #16
+ 2782              		.cfi_def_cfa_offset 8
+ 2783 003e BD46     		mov	sp, r7
+ 2784              		.cfi_def_cfa_register 13
+ 2785              		@ sp needed
+ 2786 0040 80BD     		pop	{r7, pc}
+ 2787              		.cfi_endproc
+ 2788              	.LFE99:
+ 2790              		.section	.text.S2LP_RF_GetDataRateExponent,"ax",%progbits
+ 2791              		.align	1
+ 2792              		.global	S2LP_RF_GetDataRateExponent
+ 2793              		.syntax unified
+ 2794              		.thumb
+ 2795              		.thumb_func
+ 2797              	S2LP_RF_GetDataRateExponent:
+ 2798              	.LFB100:
+ 379:S2LP_Driver/s2lp_rf.c **** 
+ 380:S2LP_Driver/s2lp_rf.c **** uint8_t S2LP_RF_GetDataRateExponent(S2LP_Handle* handle) {
+ 2799              		.loc 1 380 58
+ 2800              		.cfi_startproc
+ 2801              		@ args = 0, pretend = 0, frame = 16
+ 2802              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2803 0000 80B5     		push	{r7, lr}
+ 2804              		.cfi_def_cfa_offset 8
+ 2805              		.cfi_offset 7, -8
+ 2806              		.cfi_offset 14, -4
+ 2807 0002 84B0     		sub	sp, sp, #16
+ 2808              		.cfi_def_cfa_offset 24
+ 2809 0004 00AF     		add	r7, sp, #0
+ 2810              		.cfi_def_cfa_register 7
+ 2811 0006 7860     		str	r0, [r7, #4]
+ARM GAS  /tmp/cc9iOMXq.s 			page 56
+
+
+ 381:S2LP_Driver/s2lp_rf.c **** 	uint8_t reg_val = S2LP_ReadRegister(handle, S2LP_REG_MOD2);
+ 2812              		.loc 1 381 20
+ 2813 0008 1021     		movs	r1, #16
+ 2814 000a 7868     		ldr	r0, [r7, #4]
+ 2815 000c FFF7FEFF 		bl	S2LP_ReadRegister
+ 2816 0010 0346     		mov	r3, r0
+ 2817 0012 FB73     		strb	r3, [r7, #15]
+ 382:S2LP_Driver/s2lp_rf.c **** 	return GETBITS(reg_val, 0xF, 0);
+ 2818              		.loc 1 382 9
+ 2819 0014 FB7B     		ldrb	r3, [r7, #15]
+ 2820 0016 03F00F03 		and	r3, r3, #15
+ 2821 001a DBB2     		uxtb	r3, r3
+ 383:S2LP_Driver/s2lp_rf.c **** }
+ 2822              		.loc 1 383 1
+ 2823 001c 1846     		mov	r0, r3
+ 2824 001e 1037     		adds	r7, r7, #16
+ 2825              		.cfi_def_cfa_offset 8
+ 2826 0020 BD46     		mov	sp, r7
+ 2827              		.cfi_def_cfa_register 13
+ 2828              		@ sp needed
+ 2829 0022 80BD     		pop	{r7, pc}
+ 2830              		.cfi_endproc
+ 2831              	.LFE100:
+ 2833              		.section	.text.S2LP_RF_GetFreqDevMantissa,"ax",%progbits
+ 2834              		.align	1
+ 2835              		.global	S2LP_RF_GetFreqDevMantissa
+ 2836              		.syntax unified
+ 2837              		.thumb
+ 2838              		.thumb_func
+ 2840              	S2LP_RF_GetFreqDevMantissa:
+ 2841              	.LFB101:
+ 384:S2LP_Driver/s2lp_rf.c **** 
+ 385:S2LP_Driver/s2lp_rf.c **** uint8_t S2LP_RF_GetFreqDevMantissa(S2LP_Handle* handle) {
+ 2842              		.loc 1 385 57
+ 2843              		.cfi_startproc
+ 2844              		@ args = 0, pretend = 0, frame = 8
+ 2845              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2846 0000 80B5     		push	{r7, lr}
+ 2847              		.cfi_def_cfa_offset 8
+ 2848              		.cfi_offset 7, -8
+ 2849              		.cfi_offset 14, -4
+ 2850 0002 82B0     		sub	sp, sp, #8
+ 2851              		.cfi_def_cfa_offset 16
+ 2852 0004 00AF     		add	r7, sp, #0
+ 2853              		.cfi_def_cfa_register 7
+ 2854 0006 7860     		str	r0, [r7, #4]
+ 386:S2LP_Driver/s2lp_rf.c **** 	return S2LP_ReadRegister(handle, S2LP_REG_MOD0);
+ 2855              		.loc 1 386 9
+ 2856 0008 1221     		movs	r1, #18
+ 2857 000a 7868     		ldr	r0, [r7, #4]
+ 2858 000c FFF7FEFF 		bl	S2LP_ReadRegister
+ 2859 0010 0346     		mov	r3, r0
+ 387:S2LP_Driver/s2lp_rf.c **** }
+ 2860              		.loc 1 387 1
+ 2861 0012 1846     		mov	r0, r3
+ 2862 0014 0837     		adds	r7, r7, #8
+ 2863              		.cfi_def_cfa_offset 8
+ARM GAS  /tmp/cc9iOMXq.s 			page 57
+
+
+ 2864 0016 BD46     		mov	sp, r7
+ 2865              		.cfi_def_cfa_register 13
+ 2866              		@ sp needed
+ 2867 0018 80BD     		pop	{r7, pc}
+ 2868              		.cfi_endproc
+ 2869              	.LFE101:
+ 2871              		.section	.text.S2LP_RF_GetFreqDevExponent,"ax",%progbits
+ 2872              		.align	1
+ 2873              		.global	S2LP_RF_GetFreqDevExponent
+ 2874              		.syntax unified
+ 2875              		.thumb
+ 2876              		.thumb_func
+ 2878              	S2LP_RF_GetFreqDevExponent:
+ 2879              	.LFB102:
+ 388:S2LP_Driver/s2lp_rf.c **** 
+ 389:S2LP_Driver/s2lp_rf.c **** uint8_t S2LP_RF_GetFreqDevExponent(S2LP_Handle* handle) {
+ 2880              		.loc 1 389 57
+ 2881              		.cfi_startproc
+ 2882              		@ args = 0, pretend = 0, frame = 16
+ 2883              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2884 0000 80B5     		push	{r7, lr}
+ 2885              		.cfi_def_cfa_offset 8
+ 2886              		.cfi_offset 7, -8
+ 2887              		.cfi_offset 14, -4
+ 2888 0002 84B0     		sub	sp, sp, #16
+ 2889              		.cfi_def_cfa_offset 24
+ 2890 0004 00AF     		add	r7, sp, #0
+ 2891              		.cfi_def_cfa_register 7
+ 2892 0006 7860     		str	r0, [r7, #4]
+ 390:S2LP_Driver/s2lp_rf.c **** 	uint8_t const reg_val = S2LP_ReadRegister(handle, S2LP_REG_MOD1);
+ 2893              		.loc 1 390 26
+ 2894 0008 1121     		movs	r1, #17
+ 2895 000a 7868     		ldr	r0, [r7, #4]
+ 2896 000c FFF7FEFF 		bl	S2LP_ReadRegister
+ 2897 0010 0346     		mov	r3, r0
+ 2898 0012 FB73     		strb	r3, [r7, #15]
+ 391:S2LP_Driver/s2lp_rf.c **** 	return GETBITS(reg_val, 0b1111, 0);
+ 2899              		.loc 1 391 9
+ 2900 0014 FB7B     		ldrb	r3, [r7, #15]
+ 2901 0016 03F00F03 		and	r3, r3, #15
+ 2902 001a DBB2     		uxtb	r3, r3
+ 392:S2LP_Driver/s2lp_rf.c **** }
+ 2903              		.loc 1 392 1
+ 2904 001c 1846     		mov	r0, r3
+ 2905 001e 1037     		adds	r7, r7, #16
+ 2906              		.cfi_def_cfa_offset 8
+ 2907 0020 BD46     		mov	sp, r7
+ 2908              		.cfi_def_cfa_register 13
+ 2909              		@ sp needed
+ 2910 0022 80BD     		pop	{r7, pc}
+ 2911              		.cfi_endproc
+ 2912              	.LFE102:
+ 2914              		.section	.text.S2LP_RF_GetFrequencyDeviation,"ax",%progbits
+ 2915              		.align	1
+ 2916              		.global	S2LP_RF_GetFrequencyDeviation
+ 2917              		.syntax unified
+ 2918              		.thumb
+ARM GAS  /tmp/cc9iOMXq.s 			page 58
+
+
+ 2919              		.thumb_func
+ 2921              	S2LP_RF_GetFrequencyDeviation:
+ 2922              	.LFB103:
+ 393:S2LP_Driver/s2lp_rf.c **** 
+ 394:S2LP_Driver/s2lp_rf.c **** double S2LP_RF_GetFrequencyDeviation(S2LP_Handle* handle) {
+ 2923              		.loc 1 394 59
+ 2924              		.cfi_startproc
+ 2925              		@ args = 0, pretend = 0, frame = 16
+ 2926              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2927 0000 80B5     		push	{r7, lr}
+ 2928              		.cfi_def_cfa_offset 8
+ 2929              		.cfi_offset 7, -8
+ 2930              		.cfi_offset 14, -4
+ 2931 0002 84B0     		sub	sp, sp, #16
+ 2932              		.cfi_def_cfa_offset 24
+ 2933 0004 00AF     		add	r7, sp, #0
+ 2934              		.cfi_def_cfa_register 7
+ 2935 0006 7860     		str	r0, [r7, #4]
+ 395:S2LP_Driver/s2lp_rf.c **** 	uint8_t const mantissa = S2LP_RF_GetFreqDevMantissa(handle);
+ 2936              		.loc 1 395 27
+ 2937 0008 7868     		ldr	r0, [r7, #4]
+ 2938 000a FFF7FEFF 		bl	S2LP_RF_GetFreqDevMantissa
+ 2939 000e 0346     		mov	r3, r0
+ 2940 0010 FB73     		strb	r3, [r7, #15]
+ 396:S2LP_Driver/s2lp_rf.c **** 	uint8_t const exponent = S2LP_RF_GetFreqDevExponent(handle);
+ 2941              		.loc 1 396 27
+ 2942 0012 7868     		ldr	r0, [r7, #4]
+ 2943 0014 FFF7FEFF 		bl	S2LP_RF_GetFreqDevExponent
+ 2944 0018 0346     		mov	r3, r0
+ 2945 001a BB73     		strb	r3, [r7, #14]
+ 397:S2LP_Driver/s2lp_rf.c **** 	return S2LP_RF_CalculateFrequencyDeviation(handle, mantissa, exponent);
+ 2946              		.loc 1 397 9
+ 2947 001c BA7B     		ldrb	r2, [r7, #14]	@ zero_extendqisi2
+ 2948 001e FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 2949 0020 1946     		mov	r1, r3
+ 2950 0022 7868     		ldr	r0, [r7, #4]
+ 2951 0024 FFF7FEFF 		bl	S2LP_RF_CalculateFrequencyDeviation
+ 2952 0028 0246     		mov	r2, r0
+ 2953 002a 0B46     		mov	r3, r1
+ 398:S2LP_Driver/s2lp_rf.c **** }
+ 2954              		.loc 1 398 1
+ 2955 002c 1046     		mov	r0, r2
+ 2956 002e 1946     		mov	r1, r3
+ 2957 0030 1037     		adds	r7, r7, #16
+ 2958              		.cfi_def_cfa_offset 8
+ 2959 0032 BD46     		mov	sp, r7
+ 2960              		.cfi_def_cfa_register 13
+ 2961              		@ sp needed
+ 2962 0034 80BD     		pop	{r7, pc}
+ 2963              		.cfi_endproc
+ 2964              	.LFE103:
+ 2966              		.section	.text.S2LP_RF_GetConstellationMapping,"ax",%progbits
+ 2967              		.align	1
+ 2968              		.global	S2LP_RF_GetConstellationMapping
+ 2969              		.syntax unified
+ 2970              		.thumb
+ 2971              		.thumb_func
+ARM GAS  /tmp/cc9iOMXq.s 			page 59
+
+
+ 2973              	S2LP_RF_GetConstellationMapping:
+ 2974              	.LFB104:
+ 399:S2LP_Driver/s2lp_rf.c **** 
+ 400:S2LP_Driver/s2lp_rf.c **** uint8_t S2LP_RF_GetConstellationMapping(S2LP_Handle* handle) {
+ 2975              		.loc 1 400 62
+ 2976              		.cfi_startproc
+ 2977              		@ args = 0, pretend = 0, frame = 16
+ 2978              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2979 0000 80B5     		push	{r7, lr}
+ 2980              		.cfi_def_cfa_offset 8
+ 2981              		.cfi_offset 7, -8
+ 2982              		.cfi_offset 14, -4
+ 2983 0002 84B0     		sub	sp, sp, #16
+ 2984              		.cfi_def_cfa_offset 24
+ 2985 0004 00AF     		add	r7, sp, #0
+ 2986              		.cfi_def_cfa_register 7
+ 2987 0006 7860     		str	r0, [r7, #4]
+ 401:S2LP_Driver/s2lp_rf.c **** 	uint8_t const reg_val = S2LP_ReadRegister(handle, S2LP_REG_MOD1);
+ 2988              		.loc 1 401 26
+ 2989 0008 1121     		movs	r1, #17
+ 2990 000a 7868     		ldr	r0, [r7, #4]
+ 2991 000c FFF7FEFF 		bl	S2LP_ReadRegister
+ 2992 0010 0346     		mov	r3, r0
+ 2993 0012 FB73     		strb	r3, [r7, #15]
+ 402:S2LP_Driver/s2lp_rf.c **** 	return GETBITS(reg_val, 0b11, 4);
+ 2994              		.loc 1 402 9
+ 2995 0014 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 2996 0016 1B11     		asrs	r3, r3, #4
+ 2997 0018 DBB2     		uxtb	r3, r3
+ 2998 001a 03F00303 		and	r3, r3, #3
+ 2999 001e DBB2     		uxtb	r3, r3
+ 403:S2LP_Driver/s2lp_rf.c **** }
+ 3000              		.loc 1 403 1
+ 3001 0020 1846     		mov	r0, r3
+ 3002 0022 1037     		adds	r7, r7, #16
+ 3003              		.cfi_def_cfa_offset 8
+ 3004 0024 BD46     		mov	sp, r7
+ 3005              		.cfi_def_cfa_register 13
+ 3006              		@ sp needed
+ 3007 0026 80BD     		pop	{r7, pc}
+ 3008              		.cfi_endproc
+ 3009              	.LFE104:
+ 3011              		.section	.text.S2LP_RF_GetFrequencyInterpolation,"ax",%progbits
+ 3012              		.align	1
+ 3013              		.global	S2LP_RF_GetFrequencyInterpolation
+ 3014              		.syntax unified
+ 3015              		.thumb
+ 3016              		.thumb_func
+ 3018              	S2LP_RF_GetFrequencyInterpolation:
+ 3019              	.LFB105:
+ 404:S2LP_Driver/s2lp_rf.c **** 
+ 405:S2LP_Driver/s2lp_rf.c **** bool S2LP_RF_GetFrequencyInterpolation(S2LP_Handle* handle) {
+ 3020              		.loc 1 405 61
+ 3021              		.cfi_startproc
+ 3022              		@ args = 0, pretend = 0, frame = 16
+ 3023              		@ frame_needed = 1, uses_anonymous_args = 0
+ 3024 0000 80B5     		push	{r7, lr}
+ARM GAS  /tmp/cc9iOMXq.s 			page 60
+
+
+ 3025              		.cfi_def_cfa_offset 8
+ 3026              		.cfi_offset 7, -8
+ 3027              		.cfi_offset 14, -4
+ 3028 0002 84B0     		sub	sp, sp, #16
+ 3029              		.cfi_def_cfa_offset 24
+ 3030 0004 00AF     		add	r7, sp, #0
+ 3031              		.cfi_def_cfa_register 7
+ 3032 0006 7860     		str	r0, [r7, #4]
+ 406:S2LP_Driver/s2lp_rf.c **** 	uint8_t const reg_val = S2LP_ReadRegister(handle, S2LP_REG_MOD1);
+ 3033              		.loc 1 406 26
+ 3034 0008 1121     		movs	r1, #17
+ 3035 000a 7868     		ldr	r0, [r7, #4]
+ 3036 000c FFF7FEFF 		bl	S2LP_ReadRegister
+ 3037 0010 0346     		mov	r3, r0
+ 3038 0012 FB73     		strb	r3, [r7, #15]
+ 407:S2LP_Driver/s2lp_rf.c **** 	return GETBIT(reg_val, 6);
+ 3039              		.loc 1 407 9
+ 3040 0014 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 3041 0016 9B09     		lsrs	r3, r3, #6
+ 3042 0018 03F00103 		and	r3, r3, #1
+ 3043 001c 002B     		cmp	r3, #0
+ 3044 001e 14BF     		ite	ne
+ 3045 0020 0123     		movne	r3, #1
+ 3046 0022 0023     		moveq	r3, #0
+ 3047 0024 DBB2     		uxtb	r3, r3
+ 408:S2LP_Driver/s2lp_rf.c **** }
+ 3048              		.loc 1 408 1
+ 3049 0026 1846     		mov	r0, r3
+ 3050 0028 1037     		adds	r7, r7, #16
+ 3051              		.cfi_def_cfa_offset 8
+ 3052 002a BD46     		mov	sp, r7
+ 3053              		.cfi_def_cfa_register 13
+ 3054              		@ sp needed
+ 3055 002c 80BD     		pop	{r7, pc}
+ 3056              		.cfi_endproc
+ 3057              	.LFE105:
+ 3059              		.text
+ 3060              	.Letext0:
+ 3061              		.file 2 "S2LP_Driver/s2lp_constants.h"
+ 3062              		.file 3 "/usr/arm-none-eabi/include/machine/_default_types.h"
+ 3063              		.file 4 "/usr/arm-none-eabi/include/sys/_stdint.h"
+ 3064              		.file 5 "/usr/lib/gcc/arm-none-eabi/12.2.0/include/stddef.h"
+ 3065              		.file 6 "../../../lib/libhalglue/bshal/bshal_spim.h"
+ 3066              		.file 7 "S2LP_Driver/s2lp_mcu_interface.h"
+ 3067              		.file 8 "/usr/arm-none-eabi/include/math.h"
+ 3068              		.file 9 "S2LP_Driver/s2lp.h"
+ARM GAS  /tmp/cc9iOMXq.s 			page 61
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 s2lp_rf.c
+     /tmp/cc9iOMXq.s:19     .text.S2LP_RF_SetChargePumpCurrent:0000000000000000 $t
+     /tmp/cc9iOMXq.s:25     .text.S2LP_RF_SetChargePumpCurrent:0000000000000000 S2LP_RF_SetChargePumpCurrent
+     /tmp/cc9iOMXq.s:56     .text.S2LP_RF_SetChargePumpCurrent:0000000000000020 $d
+     /tmp/cc9iOMXq.s:60     .text.S2LP_RF_SetChargePumpCurrent:0000000000000030 $t
+     /tmp/cc9iOMXq.s:165    .text.S2LP_RF_SetSynthBand:0000000000000000 $t
+     /tmp/cc9iOMXq.s:171    .text.S2LP_RF_SetSynthBand:0000000000000000 S2LP_RF_SetSynthBand
+     /tmp/cc9iOMXq.s:235    .text.S2LP_RF_SetSynthValue:0000000000000000 $t
+     /tmp/cc9iOMXq.s:241    .text.S2LP_RF_SetSynthValue:0000000000000000 S2LP_RF_SetSynthValue
+     /tmp/cc9iOMXq.s:316    .text.S2LP_RF_SetBaseFrequency:0000000000000000 $t
+     /tmp/cc9iOMXq.s:322    .text.S2LP_RF_SetBaseFrequency:0000000000000000 S2LP_RF_SetBaseFrequency
+     /tmp/cc9iOMXq.s:915    .text.S2LP_RF_CalculateSyncForBaseFrequency:0000000000000000 S2LP_RF_CalculateSyncForBaseFrequency
+     /tmp/cc9iOMXq.s:359    .text.S2LP_RF_SetChannelSpacing:0000000000000000 $t
+     /tmp/cc9iOMXq.s:365    .text.S2LP_RF_SetChannelSpacing:0000000000000000 S2LP_RF_SetChannelSpacing
+     /tmp/cc9iOMXq.s:400    .text.S2LP_RF_SetChannelNumber:0000000000000000 $t
+     /tmp/cc9iOMXq.s:406    .text.S2LP_RF_SetChannelNumber:0000000000000000 S2LP_RF_SetChannelNumber
+     /tmp/cc9iOMXq.s:441    .text.S2LP_RF_SetModulationType:0000000000000000 $t
+     /tmp/cc9iOMXq.s:447    .text.S2LP_RF_SetModulationType:0000000000000000 S2LP_RF_SetModulationType
+     /tmp/cc9iOMXq.s:500    .rodata:0000000000000000 $d
+     /tmp/cc9iOMXq.s:505    .text.S2LP_RF_SetDataRateRaw:0000000000000000 $t
+     /tmp/cc9iOMXq.s:511    .text.S2LP_RF_SetDataRateRaw:0000000000000000 S2LP_RF_SetDataRateRaw
+     /tmp/cc9iOMXq.s:592    .text.S2LP_RF_SetDataRateRaw:0000000000000078 $d
+     /tmp/cc9iOMXq.s:597    .text.S2LP_RF_SetDataRate:0000000000000000 $t
+     /tmp/cc9iOMXq.s:603    .text.S2LP_RF_SetDataRate:0000000000000000 S2LP_RF_SetDataRate
+     /tmp/cc9iOMXq.s:1456   .text.S2LP_RF_CalculateDataRateCoeffs:0000000000000000 S2LP_RF_CalculateDataRateCoeffs
+     /tmp/cc9iOMXq.s:649    .text.S2LP_RF_SetFrequencyDeviationRaw:0000000000000000 $t
+     /tmp/cc9iOMXq.s:655    .text.S2LP_RF_SetFrequencyDeviationRaw:0000000000000000 S2LP_RF_SetFrequencyDeviationRaw
+     /tmp/cc9iOMXq.s:728    .text.S2LP_RF_SetFrequencyDeviation:0000000000000000 $t
+     /tmp/cc9iOMXq.s:734    .text.S2LP_RF_SetFrequencyDeviation:0000000000000000 S2LP_RF_SetFrequencyDeviation
+     /tmp/cc9iOMXq.s:2101   .text.S2LP_RF_CalculateFreqDevExponent:0000000000000000 S2LP_RF_CalculateFreqDevExponent
+     /tmp/cc9iOMXq.s:2181   .text.S2LP_RF_CalculateFreqDevMantissa:0000000000000000 S2LP_RF_CalculateFreqDevMantissa
+     /tmp/cc9iOMXq.s:782    .text.S2LP_RF_SetConstellationMapping:0000000000000000 $t
+     /tmp/cc9iOMXq.s:788    .text.S2LP_RF_SetConstellationMapping:0000000000000000 S2LP_RF_SetConstellationMapping
+     /tmp/cc9iOMXq.s:843    .text.S2LP_RF_SetFrequencyInterpolation:0000000000000000 $t
+     /tmp/cc9iOMXq.s:849    .text.S2LP_RF_SetFrequencyInterpolation:0000000000000000 S2LP_RF_SetFrequencyInterpolation
+     /tmp/cc9iOMXq.s:909    .text.S2LP_RF_CalculateSyncForBaseFrequency:0000000000000000 $t
+     /tmp/cc9iOMXq.s:2450   .text.S2LP_RF_GetSynthBand:0000000000000000 S2LP_RF_GetSynthBand
+     /tmp/cc9iOMXq.s:1038   .text.S2LP_RF_CalculateSyncForBaseFrequency:00000000000000e0 $d
+     /tmp/cc9iOMXq.s:1048   .text.S2LP_RF_CalculateDataRateValue:0000000000000000 $t
+     /tmp/cc9iOMXq.s:1054   .text.S2LP_RF_CalculateDataRateValue:0000000000000000 S2LP_RF_CalculateDataRateValue
+     /tmp/cc9iOMXq.s:1205   .text.S2LP_RF_CalculateDataRateValue:0000000000000124 $d
+     /tmp/cc9iOMXq.s:1212   .text.S2LP_RF_CalculateDataRateExponent:0000000000000000 $t
+     /tmp/cc9iOMXq.s:1218   .text.S2LP_RF_CalculateDataRateExponent:0000000000000000 S2LP_RF_CalculateDataRateExponent
+     /tmp/cc9iOMXq.s:1282   .text.S2LP_RF_CalculateDataRateMantissa:0000000000000000 $t
+     /tmp/cc9iOMXq.s:1288   .text.S2LP_RF_CalculateDataRateMantissa:0000000000000000 S2LP_RF_CalculateDataRateMantissa
+     /tmp/cc9iOMXq.s:1443   .text.S2LP_RF_CalculateDataRateMantissa:0000000000000134 $d
+     /tmp/cc9iOMXq.s:1450   .text.S2LP_RF_CalculateDataRateCoeffs:0000000000000000 $t
+     /tmp/cc9iOMXq.s:1507   .text.S2LP_RF_CalculateBaseFrequency:0000000000000000 $t
+     /tmp/cc9iOMXq.s:1513   .text.S2LP_RF_CalculateBaseFrequency:0000000000000000 S2LP_RF_CalculateBaseFrequency
+     /tmp/cc9iOMXq.s:1628   .text.S2LP_RF_CalculateBaseFrequency:00000000000000d0 $d
+     /tmp/cc9iOMXq.s:1636   .text.S2LP_RF_CalculateCenterFrequency:0000000000000000 $t
+     /tmp/cc9iOMXq.s:1642   .text.S2LP_RF_CalculateCenterFrequency:0000000000000000 S2LP_RF_CalculateCenterFrequency
+     /tmp/cc9iOMXq.s:1725   .text.S2LP_RF_CalculateCenterFrequency:0000000000000094 $d
+     /tmp/cc9iOMXq.s:1730   .text.S2LP_RF_CalculateBaseFreqResolution:0000000000000000 $t
+     /tmp/cc9iOMXq.s:1736   .text.S2LP_RF_CalculateBaseFreqResolution:0000000000000000 S2LP_RF_CalculateBaseFreqResolution
+     /tmp/cc9iOMXq.s:1779   .text.S2LP_RF_CalculateBaseFreqResolution:000000000000003c $d
+ARM GAS  /tmp/cc9iOMXq.s 			page 62
+
+
+     /tmp/cc9iOMXq.s:1785   .text.S2LP_RF_CalculateChannelResolution:0000000000000000 $t
+     /tmp/cc9iOMXq.s:1791   .text.S2LP_RF_CalculateChannelResolution:0000000000000000 S2LP_RF_CalculateChannelResolution
+     /tmp/cc9iOMXq.s:1851   .text.S2LP_RF_CalculateChannelResolution:0000000000000064 $d
+     /tmp/cc9iOMXq.s:1857   .text.S2LP_RF_CalculateFrequencyDeviation:0000000000000000 $t
+     /tmp/cc9iOMXq.s:1863   .text.S2LP_RF_CalculateFrequencyDeviation:0000000000000000 S2LP_RF_CalculateFrequencyDeviation
+     /tmp/cc9iOMXq.s:2085   .text.S2LP_RF_CalculateFrequencyDeviation:00000000000001c0 $d
+     /tmp/cc9iOMXq.s:2095   .text.S2LP_RF_CalculateFreqDevExponent:0000000000000000 $t
+     /tmp/cc9iOMXq.s:2175   .text.S2LP_RF_CalculateFreqDevMantissa:0000000000000000 $t
+     /tmp/cc9iOMXq.s:2321   .text.S2LP_RF_CalculateFreqDevMantissa:00000000000000f8 $d
+     /tmp/cc9iOMXq.s:2328   .text.S2LP_RF_GetChargePumpCurrent:0000000000000000 $t
+     /tmp/cc9iOMXq.s:2334   .text.S2LP_RF_GetChargePumpCurrent:0000000000000000 S2LP_RF_GetChargePumpCurrent
+     /tmp/cc9iOMXq.s:2444   .text.S2LP_RF_GetSynthBand:0000000000000000 $t
+     /tmp/cc9iOMXq.s:2489   .text.S2LP_RF_GetSynthValue:0000000000000000 $t
+     /tmp/cc9iOMXq.s:2495   .text.S2LP_RF_GetSynthValue:0000000000000000 S2LP_RF_GetSynthValue
+     /tmp/cc9iOMXq.s:2561   .text.S2LP_RF_GetChannelSpacing:0000000000000000 $t
+     /tmp/cc9iOMXq.s:2567   .text.S2LP_RF_GetChannelSpacing:0000000000000000 S2LP_RF_GetChannelSpacing
+     /tmp/cc9iOMXq.s:2599   .text.S2LP_RF_GetChannelNumber:0000000000000000 $t
+     /tmp/cc9iOMXq.s:2605   .text.S2LP_RF_GetChannelNumber:0000000000000000 S2LP_RF_GetChannelNumber
+     /tmp/cc9iOMXq.s:2637   .text.S2LP_RF_GetModulationType:0000000000000000 $t
+     /tmp/cc9iOMXq.s:2643   .text.S2LP_RF_GetModulationType:0000000000000000 S2LP_RF_GetModulationType
+     /tmp/cc9iOMXq.s:2680   .text.S2LP_RF_GetDataRate:0000000000000000 $t
+     /tmp/cc9iOMXq.s:2686   .text.S2LP_RF_GetDataRate:0000000000000000 S2LP_RF_GetDataRate
+     /tmp/cc9iOMXq.s:2736   .text.S2LP_RF_GetDataRateMantissa:0000000000000000 S2LP_RF_GetDataRateMantissa
+     /tmp/cc9iOMXq.s:2797   .text.S2LP_RF_GetDataRateExponent:0000000000000000 S2LP_RF_GetDataRateExponent
+     /tmp/cc9iOMXq.s:2730   .text.S2LP_RF_GetDataRateMantissa:0000000000000000 $t
+     /tmp/cc9iOMXq.s:2791   .text.S2LP_RF_GetDataRateExponent:0000000000000000 $t
+     /tmp/cc9iOMXq.s:2834   .text.S2LP_RF_GetFreqDevMantissa:0000000000000000 $t
+     /tmp/cc9iOMXq.s:2840   .text.S2LP_RF_GetFreqDevMantissa:0000000000000000 S2LP_RF_GetFreqDevMantissa
+     /tmp/cc9iOMXq.s:2872   .text.S2LP_RF_GetFreqDevExponent:0000000000000000 $t
+     /tmp/cc9iOMXq.s:2878   .text.S2LP_RF_GetFreqDevExponent:0000000000000000 S2LP_RF_GetFreqDevExponent
+     /tmp/cc9iOMXq.s:2915   .text.S2LP_RF_GetFrequencyDeviation:0000000000000000 $t
+     /tmp/cc9iOMXq.s:2921   .text.S2LP_RF_GetFrequencyDeviation:0000000000000000 S2LP_RF_GetFrequencyDeviation
+     /tmp/cc9iOMXq.s:2967   .text.S2LP_RF_GetConstellationMapping:0000000000000000 $t
+     /tmp/cc9iOMXq.s:2973   .text.S2LP_RF_GetConstellationMapping:0000000000000000 S2LP_RF_GetConstellationMapping
+     /tmp/cc9iOMXq.s:3012   .text.S2LP_RF_GetFrequencyInterpolation:0000000000000000 $t
+     /tmp/cc9iOMXq.s:3018   .text.S2LP_RF_GetFrequencyInterpolation:0000000000000000 S2LP_RF_GetFrequencyInterpolation
+                           .group:0000000000000000 wm4.0.2a10468dd89b593cd64cc189d36e5bb7
+                           .group:0000000000000000 wm4.s2lp_mcu_interface.h.9.9eeee19d530c6ae696c504e7de7f49cd
+                           .group:0000000000000000 wm4.s2lp_constants.h.9.b7f616e3835971b5021c80c1c98c29b7
+                           .group:0000000000000000 wm4.stdbool.h.29.4a1c88fe569adb8d03217dd16982ca34
+                           .group:0000000000000000 wm4._newlib_version.h.4.529115dae5e4f67702b1de0b6e841f38
+                           .group:0000000000000000 wm4.features.h.33.3e67abe6fb64142d4f6fa9496796153c
+                           .group:0000000000000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:0000000000000000 wm4._intsup.h.10.48bafbb683905c4daa4565a85aeeb264
+                           .group:0000000000000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:0000000000000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:0000000000000000 wm4.stddef.h.39.3e0425629195acf083c9561151306b4d
+                           .group:0000000000000000 wm4.stm32f1xx.h.39.e8c98c5ce2cd95856eed179966374e12
+                           .group:0000000000000000 wm4.stm32f103xb.h.38.ec967d5ad9d3269cb0788eebda048e38
+                           .group:0000000000000000 wm4.cmsis_version.h.32.0f826810625204eca22a19868bdc7586
+                           .group:0000000000000000 wm4.core_cm3.h.66.fc46cac19810db8f98d67da7ef88f42c
+                           .group:0000000000000000 wm4.cmsis_gcc.h.26.549e8fd988111c6b396c357ef98aeb59
+                           .group:0000000000000000 wm4.core_cm3.h.127.aaed3d1df272b0aa79c526153017805c
+                           .group:0000000000000000 wm4.stm32f103xb.h.573.10249aa7473ca93be896fed94046a725
+                           .group:0000000000000000 wm4.stm32f1xx.h.162.96b09079a093c34dbd7f0b85cbd0ddee
+                           .group:0000000000000000 wm4.stm32f1xx_hal_conf.h.24.fb218a6cd2ee35d840b3eac0f5fb4119
+                           .group:0000000000000000 wm4.stm32_hal_legacy.h.22.3d81dc02d9b9459e9eac6fdca7f8f18e
+ARM GAS  /tmp/cc9iOMXq.s 			page 63
+
+
+                           .group:0000000000000000 wm4.stm32f1xx_hal_def.h.56.d1c3014f99fce17329ff5ab2921c0923
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc.h.94.78ba4ec8cedd7ba94683a5fabb61b31e
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc_ex.h.21.8406672c8a3f21f71eb8441fb8ecb4bd
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc.h.1201.89d14cbb1b46fba2de70512ccfd8d5ce
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio.h.21.0099da253a68660e916195d3e8928be3
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio_ex.h.21.93f1f3ec7660fa76375def81b976f73c
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio.h.262.7df79220ec7519ba80c1763e6b4854a6
+                           .group:0000000000000000 wm4.stm32f1xx_hal_exti.h.21.a7f1b393a0c9b2b56b72ccdbb8dee508
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma.h.21.11e5a204ed6aa790b1cdae2e4192bc9d
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma_ex.h.21.d438f745b4c04dc23f9f569190526864
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma.h.408.14794a3f8621230c9ac7fca0cacf3e57
+                           .group:0000000000000000 wm4.stm32f1xx_hal_can.h.21.d1dd4a884a3983bc975efc64fbbd5748
+                           .group:0000000000000000 wm4.stm32f1xx_hal_cortex.h.21.6ab92041a8778f53d2d2d96b3825535a
+                           .group:0000000000000000 wm4.stm32f1xx_hal_adc.h.21.8ae5a06b46334619d54b2469802d6db6
+                           .group:0000000000000000 wm4.stm32f1xx_hal_adc_ex.h.21.f5c9ba15472af26c826d75096ae3e02a
+                           .group:0000000000000000 wm4.stm32f1xx_hal_crc.h.21.b5b5d61856236c32a5704a7db1b8c77f
+                           .group:0000000000000000 wm4.stm32f1xx_hal_flash.h.21.6df147ac02cc6dec8c4706cc1a34879c
+                           .group:0000000000000000 wm4.stm32f1xx_hal_flash_ex.h.21.33e24ce7a8607e16d5a38297454fd963
+                           .group:0000000000000000 wm4.stm32f1xx_hal_i2c.h.21.6a947c870feb456d84d10dd871ee01bd
+                           .group:0000000000000000 wm4.stm32f1xx_hal_iwdg.h.21.14afe1e30714751a311b81d0791714c2
+                           .group:0000000000000000 wm4.stm32f1xx_hal_pwr.h.21.ec3e2cfd4c26fffa32fc4ff0a8ac7390
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rtc.h.21.833c91cab3eef49edc59fd371d3c1ce0
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rtc_ex.h.21.b671683f6728965b6d8404d04009ed32
+                           .group:0000000000000000 wm4.stm32f1xx_hal_spi.h.21.59f3c581a47a8dea5d070b46998af27e
+                           .group:0000000000000000 wm4.stm32f1xx_hal_tim.h.21.76f9d96f76cba41ae3b6e27311c6f5ff
+                           .group:0000000000000000 wm4.stm32f1xx_hal_uart.h.21.ffd6508e5e0a88f651472e5c80a9d587
+                           .group:0000000000000000 wm4.stm32f1xx_hal_usart.h.21.0b32d58c93817e5f10bce7603c316c1e
+                           .group:0000000000000000 wm4.stm32f1xx_hal_irda.h.21.b44168150ccb55c331f6e6afe3cf4b88
+                           .group:0000000000000000 wm4.stm32f1xx_hal_smartcard.h.21.d256a98de9ec7b58600da5aa4b29abdb
+                           .group:0000000000000000 wm4.stm32f1xx_hal_wwdg.h.21.ac611fc4089566604f02b81297147d50
+                           .group:0000000000000000 wm4.stm32f1xx_ll_usb.h.21.4cb0f3c145693f977427d01b787de0c7
+                           .group:0000000000000000 wm4.stm32f1xx_hal_pcd.h.160.b1d545af3cea9ada15575c2dedd78cdc
+                           .group:0000000000000000 wm4.stm32f1xx_hal.h.87.60093b86a987865736d7cddecce3c235
+                           .group:0000000000000000 wm4.ieeefp.h.77.25247dc27dbe3b23bfe98c2dc18f6ac5
+                           .group:0000000000000000 wm4.newlib.h.8.e83e89ee5a2baa7686bbb3d2021a9409
+                           .group:0000000000000000 wm4.config.h.224.18dfb280c62ae4ee788eb67b451eb1a6
+                           .group:0000000000000000 wm4._ansi.h.31.de524f58584151836e90d8620a16f8e8
+                           .group:0000000000000000 wm4.stdlib.h.13.4ed386f5c1a80d71e72172885d946ef2
+                           .group:0000000000000000 wm4.stddef.h.158.bfed30416c9480cd13bc4a25427d538f
+                           .group:0000000000000000 wm4._types.h.20.dd0d04dca3800a0d2a6129b87f3adbb2
+                           .group:0000000000000000 wm4.stddef.h.158.5f30652bb2ea05b142c1bbee9108c999
+                           .group:0000000000000000 wm4._types.h.127.34941de1b2539d59d5cac00e0dd27a45
+                           .group:0000000000000000 wm4.reent.h.17.e292bf8b0bec6c96e131a54347145a30
+                           .group:0000000000000000 wm4.lock.h.2.1461d1fff82dffe8bfddc23307f6484f
+                           .group:0000000000000000 wm4.reent.h.77.dcd6129ff07fe81bd5636db29abe53b2
+                           .group:0000000000000000 wm4.cdefs.h.49.39045112216f6a021dbdffe3bf5accce
+                           .group:0000000000000000 wm4.alloca.h.8.dfc0c703c47ec3e69746825b17d9e66d
+                           .group:0000000000000000 wm4.stdlib.h.56.f4862cfbf4363a1db01842d5bdf72c18
+                           .group:0000000000000000 wm4.bshal_i2cm.h.11.09ce5fde9ee09ba50563c37b9993575a
+                           .group:0000000000000000 wm4.inttypes.h.14.b28deb26920e51e0da310220ef0f9003
+                           .group:0000000000000000 wm4.inttypes.h.28.684aa7736e7ecc9a6ffc44acc61c7a90
+                           .group:0000000000000000 wm4.bit_helpers.h.9.18ec339b3de5d33d832940f318efed57
+                           .group:0000000000000000 wm4.s2lp_tx.h.9.5e3663b7d789401207b9cd485f9d2109
+                           .group:0000000000000000 wm4.s2lp.h.23.2b5ca43c97556c1103e2a8d1aaf1f08a
+                           .group:0000000000000000 wm4.math.h.13.23d99a3893c6b1894dff4b2996462d24
+
+UNDEFINED SYMBOLS
+ARM GAS  /tmp/cc9iOMXq.s 			page 64
+
+
+S2LP_ReadRegister
+S2LP_WriteRegister
+S2LP_BatchWriteRegisters
+__aeabi_ui2d
+__aeabi_ddiv
+__aeabi_dmul
+__aeabi_d2uiz
+S2LP_IsRefDivEnabled
+S2LP_GetClockFrequency
+__aeabi_i2d
+__aeabi_dadd
+S2LP_GetDigitalClockFrequency
+round
+__aeabi_dsub
+__aeabi_ul2d
+__aeabi_dcmpgt
+S2LP_BatchReadRegisters

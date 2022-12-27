@@ -1,0 +1,1503 @@
+ARM GAS  /tmp/ccI3YtsW.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.arch armv7-m
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"s2lp_power.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.file 1 "S2LP_Driver/s2lp_power.c"
+  18              		.section	.text.S2LP_Power_SetSMPSVoltage,"ax",%progbits
+  19              		.align	1
+  20              		.global	S2LP_Power_SetSMPSVoltage
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  25              	S2LP_Power_SetSMPSVoltage:
+  26              	.LFB67:
+   1:S2LP_Driver/s2lp_power.c **** /*
+   2:S2LP_Driver/s2lp_power.c ****  * s2lp_power.c
+   3:S2LP_Driver/s2lp_power.c ****  *
+   4:S2LP_Driver/s2lp_power.c ****  *  Created on: 11 sie 2021
+   5:S2LP_Driver/s2lp_power.c ****  *      Author: steelph0enix
+   6:S2LP_Driver/s2lp_power.c ****  */
+   7:S2LP_Driver/s2lp_power.c **** 
+   8:S2LP_Driver/s2lp_power.c **** #include "s2lp_power.h"
+   9:S2LP_Driver/s2lp_power.c **** #include "bit_helpers.h"
+  10:S2LP_Driver/s2lp_power.c **** 
+  11:S2LP_Driver/s2lp_power.c **** void S2LP_Power_SetSMPSVoltage(S2LP_Handle* handle, S2LP_SMPS_Voltage voltage) {
+  27              		.loc 1 11 80
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 16
+  30              		@ frame_needed = 1, uses_anonymous_args = 0
+  31 0000 80B5     		push	{r7, lr}
+  32              		.cfi_def_cfa_offset 8
+  33              		.cfi_offset 7, -8
+  34              		.cfi_offset 14, -4
+  35 0002 84B0     		sub	sp, sp, #16
+  36              		.cfi_def_cfa_offset 24
+  37 0004 00AF     		add	r7, sp, #0
+  38              		.cfi_def_cfa_register 7
+  39 0006 7860     		str	r0, [r7, #4]
+  40 0008 0B46     		mov	r3, r1
+  41 000a FB70     		strb	r3, [r7, #3]
+  12:S2LP_Driver/s2lp_power.c **** 	uint8_t reg_val = S2LP_ReadRegister(handle, S2LP_REG_PM_CONF0);
+  42              		.loc 1 12 20
+  43 000c 7921     		movs	r1, #121
+  44 000e 7868     		ldr	r0, [r7, #4]
+  45 0010 FFF7FEFF 		bl	S2LP_ReadRegister
+  46 0014 0346     		mov	r3, r0
+ARM GAS  /tmp/ccI3YtsW.s 			page 2
+
+
+  47 0016 FB73     		strb	r3, [r7, #15]
+  13:S2LP_Driver/s2lp_power.c **** 	CLEARBITS(reg_val, 0b111, 4);
+  48              		.loc 1 13 2
+  49 0018 FB7B     		ldrb	r3, [r7, #15]
+  50 001a 23F07003 		bic	r3, r3, #112
+  51 001e FB73     		strb	r3, [r7, #15]
+  14:S2LP_Driver/s2lp_power.c **** 	SETBITS(reg_val, (uint8_t ) (voltage), 0b111, 4);
+  52              		.loc 1 14 2
+  53 0020 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+  54 0022 1B01     		lsls	r3, r3, #4
+  55 0024 5BB2     		sxtb	r3, r3
+  56 0026 03F07003 		and	r3, r3, #112
+  57 002a 5AB2     		sxtb	r2, r3
+  58 002c 97F90F30 		ldrsb	r3, [r7, #15]
+  59 0030 1343     		orrs	r3, r3, r2
+  60 0032 5BB2     		sxtb	r3, r3
+  61 0034 FB73     		strb	r3, [r7, #15]
+  15:S2LP_Driver/s2lp_power.c **** 	S2LP_WriteRegister(handle, S2LP_REG_PM_CONF0, reg_val);
+  62              		.loc 1 15 2
+  63 0036 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+  64 0038 1A46     		mov	r2, r3
+  65 003a 7921     		movs	r1, #121
+  66 003c 7868     		ldr	r0, [r7, #4]
+  67 003e FFF7FEFF 		bl	S2LP_WriteRegister
+  16:S2LP_Driver/s2lp_power.c **** }
+  68              		.loc 1 16 1
+  69 0042 00BF     		nop
+  70 0044 1037     		adds	r7, r7, #16
+  71              		.cfi_def_cfa_offset 8
+  72 0046 BD46     		mov	sp, r7
+  73              		.cfi_def_cfa_register 13
+  74              		@ sp needed
+  75 0048 80BD     		pop	{r7, pc}
+  76              		.cfi_endproc
+  77              	.LFE67:
+  79              		.section	.text.S2LP_Power_SetKRMState,"ax",%progbits
+  80              		.align	1
+  81              		.global	S2LP_Power_SetKRMState
+  82              		.syntax unified
+  83              		.thumb
+  84              		.thumb_func
+  86              	S2LP_Power_SetKRMState:
+  87              	.LFB68:
+  17:S2LP_Driver/s2lp_power.c **** 
+  18:S2LP_Driver/s2lp_power.c **** void S2LP_Power_SetKRMState(S2LP_Handle* handle, bool enabled) {
+  88              		.loc 1 18 64
+  89              		.cfi_startproc
+  90              		@ args = 0, pretend = 0, frame = 16
+  91              		@ frame_needed = 1, uses_anonymous_args = 0
+  92 0000 80B5     		push	{r7, lr}
+  93              		.cfi_def_cfa_offset 8
+  94              		.cfi_offset 7, -8
+  95              		.cfi_offset 14, -4
+  96 0002 84B0     		sub	sp, sp, #16
+  97              		.cfi_def_cfa_offset 24
+  98 0004 00AF     		add	r7, sp, #0
+  99              		.cfi_def_cfa_register 7
+ARM GAS  /tmp/ccI3YtsW.s 			page 3
+
+
+ 100 0006 7860     		str	r0, [r7, #4]
+ 101 0008 0B46     		mov	r3, r1
+ 102 000a FB70     		strb	r3, [r7, #3]
+  19:S2LP_Driver/s2lp_power.c **** 	uint8_t reg_val = S2LP_ReadRegister(handle, S2LP_REG_PM_CONF3);
+ 103              		.loc 1 19 20
+ 104 000c 7621     		movs	r1, #118
+ 105 000e 7868     		ldr	r0, [r7, #4]
+ 106 0010 FFF7FEFF 		bl	S2LP_ReadRegister
+ 107 0014 0346     		mov	r3, r0
+ 108 0016 FB73     		strb	r3, [r7, #15]
+  20:S2LP_Driver/s2lp_power.c **** 
+  21:S2LP_Driver/s2lp_power.c **** 	if (enabled) {
+ 109              		.loc 1 21 5
+ 110 0018 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 111 001a 002B     		cmp	r3, #0
+ 112 001c 04D0     		beq	.L3
+  22:S2LP_Driver/s2lp_power.c **** 		SETBIT(reg_val, 7);
+ 113              		.loc 1 22 3
+ 114 001e FB7B     		ldrb	r3, [r7, #15]
+ 115 0020 63F07F03 		orn	r3, r3, #127
+ 116 0024 FB73     		strb	r3, [r7, #15]
+ 117 0026 03E0     		b	.L4
+ 118              	.L3:
+  23:S2LP_Driver/s2lp_power.c **** 	} else {
+  24:S2LP_Driver/s2lp_power.c **** 		CLEARBIT(reg_val, 7);
+ 119              		.loc 1 24 3
+ 120 0028 FB7B     		ldrb	r3, [r7, #15]
+ 121 002a 03F07F03 		and	r3, r3, #127
+ 122 002e FB73     		strb	r3, [r7, #15]
+ 123              	.L4:
+  25:S2LP_Driver/s2lp_power.c **** 	}
+  26:S2LP_Driver/s2lp_power.c **** 
+  27:S2LP_Driver/s2lp_power.c **** 	S2LP_WriteRegister(handle, S2LP_REG_PM_CONF3, reg_val);
+ 124              		.loc 1 27 2
+ 125 0030 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 126 0032 1A46     		mov	r2, r3
+ 127 0034 7621     		movs	r1, #118
+ 128 0036 7868     		ldr	r0, [r7, #4]
+ 129 0038 FFF7FEFF 		bl	S2LP_WriteRegister
+  28:S2LP_Driver/s2lp_power.c **** }
+ 130              		.loc 1 28 1
+ 131 003c 00BF     		nop
+ 132 003e 1037     		adds	r7, r7, #16
+ 133              		.cfi_def_cfa_offset 8
+ 134 0040 BD46     		mov	sp, r7
+ 135              		.cfi_def_cfa_register 13
+ 136              		@ sp needed
+ 137 0042 80BD     		pop	{r7, pc}
+ 138              		.cfi_endproc
+ 139              	.LFE68:
+ 141              		.section	.text.S2LP_Power_SetKRMRatio,"ax",%progbits
+ 142              		.align	1
+ 143              		.global	S2LP_Power_SetKRMRatio
+ 144              		.syntax unified
+ 145              		.thumb
+ 146              		.thumb_func
+ 148              	S2LP_Power_SetKRMRatio:
+ARM GAS  /tmp/ccI3YtsW.s 			page 4
+
+
+ 149              	.LFB69:
+  29:S2LP_Driver/s2lp_power.c **** 
+  30:S2LP_Driver/s2lp_power.c **** void S2LP_Power_SetKRMRatio(S2LP_Handle* handle, uint16_t ratio) {
+ 150              		.loc 1 30 66
+ 151              		.cfi_startproc
+ 152              		@ args = 0, pretend = 0, frame = 16
+ 153              		@ frame_needed = 1, uses_anonymous_args = 0
+ 154 0000 80B5     		push	{r7, lr}
+ 155              		.cfi_def_cfa_offset 8
+ 156              		.cfi_offset 7, -8
+ 157              		.cfi_offset 14, -4
+ 158 0002 84B0     		sub	sp, sp, #16
+ 159              		.cfi_def_cfa_offset 24
+ 160 0004 00AF     		add	r7, sp, #0
+ 161              		.cfi_def_cfa_register 7
+ 162 0006 7860     		str	r0, [r7, #4]
+ 163 0008 0B46     		mov	r3, r1
+ 164 000a 7B80     		strh	r3, [r7, #2]	@ movhi
+  31:S2LP_Driver/s2lp_power.c **** 	uint8_t conf_vals[2] = { 0 };
+ 165              		.loc 1 31 10
+ 166 000c 0023     		movs	r3, #0
+ 167 000e BB81     		strh	r3, [r7, #12]	@ movhi
+  32:S2LP_Driver/s2lp_power.c **** 	conf_vals[0] = S2LP_ReadRegister(handle, S2LP_REG_PM_CONF3);
+ 168              		.loc 1 32 17
+ 169 0010 7621     		movs	r1, #118
+ 170 0012 7868     		ldr	r0, [r7, #4]
+ 171 0014 FFF7FEFF 		bl	S2LP_ReadRegister
+ 172 0018 0346     		mov	r3, r0
+ 173              		.loc 1 32 15
+ 174 001a 3B73     		strb	r3, [r7, #12]
+  33:S2LP_Driver/s2lp_power.c **** 	// CONF2 is for the KRM ratio LSB so we just fill it up with proper bits
+  34:S2LP_Driver/s2lp_power.c **** 	conf_vals[1] = GETBITS(ratio, 0xFF, 0);
+ 175              		.loc 1 34 15
+ 176 001c 7B88     		ldrh	r3, [r7, #2]	@ movhi
+ 177 001e DBB2     		uxtb	r3, r3
+ 178 0020 7B73     		strb	r3, [r7, #13]
+  35:S2LP_Driver/s2lp_power.c **** 
+  36:S2LP_Driver/s2lp_power.c **** 	// Put MSB in CONF3
+  37:S2LP_Driver/s2lp_power.c **** 	CLEARBITS(conf_vals[0], 0b1111111, 0);
+ 179              		.loc 1 37 2
+ 180 0022 3B7B     		ldrb	r3, [r7, #12]	@ zero_extendqisi2
+ 181 0024 23F07F03 		bic	r3, r3, #127
+ 182 0028 DBB2     		uxtb	r3, r3
+ 183 002a 3B73     		strb	r3, [r7, #12]
+  38:S2LP_Driver/s2lp_power.c **** 	SETBITS(conf_vals[0], GETBITS(ratio, 0b1111111, 8), 0b1111111, 0);
+ 184              		.loc 1 38 2
+ 185 002c 3B7B     		ldrb	r3, [r7, #12]	@ zero_extendqisi2
+ 186 002e 5AB2     		sxtb	r2, r3
+ 187 0030 7B88     		ldrh	r3, [r7, #2]
+ 188 0032 1B12     		asrs	r3, r3, #8
+ 189 0034 5BB2     		sxtb	r3, r3
+ 190 0036 03F07F03 		and	r3, r3, #127
+ 191 003a 5BB2     		sxtb	r3, r3
+ 192 003c 1343     		orrs	r3, r3, r2
+ 193 003e 5BB2     		sxtb	r3, r3
+ 194 0040 DBB2     		uxtb	r3, r3
+ 195 0042 3B73     		strb	r3, [r7, #12]
+ARM GAS  /tmp/ccI3YtsW.s 			page 5
+
+
+  39:S2LP_Driver/s2lp_power.c **** 
+  40:S2LP_Driver/s2lp_power.c **** 	S2LP_BatchWriteRegisters(handle, S2LP_REG_PM_CONF3, conf_vals, 2);
+ 196              		.loc 1 40 2
+ 197 0044 07F10C02 		add	r2, r7, #12
+ 198 0048 0223     		movs	r3, #2
+ 199 004a 7621     		movs	r1, #118
+ 200 004c 7868     		ldr	r0, [r7, #4]
+ 201 004e FFF7FEFF 		bl	S2LP_BatchWriteRegisters
+  41:S2LP_Driver/s2lp_power.c **** }
+ 202              		.loc 1 41 1
+ 203 0052 00BF     		nop
+ 204 0054 1037     		adds	r7, r7, #16
+ 205              		.cfi_def_cfa_offset 8
+ 206 0056 BD46     		mov	sp, r7
+ 207              		.cfi_def_cfa_register 13
+ 208              		@ sp needed
+ 209 0058 80BD     		pop	{r7, pc}
+ 210              		.cfi_endproc
+ 211              	.LFE69:
+ 213              		.section	.text.S2LP_Power_SetSleepMode,"ax",%progbits
+ 214              		.align	1
+ 215              		.global	S2LP_Power_SetSleepMode
+ 216              		.syntax unified
+ 217              		.thumb
+ 218              		.thumb_func
+ 220              	S2LP_Power_SetSleepMode:
+ 221              	.LFB70:
+  42:S2LP_Driver/s2lp_power.c **** 
+  43:S2LP_Driver/s2lp_power.c **** void S2LP_Power_SetSleepMode(S2LP_Handle* handle, S2LP_Sleep_Mode mode) {
+ 222              		.loc 1 43 73
+ 223              		.cfi_startproc
+ 224              		@ args = 0, pretend = 0, frame = 16
+ 225              		@ frame_needed = 1, uses_anonymous_args = 0
+ 226 0000 80B5     		push	{r7, lr}
+ 227              		.cfi_def_cfa_offset 8
+ 228              		.cfi_offset 7, -8
+ 229              		.cfi_offset 14, -4
+ 230 0002 84B0     		sub	sp, sp, #16
+ 231              		.cfi_def_cfa_offset 24
+ 232 0004 00AF     		add	r7, sp, #0
+ 233              		.cfi_def_cfa_register 7
+ 234 0006 7860     		str	r0, [r7, #4]
+ 235 0008 0B46     		mov	r3, r1
+ 236 000a FB70     		strb	r3, [r7, #3]
+  44:S2LP_Driver/s2lp_power.c **** 	uint8_t conf0_val = S2LP_ReadRegister(handle, S2LP_REG_PM_CONF0);
+ 237              		.loc 1 44 22
+ 238 000c 7921     		movs	r1, #121
+ 239 000e 7868     		ldr	r0, [r7, #4]
+ 240 0010 FFF7FEFF 		bl	S2LP_ReadRegister
+ 241 0014 0346     		mov	r3, r0
+ 242 0016 FB73     		strb	r3, [r7, #15]
+  45:S2LP_Driver/s2lp_power.c **** 
+  46:S2LP_Driver/s2lp_power.c **** 	switch (mode) {
+ 243              		.loc 1 46 2
+ 244 0018 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 245 001a 002B     		cmp	r3, #0
+ 246 001c 02D0     		beq	.L7
+ARM GAS  /tmp/ccI3YtsW.s 			page 6
+
+
+ 247 001e 012B     		cmp	r3, #1
+ 248 0020 05D0     		beq	.L8
+  47:S2LP_Driver/s2lp_power.c **** 		case S2LP_SLEEP_A:
+  48:S2LP_Driver/s2lp_power.c **** 			CLEARBIT(conf0_val, 0);
+  49:S2LP_Driver/s2lp_power.c **** 			break;
+  50:S2LP_Driver/s2lp_power.c **** 		case S2LP_SLEEP_B:
+  51:S2LP_Driver/s2lp_power.c **** 			SETBIT(conf0_val, 0);
+  52:S2LP_Driver/s2lp_power.c **** 			break;
+  53:S2LP_Driver/s2lp_power.c **** 		default:
+  54:S2LP_Driver/s2lp_power.c **** 			break;
+ 249              		.loc 1 54 4
+ 250 0022 09E0     		b	.L10
+ 251              	.L7:
+  48:S2LP_Driver/s2lp_power.c **** 			break;
+ 252              		.loc 1 48 4
+ 253 0024 FB7B     		ldrb	r3, [r7, #15]
+ 254 0026 23F00103 		bic	r3, r3, #1
+ 255 002a FB73     		strb	r3, [r7, #15]
+  49:S2LP_Driver/s2lp_power.c **** 		case S2LP_SLEEP_B:
+ 256              		.loc 1 49 4
+ 257 002c 04E0     		b	.L10
+ 258              	.L8:
+  51:S2LP_Driver/s2lp_power.c **** 			break;
+ 259              		.loc 1 51 4
+ 260 002e FB7B     		ldrb	r3, [r7, #15]
+ 261 0030 43F00103 		orr	r3, r3, #1
+ 262 0034 FB73     		strb	r3, [r7, #15]
+  52:S2LP_Driver/s2lp_power.c **** 		default:
+ 263              		.loc 1 52 4
+ 264 0036 00BF     		nop
+ 265              	.L10:
+  55:S2LP_Driver/s2lp_power.c **** 	}
+  56:S2LP_Driver/s2lp_power.c **** 
+  57:S2LP_Driver/s2lp_power.c **** 	S2LP_WriteRegister(handle, S2LP_REG_PM_CONF0, conf0_val);
+ 266              		.loc 1 57 2
+ 267 0038 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 268 003a 1A46     		mov	r2, r3
+ 269 003c 7921     		movs	r1, #121
+ 270 003e 7868     		ldr	r0, [r7, #4]
+ 271 0040 FFF7FEFF 		bl	S2LP_WriteRegister
+  58:S2LP_Driver/s2lp_power.c **** }
+ 272              		.loc 1 58 1
+ 273 0044 00BF     		nop
+ 274 0046 1037     		adds	r7, r7, #16
+ 275              		.cfi_def_cfa_offset 8
+ 276 0048 BD46     		mov	sp, r7
+ 277              		.cfi_def_cfa_register 13
+ 278              		@ sp needed
+ 279 004a 80BD     		pop	{r7, pc}
+ 280              		.cfi_endproc
+ 281              	.LFE70:
+ 283              		.section	.text.S2LP_Power_SetLDOBypassState,"ax",%progbits
+ 284              		.align	1
+ 285              		.global	S2LP_Power_SetLDOBypassState
+ 286              		.syntax unified
+ 287              		.thumb
+ 288              		.thumb_func
+ARM GAS  /tmp/ccI3YtsW.s 			page 7
+
+
+ 290              	S2LP_Power_SetLDOBypassState:
+ 291              	.LFB71:
+  59:S2LP_Driver/s2lp_power.c **** 
+  60:S2LP_Driver/s2lp_power.c **** void S2LP_Power_SetLDOBypassState(S2LP_Handle* handle, bool enabled) {
+ 292              		.loc 1 60 70
+ 293              		.cfi_startproc
+ 294              		@ args = 0, pretend = 0, frame = 16
+ 295              		@ frame_needed = 1, uses_anonymous_args = 0
+ 296 0000 80B5     		push	{r7, lr}
+ 297              		.cfi_def_cfa_offset 8
+ 298              		.cfi_offset 7, -8
+ 299              		.cfi_offset 14, -4
+ 300 0002 84B0     		sub	sp, sp, #16
+ 301              		.cfi_def_cfa_offset 24
+ 302 0004 00AF     		add	r7, sp, #0
+ 303              		.cfi_def_cfa_register 7
+ 304 0006 7860     		str	r0, [r7, #4]
+ 305 0008 0B46     		mov	r3, r1
+ 306 000a FB70     		strb	r3, [r7, #3]
+  61:S2LP_Driver/s2lp_power.c **** 	uint8_t conf1_val = S2LP_ReadRegister(handle, S2LP_REG_PM_CONF1);
+ 307              		.loc 1 61 22
+ 308 000c 7821     		movs	r1, #120
+ 309 000e 7868     		ldr	r0, [r7, #4]
+ 310 0010 FFF7FEFF 		bl	S2LP_ReadRegister
+ 311 0014 0346     		mov	r3, r0
+ 312 0016 FB73     		strb	r3, [r7, #15]
+  62:S2LP_Driver/s2lp_power.c **** 
+  63:S2LP_Driver/s2lp_power.c **** 	if (enabled) {
+ 313              		.loc 1 63 5
+ 314 0018 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 315 001a 002B     		cmp	r3, #0
+ 316 001c 04D0     		beq	.L12
+  64:S2LP_Driver/s2lp_power.c **** 		SETBIT(conf1_val, 2);
+ 317              		.loc 1 64 3
+ 318 001e FB7B     		ldrb	r3, [r7, #15]
+ 319 0020 43F00403 		orr	r3, r3, #4
+ 320 0024 FB73     		strb	r3, [r7, #15]
+ 321 0026 03E0     		b	.L13
+ 322              	.L12:
+  65:S2LP_Driver/s2lp_power.c **** 	} else {
+  66:S2LP_Driver/s2lp_power.c **** 		CLEARBIT(conf1_val, 2);
+ 323              		.loc 1 66 3
+ 324 0028 FB7B     		ldrb	r3, [r7, #15]
+ 325 002a 23F00403 		bic	r3, r3, #4
+ 326 002e FB73     		strb	r3, [r7, #15]
+ 327              	.L13:
+  67:S2LP_Driver/s2lp_power.c **** 	}
+  68:S2LP_Driver/s2lp_power.c **** 
+  69:S2LP_Driver/s2lp_power.c **** 	S2LP_WriteRegister(handle, S2LP_REG_PM_CONF1, conf1_val);
+ 328              		.loc 1 69 2
+ 329 0030 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 330 0032 1A46     		mov	r2, r3
+ 331 0034 7821     		movs	r1, #120
+ 332 0036 7868     		ldr	r0, [r7, #4]
+ 333 0038 FFF7FEFF 		bl	S2LP_WriteRegister
+  70:S2LP_Driver/s2lp_power.c **** }
+ 334              		.loc 1 70 1
+ARM GAS  /tmp/ccI3YtsW.s 			page 8
+
+
+ 335 003c 00BF     		nop
+ 336 003e 1037     		adds	r7, r7, #16
+ 337              		.cfi_def_cfa_offset 8
+ 338 0040 BD46     		mov	sp, r7
+ 339              		.cfi_def_cfa_register 13
+ 340              		@ sp needed
+ 341 0042 80BD     		pop	{r7, pc}
+ 342              		.cfi_endproc
+ 343              	.LFE71:
+ 345              		.section	.text.S2LP_Power_SetInternalSMPSState,"ax",%progbits
+ 346              		.align	1
+ 347              		.global	S2LP_Power_SetInternalSMPSState
+ 348              		.syntax unified
+ 349              		.thumb
+ 350              		.thumb_func
+ 352              	S2LP_Power_SetInternalSMPSState:
+ 353              	.LFB72:
+  71:S2LP_Driver/s2lp_power.c **** 
+  72:S2LP_Driver/s2lp_power.c **** void S2LP_Power_SetInternalSMPSState(S2LP_Handle* handle, bool enabled) {
+ 354              		.loc 1 72 73
+ 355              		.cfi_startproc
+ 356              		@ args = 0, pretend = 0, frame = 16
+ 357              		@ frame_needed = 1, uses_anonymous_args = 0
+ 358 0000 80B5     		push	{r7, lr}
+ 359              		.cfi_def_cfa_offset 8
+ 360              		.cfi_offset 7, -8
+ 361              		.cfi_offset 14, -4
+ 362 0002 84B0     		sub	sp, sp, #16
+ 363              		.cfi_def_cfa_offset 24
+ 364 0004 00AF     		add	r7, sp, #0
+ 365              		.cfi_def_cfa_register 7
+ 366 0006 7860     		str	r0, [r7, #4]
+ 367 0008 0B46     		mov	r3, r1
+ 368 000a FB70     		strb	r3, [r7, #3]
+  73:S2LP_Driver/s2lp_power.c **** 	uint8_t conf4_val = S2LP_ReadRegister(handle, S2LP_REG_PM_CONF4);
+ 369              		.loc 1 73 22
+ 370 000c 7521     		movs	r1, #117
+ 371 000e 7868     		ldr	r0, [r7, #4]
+ 372 0010 FFF7FEFF 		bl	S2LP_ReadRegister
+ 373 0014 0346     		mov	r3, r0
+ 374 0016 FB73     		strb	r3, [r7, #15]
+  74:S2LP_Driver/s2lp_power.c **** 
+  75:S2LP_Driver/s2lp_power.c **** 	if (enabled) {
+ 375              		.loc 1 75 5
+ 376 0018 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 377 001a 002B     		cmp	r3, #0
+ 378 001c 04D0     		beq	.L15
+  76:S2LP_Driver/s2lp_power.c **** 		CLEARBIT(conf4_val, 5);
+ 379              		.loc 1 76 3
+ 380 001e FB7B     		ldrb	r3, [r7, #15]
+ 381 0020 23F02003 		bic	r3, r3, #32
+ 382 0024 FB73     		strb	r3, [r7, #15]
+ 383 0026 03E0     		b	.L16
+ 384              	.L15:
+  77:S2LP_Driver/s2lp_power.c **** 	} else {
+  78:S2LP_Driver/s2lp_power.c **** 		SETBIT(conf4_val, 5);
+ 385              		.loc 1 78 3
+ARM GAS  /tmp/ccI3YtsW.s 			page 9
+
+
+ 386 0028 FB7B     		ldrb	r3, [r7, #15]
+ 387 002a 43F02003 		orr	r3, r3, #32
+ 388 002e FB73     		strb	r3, [r7, #15]
+ 389              	.L16:
+  79:S2LP_Driver/s2lp_power.c **** 	}
+  80:S2LP_Driver/s2lp_power.c **** 
+  81:S2LP_Driver/s2lp_power.c **** 	S2LP_WriteRegister(handle, S2LP_REG_PM_CONF4, conf4_val);
+ 390              		.loc 1 81 2
+ 391 0030 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 392 0032 1A46     		mov	r2, r3
+ 393 0034 7521     		movs	r1, #117
+ 394 0036 7868     		ldr	r0, [r7, #4]
+ 395 0038 FFF7FEFF 		bl	S2LP_WriteRegister
+  82:S2LP_Driver/s2lp_power.c **** }
+ 396              		.loc 1 82 1
+ 397 003c 00BF     		nop
+ 398 003e 1037     		adds	r7, r7, #16
+ 399              		.cfi_def_cfa_offset 8
+ 400 0040 BD46     		mov	sp, r7
+ 401              		.cfi_def_cfa_register 13
+ 402              		@ sp needed
+ 403 0042 80BD     		pop	{r7, pc}
+ 404              		.cfi_endproc
+ 405              	.LFE72:
+ 407              		.section	.text.S2LP_Power_SetBatteryDetectionState,"ax",%progbits
+ 408              		.align	1
+ 409              		.global	S2LP_Power_SetBatteryDetectionState
+ 410              		.syntax unified
+ 411              		.thumb
+ 412              		.thumb_func
+ 414              	S2LP_Power_SetBatteryDetectionState:
+ 415              	.LFB73:
+  83:S2LP_Driver/s2lp_power.c **** 
+  84:S2LP_Driver/s2lp_power.c **** void S2LP_Power_SetBatteryDetectionState(S2LP_Handle* handle, bool enabled) {
+ 416              		.loc 1 84 77
+ 417              		.cfi_startproc
+ 418              		@ args = 0, pretend = 0, frame = 16
+ 419              		@ frame_needed = 1, uses_anonymous_args = 0
+ 420 0000 80B5     		push	{r7, lr}
+ 421              		.cfi_def_cfa_offset 8
+ 422              		.cfi_offset 7, -8
+ 423              		.cfi_offset 14, -4
+ 424 0002 84B0     		sub	sp, sp, #16
+ 425              		.cfi_def_cfa_offset 24
+ 426 0004 00AF     		add	r7, sp, #0
+ 427              		.cfi_def_cfa_register 7
+ 428 0006 7860     		str	r0, [r7, #4]
+ 429 0008 0B46     		mov	r3, r1
+ 430 000a FB70     		strb	r3, [r7, #3]
+  85:S2LP_Driver/s2lp_power.c **** 	uint8_t conf1_val = S2LP_ReadRegister(handle, S2LP_REG_PM_CONF1);
+ 431              		.loc 1 85 22
+ 432 000c 7821     		movs	r1, #120
+ 433 000e 7868     		ldr	r0, [r7, #4]
+ 434 0010 FFF7FEFF 		bl	S2LP_ReadRegister
+ 435 0014 0346     		mov	r3, r0
+ 436 0016 FB73     		strb	r3, [r7, #15]
+  86:S2LP_Driver/s2lp_power.c **** 
+ARM GAS  /tmp/ccI3YtsW.s 			page 10
+
+
+  87:S2LP_Driver/s2lp_power.c **** 	if (enabled) {
+ 437              		.loc 1 87 5
+ 438 0018 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 439 001a 002B     		cmp	r3, #0
+ 440 001c 04D0     		beq	.L18
+  88:S2LP_Driver/s2lp_power.c **** 		SETBIT(conf1_val, 6);
+ 441              		.loc 1 88 3
+ 442 001e FB7B     		ldrb	r3, [r7, #15]
+ 443 0020 43F04003 		orr	r3, r3, #64
+ 444 0024 FB73     		strb	r3, [r7, #15]
+ 445 0026 03E0     		b	.L19
+ 446              	.L18:
+  89:S2LP_Driver/s2lp_power.c **** 	} else {
+  90:S2LP_Driver/s2lp_power.c **** 		CLEARBIT(conf1_val, 6);
+ 447              		.loc 1 90 3
+ 448 0028 FB7B     		ldrb	r3, [r7, #15]
+ 449 002a 23F04003 		bic	r3, r3, #64
+ 450 002e FB73     		strb	r3, [r7, #15]
+ 451              	.L19:
+  91:S2LP_Driver/s2lp_power.c **** 	}
+  92:S2LP_Driver/s2lp_power.c **** 
+  93:S2LP_Driver/s2lp_power.c **** 	S2LP_WriteRegister(handle, S2LP_REG_PM_CONF1, conf1_val);
+ 452              		.loc 1 93 2
+ 453 0030 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 454 0032 1A46     		mov	r2, r3
+ 455 0034 7821     		movs	r1, #120
+ 456 0036 7868     		ldr	r0, [r7, #4]
+ 457 0038 FFF7FEFF 		bl	S2LP_WriteRegister
+  94:S2LP_Driver/s2lp_power.c **** }
+ 458              		.loc 1 94 1
+ 459 003c 00BF     		nop
+ 460 003e 1037     		adds	r7, r7, #16
+ 461              		.cfi_def_cfa_offset 8
+ 462 0040 BD46     		mov	sp, r7
+ 463              		.cfi_def_cfa_register 13
+ 464              		@ sp needed
+ 465 0042 80BD     		pop	{r7, pc}
+ 466              		.cfi_endproc
+ 467              	.LFE73:
+ 469              		.section	.text.S2LP_Power_SetBLDThreshold,"ax",%progbits
+ 470              		.align	1
+ 471              		.global	S2LP_Power_SetBLDThreshold
+ 472              		.syntax unified
+ 473              		.thumb
+ 474              		.thumb_func
+ 476              	S2LP_Power_SetBLDThreshold:
+ 477              	.LFB74:
+  95:S2LP_Driver/s2lp_power.c **** 
+  96:S2LP_Driver/s2lp_power.c **** void S2LP_Power_SetBLDThreshold(S2LP_Handle* handle, S2LP_BLD_Threshold threshold) {
+ 478              		.loc 1 96 84
+ 479              		.cfi_startproc
+ 480              		@ args = 0, pretend = 0, frame = 16
+ 481              		@ frame_needed = 1, uses_anonymous_args = 0
+ 482 0000 80B5     		push	{r7, lr}
+ 483              		.cfi_def_cfa_offset 8
+ 484              		.cfi_offset 7, -8
+ 485              		.cfi_offset 14, -4
+ARM GAS  /tmp/ccI3YtsW.s 			page 11
+
+
+ 486 0002 84B0     		sub	sp, sp, #16
+ 487              		.cfi_def_cfa_offset 24
+ 488 0004 00AF     		add	r7, sp, #0
+ 489              		.cfi_def_cfa_register 7
+ 490 0006 7860     		str	r0, [r7, #4]
+ 491 0008 0B46     		mov	r3, r1
+ 492 000a FB70     		strb	r3, [r7, #3]
+  97:S2LP_Driver/s2lp_power.c **** 	uint8_t conf1_val = S2LP_ReadRegister(handle, S2LP_REG_PM_CONF1);
+ 493              		.loc 1 97 22
+ 494 000c 7821     		movs	r1, #120
+ 495 000e 7868     		ldr	r0, [r7, #4]
+ 496 0010 FFF7FEFF 		bl	S2LP_ReadRegister
+ 497 0014 0346     		mov	r3, r0
+ 498 0016 FB73     		strb	r3, [r7, #15]
+  98:S2LP_Driver/s2lp_power.c **** 
+  99:S2LP_Driver/s2lp_power.c **** 	CLEARBITS(conf1_val, 0b11, 4);
+ 499              		.loc 1 99 2
+ 500 0018 FB7B     		ldrb	r3, [r7, #15]
+ 501 001a 23F03003 		bic	r3, r3, #48
+ 502 001e FB73     		strb	r3, [r7, #15]
+ 100:S2LP_Driver/s2lp_power.c **** 	SETBITS(conf1_val, threshold, 0b11, 4);
+ 503              		.loc 1 100 2
+ 504 0020 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 505 0022 1B01     		lsls	r3, r3, #4
+ 506 0024 5BB2     		sxtb	r3, r3
+ 507 0026 03F03003 		and	r3, r3, #48
+ 508 002a 5AB2     		sxtb	r2, r3
+ 509 002c 97F90F30 		ldrsb	r3, [r7, #15]
+ 510 0030 1343     		orrs	r3, r3, r2
+ 511 0032 5BB2     		sxtb	r3, r3
+ 512 0034 FB73     		strb	r3, [r7, #15]
+ 101:S2LP_Driver/s2lp_power.c **** 
+ 102:S2LP_Driver/s2lp_power.c **** 	S2LP_WriteRegister(handle, S2LP_REG_PM_CONF1, conf1_val);
+ 513              		.loc 1 102 2
+ 514 0036 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 515 0038 1A46     		mov	r2, r3
+ 516 003a 7821     		movs	r1, #120
+ 517 003c 7868     		ldr	r0, [r7, #4]
+ 518 003e FFF7FEFF 		bl	S2LP_WriteRegister
+ 103:S2LP_Driver/s2lp_power.c **** }
+ 519              		.loc 1 103 1
+ 520 0042 00BF     		nop
+ 521 0044 1037     		adds	r7, r7, #16
+ 522              		.cfi_def_cfa_offset 8
+ 523 0046 BD46     		mov	sp, r7
+ 524              		.cfi_def_cfa_register 13
+ 525              		@ sp needed
+ 526 0048 80BD     		pop	{r7, pc}
+ 527              		.cfi_endproc
+ 528              	.LFE74:
+ 530              		.section	.text.S2LP_Power_SetSMPSLevelMode,"ax",%progbits
+ 531              		.align	1
+ 532              		.global	S2LP_Power_SetSMPSLevelMode
+ 533              		.syntax unified
+ 534              		.thumb
+ 535              		.thumb_func
+ 537              	S2LP_Power_SetSMPSLevelMode:
+ARM GAS  /tmp/ccI3YtsW.s 			page 12
+
+
+ 538              	.LFB75:
+ 104:S2LP_Driver/s2lp_power.c **** 
+ 105:S2LP_Driver/s2lp_power.c **** void S2LP_Power_SetSMPSLevelMode(S2LP_Handle* handle, S2LP_SMPS_Level_Mode mode) {
+ 539              		.loc 1 105 82
+ 540              		.cfi_startproc
+ 541              		@ args = 0, pretend = 0, frame = 16
+ 542              		@ frame_needed = 1, uses_anonymous_args = 0
+ 543 0000 80B5     		push	{r7, lr}
+ 544              		.cfi_def_cfa_offset 8
+ 545              		.cfi_offset 7, -8
+ 546              		.cfi_offset 14, -4
+ 547 0002 84B0     		sub	sp, sp, #16
+ 548              		.cfi_def_cfa_offset 24
+ 549 0004 00AF     		add	r7, sp, #0
+ 550              		.cfi_def_cfa_register 7
+ 551 0006 7860     		str	r0, [r7, #4]
+ 552 0008 0B46     		mov	r3, r1
+ 553 000a FB70     		strb	r3, [r7, #3]
+ 106:S2LP_Driver/s2lp_power.c **** 	uint8_t conf1_val = S2LP_ReadRegister(handle, S2LP_REG_PM_CONF1);
+ 554              		.loc 1 106 22
+ 555 000c 7821     		movs	r1, #120
+ 556 000e 7868     		ldr	r0, [r7, #4]
+ 557 0010 FFF7FEFF 		bl	S2LP_ReadRegister
+ 558 0014 0346     		mov	r3, r0
+ 559 0016 FB73     		strb	r3, [r7, #15]
+ 107:S2LP_Driver/s2lp_power.c **** 
+ 108:S2LP_Driver/s2lp_power.c **** 	switch (mode) {
+ 560              		.loc 1 108 2
+ 561 0018 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 562 001a 002B     		cmp	r3, #0
+ 563 001c 02D0     		beq	.L22
+ 564 001e 012B     		cmp	r3, #1
+ 565 0020 05D0     		beq	.L23
+ 109:S2LP_Driver/s2lp_power.c **** 		case S2LP_SMPS_LEVEL_RX_TX:
+ 110:S2LP_Driver/s2lp_power.c **** 			CLEARBIT(conf1_val, 3);
+ 111:S2LP_Driver/s2lp_power.c **** 			break;
+ 112:S2LP_Driver/s2lp_power.c **** 		case S2LP_SMPS_LEVEL_TX:
+ 113:S2LP_Driver/s2lp_power.c **** 			SETBIT(conf1_val, 3);
+ 114:S2LP_Driver/s2lp_power.c **** 			break;
+ 115:S2LP_Driver/s2lp_power.c **** 		default:
+ 116:S2LP_Driver/s2lp_power.c **** 			break;
+ 566              		.loc 1 116 4
+ 567 0022 09E0     		b	.L25
+ 568              	.L22:
+ 110:S2LP_Driver/s2lp_power.c **** 			break;
+ 569              		.loc 1 110 4
+ 570 0024 FB7B     		ldrb	r3, [r7, #15]
+ 571 0026 23F00803 		bic	r3, r3, #8
+ 572 002a FB73     		strb	r3, [r7, #15]
+ 111:S2LP_Driver/s2lp_power.c **** 		case S2LP_SMPS_LEVEL_TX:
+ 573              		.loc 1 111 4
+ 574 002c 04E0     		b	.L25
+ 575              	.L23:
+ 113:S2LP_Driver/s2lp_power.c **** 			break;
+ 576              		.loc 1 113 4
+ 577 002e FB7B     		ldrb	r3, [r7, #15]
+ 578 0030 43F00803 		orr	r3, r3, #8
+ARM GAS  /tmp/ccI3YtsW.s 			page 13
+
+
+ 579 0034 FB73     		strb	r3, [r7, #15]
+ 114:S2LP_Driver/s2lp_power.c **** 		default:
+ 580              		.loc 1 114 4
+ 581 0036 00BF     		nop
+ 582              	.L25:
+ 117:S2LP_Driver/s2lp_power.c **** 	}
+ 118:S2LP_Driver/s2lp_power.c **** 
+ 119:S2LP_Driver/s2lp_power.c **** 	S2LP_WriteRegister(handle, S2LP_REG_PM_CONF1, conf1_val);
+ 583              		.loc 1 119 2
+ 584 0038 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 585 003a 1A46     		mov	r2, r3
+ 586 003c 7821     		movs	r1, #120
+ 587 003e 7868     		ldr	r0, [r7, #4]
+ 588 0040 FFF7FEFF 		bl	S2LP_WriteRegister
+ 120:S2LP_Driver/s2lp_power.c **** }
+ 589              		.loc 1 120 1
+ 590 0044 00BF     		nop
+ 591 0046 1037     		adds	r7, r7, #16
+ 592              		.cfi_def_cfa_offset 8
+ 593 0048 BD46     		mov	sp, r7
+ 594              		.cfi_def_cfa_register 13
+ 595              		@ sp needed
+ 596 004a 80BD     		pop	{r7, pc}
+ 597              		.cfi_endproc
+ 598              	.LFE75:
+ 600              		.section	.text.S2LP_Power_SetFIRState,"ax",%progbits
+ 601              		.align	1
+ 602              		.global	S2LP_Power_SetFIRState
+ 603              		.syntax unified
+ 604              		.thumb
+ 605              		.thumb_func
+ 607              	S2LP_Power_SetFIRState:
+ 608              	.LFB76:
+ 121:S2LP_Driver/s2lp_power.c **** 
+ 122:S2LP_Driver/s2lp_power.c **** void S2LP_Power_SetFIRState(S2LP_Handle* handle, bool enabled) {
+ 609              		.loc 1 122 64
+ 610              		.cfi_startproc
+ 611              		@ args = 0, pretend = 0, frame = 16
+ 612              		@ frame_needed = 1, uses_anonymous_args = 0
+ 613 0000 80B5     		push	{r7, lr}
+ 614              		.cfi_def_cfa_offset 8
+ 615              		.cfi_offset 7, -8
+ 616              		.cfi_offset 14, -4
+ 617 0002 84B0     		sub	sp, sp, #16
+ 618              		.cfi_def_cfa_offset 24
+ 619 0004 00AF     		add	r7, sp, #0
+ 620              		.cfi_def_cfa_register 7
+ 621 0006 7860     		str	r0, [r7, #4]
+ 622 0008 0B46     		mov	r3, r1
+ 623 000a FB70     		strb	r3, [r7, #3]
+ 123:S2LP_Driver/s2lp_power.c **** 	uint8_t reg_val = S2LP_ReadRegister(handle, S2LP_REG_PA_CONFIG1);
+ 624              		.loc 1 123 20
+ 625 000c 6321     		movs	r1, #99
+ 626 000e 7868     		ldr	r0, [r7, #4]
+ 627 0010 FFF7FEFF 		bl	S2LP_ReadRegister
+ 628 0014 0346     		mov	r3, r0
+ 629 0016 FB73     		strb	r3, [r7, #15]
+ARM GAS  /tmp/ccI3YtsW.s 			page 14
+
+
+ 124:S2LP_Driver/s2lp_power.c **** 
+ 125:S2LP_Driver/s2lp_power.c **** 	if (enabled) {
+ 630              		.loc 1 125 5
+ 631 0018 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 632 001a 002B     		cmp	r3, #0
+ 633 001c 04D0     		beq	.L27
+ 126:S2LP_Driver/s2lp_power.c **** 		SETBIT(reg_val, 1);
+ 634              		.loc 1 126 3
+ 635 001e FB7B     		ldrb	r3, [r7, #15]
+ 636 0020 43F00203 		orr	r3, r3, #2
+ 637 0024 FB73     		strb	r3, [r7, #15]
+ 638 0026 03E0     		b	.L28
+ 639              	.L27:
+ 127:S2LP_Driver/s2lp_power.c **** 	} else {
+ 128:S2LP_Driver/s2lp_power.c **** 		CLEARBIT(reg_val, 1);
+ 640              		.loc 1 128 3
+ 641 0028 FB7B     		ldrb	r3, [r7, #15]
+ 642 002a 23F00203 		bic	r3, r3, #2
+ 643 002e FB73     		strb	r3, [r7, #15]
+ 644              	.L28:
+ 129:S2LP_Driver/s2lp_power.c **** 	}
+ 130:S2LP_Driver/s2lp_power.c **** 
+ 131:S2LP_Driver/s2lp_power.c **** 	S2LP_WriteRegister(handle, S2LP_REG_PA_CONFIG1, reg_val);
+ 645              		.loc 1 131 2
+ 646 0030 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 647 0032 1A46     		mov	r2, r3
+ 648 0034 6321     		movs	r1, #99
+ 649 0036 7868     		ldr	r0, [r7, #4]
+ 650 0038 FFF7FEFF 		bl	S2LP_WriteRegister
+ 132:S2LP_Driver/s2lp_power.c **** }
+ 651              		.loc 1 132 1
+ 652 003c 00BF     		nop
+ 653 003e 1037     		adds	r7, r7, #16
+ 654              		.cfi_def_cfa_offset 8
+ 655 0040 BD46     		mov	sp, r7
+ 656              		.cfi_def_cfa_register 13
+ 657              		@ sp needed
+ 658 0042 80BD     		pop	{r7, pc}
+ 659              		.cfi_endproc
+ 660              	.LFE76:
+ 662              		.section	.text.S2LP_Power_GetSMPSVoltage,"ax",%progbits
+ 663              		.align	1
+ 664              		.global	S2LP_Power_GetSMPSVoltage
+ 665              		.syntax unified
+ 666              		.thumb
+ 667              		.thumb_func
+ 669              	S2LP_Power_GetSMPSVoltage:
+ 670              	.LFB77:
+ 133:S2LP_Driver/s2lp_power.c **** 
+ 134:S2LP_Driver/s2lp_power.c **** S2LP_SMPS_Voltage S2LP_Power_GetSMPSVoltage(S2LP_Handle* handle) {
+ 671              		.loc 1 134 66
+ 672              		.cfi_startproc
+ 673              		@ args = 0, pretend = 0, frame = 16
+ 674              		@ frame_needed = 1, uses_anonymous_args = 0
+ 675 0000 80B5     		push	{r7, lr}
+ 676              		.cfi_def_cfa_offset 8
+ 677              		.cfi_offset 7, -8
+ARM GAS  /tmp/ccI3YtsW.s 			page 15
+
+
+ 678              		.cfi_offset 14, -4
+ 679 0002 84B0     		sub	sp, sp, #16
+ 680              		.cfi_def_cfa_offset 24
+ 681 0004 00AF     		add	r7, sp, #0
+ 682              		.cfi_def_cfa_register 7
+ 683 0006 7860     		str	r0, [r7, #4]
+ 135:S2LP_Driver/s2lp_power.c **** 	uint8_t const conf0_val = S2LP_ReadRegister(handle, S2LP_REG_PM_CONF0);
+ 684              		.loc 1 135 28
+ 685 0008 7921     		movs	r1, #121
+ 686 000a 7868     		ldr	r0, [r7, #4]
+ 687 000c FFF7FEFF 		bl	S2LP_ReadRegister
+ 688 0010 0346     		mov	r3, r0
+ 689 0012 FB73     		strb	r3, [r7, #15]
+ 136:S2LP_Driver/s2lp_power.c **** 	return (S2LP_SMPS_Voltage) GETBITS(conf0_val, 0b111, 4);
+ 690              		.loc 1 136 29
+ 691 0014 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 692 0016 1B11     		asrs	r3, r3, #4
+ 693 0018 03F00703 		and	r3, r3, #7
+ 694              		.loc 1 136 9
+ 695 001c DBB2     		uxtb	r3, r3
+ 137:S2LP_Driver/s2lp_power.c **** }
+ 696              		.loc 1 137 1
+ 697 001e 1846     		mov	r0, r3
+ 698 0020 1037     		adds	r7, r7, #16
+ 699              		.cfi_def_cfa_offset 8
+ 700 0022 BD46     		mov	sp, r7
+ 701              		.cfi_def_cfa_register 13
+ 702              		@ sp needed
+ 703 0024 80BD     		pop	{r7, pc}
+ 704              		.cfi_endproc
+ 705              	.LFE77:
+ 707              		.section	.text.S2LP_Power_GetKRMState,"ax",%progbits
+ 708              		.align	1
+ 709              		.global	S2LP_Power_GetKRMState
+ 710              		.syntax unified
+ 711              		.thumb
+ 712              		.thumb_func
+ 714              	S2LP_Power_GetKRMState:
+ 715              	.LFB78:
+ 138:S2LP_Driver/s2lp_power.c **** 
+ 139:S2LP_Driver/s2lp_power.c **** bool S2LP_Power_GetKRMState(S2LP_Handle* handle) {
+ 716              		.loc 1 139 50
+ 717              		.cfi_startproc
+ 718              		@ args = 0, pretend = 0, frame = 16
+ 719              		@ frame_needed = 1, uses_anonymous_args = 0
+ 720 0000 80B5     		push	{r7, lr}
+ 721              		.cfi_def_cfa_offset 8
+ 722              		.cfi_offset 7, -8
+ 723              		.cfi_offset 14, -4
+ 724 0002 84B0     		sub	sp, sp, #16
+ 725              		.cfi_def_cfa_offset 24
+ 726 0004 00AF     		add	r7, sp, #0
+ 727              		.cfi_def_cfa_register 7
+ 728 0006 7860     		str	r0, [r7, #4]
+ 140:S2LP_Driver/s2lp_power.c **** 	uint8_t const conf3_val = S2LP_ReadRegister(handle, S2LP_REG_PM_CONF3);
+ 729              		.loc 1 140 28
+ 730 0008 7621     		movs	r1, #118
+ARM GAS  /tmp/ccI3YtsW.s 			page 16
+
+
+ 731 000a 7868     		ldr	r0, [r7, #4]
+ 732 000c FFF7FEFF 		bl	S2LP_ReadRegister
+ 733 0010 0346     		mov	r3, r0
+ 734 0012 FB73     		strb	r3, [r7, #15]
+ 141:S2LP_Driver/s2lp_power.c **** 	return GETBIT(conf3_val, 7);
+ 735              		.loc 1 141 9
+ 736 0014 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 737 0016 DB09     		lsrs	r3, r3, #7
+ 738 0018 DBB2     		uxtb	r3, r3
+ 739 001a 002B     		cmp	r3, #0
+ 740 001c 14BF     		ite	ne
+ 741 001e 0123     		movne	r3, #1
+ 742 0020 0023     		moveq	r3, #0
+ 743 0022 DBB2     		uxtb	r3, r3
+ 142:S2LP_Driver/s2lp_power.c **** }
+ 744              		.loc 1 142 1
+ 745 0024 1846     		mov	r0, r3
+ 746 0026 1037     		adds	r7, r7, #16
+ 747              		.cfi_def_cfa_offset 8
+ 748 0028 BD46     		mov	sp, r7
+ 749              		.cfi_def_cfa_register 13
+ 750              		@ sp needed
+ 751 002a 80BD     		pop	{r7, pc}
+ 752              		.cfi_endproc
+ 753              	.LFE78:
+ 755              		.section	.text.S2LP_Power_GetKRMRatio,"ax",%progbits
+ 756              		.align	1
+ 757              		.global	S2LP_Power_GetKRMRatio
+ 758              		.syntax unified
+ 759              		.thumb
+ 760              		.thumb_func
+ 762              	S2LP_Power_GetKRMRatio:
+ 763              	.LFB79:
+ 143:S2LP_Driver/s2lp_power.c **** 
+ 144:S2LP_Driver/s2lp_power.c **** uint16_t S2LP_Power_GetKRMRatio(S2LP_Handle* handle) {
+ 764              		.loc 1 144 54
+ 765              		.cfi_startproc
+ 766              		@ args = 0, pretend = 0, frame = 16
+ 767              		@ frame_needed = 1, uses_anonymous_args = 0
+ 768 0000 80B5     		push	{r7, lr}
+ 769              		.cfi_def_cfa_offset 8
+ 770              		.cfi_offset 7, -8
+ 771              		.cfi_offset 14, -4
+ 772 0002 84B0     		sub	sp, sp, #16
+ 773              		.cfi_def_cfa_offset 24
+ 774 0004 00AF     		add	r7, sp, #0
+ 775              		.cfi_def_cfa_register 7
+ 776 0006 7860     		str	r0, [r7, #4]
+ 145:S2LP_Driver/s2lp_power.c **** 	uint8_t conf_vals[2];
+ 146:S2LP_Driver/s2lp_power.c **** 	S2LP_BatchReadRegisters(handle, S2LP_REG_PM_CONF3, conf_vals, 2);
+ 777              		.loc 1 146 2
+ 778 0008 07F10C02 		add	r2, r7, #12
+ 779 000c 0223     		movs	r3, #2
+ 780 000e 7621     		movs	r1, #118
+ 781 0010 7868     		ldr	r0, [r7, #4]
+ 782 0012 FFF7FEFF 		bl	S2LP_BatchReadRegisters
+ 147:S2LP_Driver/s2lp_power.c **** 	uint16_t ret_val = 0;
+ARM GAS  /tmp/ccI3YtsW.s 			page 17
+
+
+ 783              		.loc 1 147 11
+ 784 0016 0023     		movs	r3, #0
+ 785 0018 FB81     		strh	r3, [r7, #14]	@ movhi
+ 148:S2LP_Driver/s2lp_power.c **** 
+ 149:S2LP_Driver/s2lp_power.c **** 	// CONF2 contains 8 LSB, CONF3 - 6 MSB
+ 150:S2LP_Driver/s2lp_power.c **** 	SETBITS(ret_val, GETBITS(conf_vals[0], 0b1111111, 0), 0b111111, 8);
+ 786              		.loc 1 150 2
+ 787 001a 3B7B     		ldrb	r3, [r7, #12]	@ zero_extendqisi2
+ 788 001c 1B02     		lsls	r3, r3, #8
+ 789 001e 1BB2     		sxth	r3, r3
+ 790 0020 03F47C53 		and	r3, r3, #16128
+ 791 0024 1AB2     		sxth	r2, r3
+ 792 0026 B7F90E30 		ldrsh	r3, [r7, #14]
+ 793 002a 1343     		orrs	r3, r3, r2
+ 794 002c 1BB2     		sxth	r3, r3
+ 795 002e FB81     		strh	r3, [r7, #14]	@ movhi
+ 151:S2LP_Driver/s2lp_power.c **** 	SETBITS(ret_val, conf_vals[1], 0xFF, 0);
+ 796              		.loc 1 151 2
+ 797 0030 7B7B     		ldrb	r3, [r7, #13]	@ zero_extendqisi2
+ 798 0032 1A46     		mov	r2, r3
+ 799 0034 FB89     		ldrh	r3, [r7, #14]	@ movhi
+ 800 0036 1343     		orrs	r3, r3, r2
+ 801 0038 FB81     		strh	r3, [r7, #14]	@ movhi
+ 152:S2LP_Driver/s2lp_power.c **** 
+ 153:S2LP_Driver/s2lp_power.c **** 	return ret_val;
+ 802              		.loc 1 153 9
+ 803 003a FB89     		ldrh	r3, [r7, #14]
+ 154:S2LP_Driver/s2lp_power.c **** }
+ 804              		.loc 1 154 1
+ 805 003c 1846     		mov	r0, r3
+ 806 003e 1037     		adds	r7, r7, #16
+ 807              		.cfi_def_cfa_offset 8
+ 808 0040 BD46     		mov	sp, r7
+ 809              		.cfi_def_cfa_register 13
+ 810              		@ sp needed
+ 811 0042 80BD     		pop	{r7, pc}
+ 812              		.cfi_endproc
+ 813              	.LFE79:
+ 815              		.section	.text.S2LP_Power_GetSleepMode,"ax",%progbits
+ 816              		.align	1
+ 817              		.global	S2LP_Power_GetSleepMode
+ 818              		.syntax unified
+ 819              		.thumb
+ 820              		.thumb_func
+ 822              	S2LP_Power_GetSleepMode:
+ 823              	.LFB80:
+ 155:S2LP_Driver/s2lp_power.c **** 
+ 156:S2LP_Driver/s2lp_power.c **** S2LP_Sleep_Mode S2LP_Power_GetSleepMode(S2LP_Handle* handle) {
+ 824              		.loc 1 156 62
+ 825              		.cfi_startproc
+ 826              		@ args = 0, pretend = 0, frame = 16
+ 827              		@ frame_needed = 1, uses_anonymous_args = 0
+ 828 0000 80B5     		push	{r7, lr}
+ 829              		.cfi_def_cfa_offset 8
+ 830              		.cfi_offset 7, -8
+ 831              		.cfi_offset 14, -4
+ 832 0002 84B0     		sub	sp, sp, #16
+ARM GAS  /tmp/ccI3YtsW.s 			page 18
+
+
+ 833              		.cfi_def_cfa_offset 24
+ 834 0004 00AF     		add	r7, sp, #0
+ 835              		.cfi_def_cfa_register 7
+ 836 0006 7860     		str	r0, [r7, #4]
+ 157:S2LP_Driver/s2lp_power.c **** 	uint8_t const conf0_val = S2LP_ReadRegister(handle, S2LP_REG_PM_CONF0);
+ 837              		.loc 1 157 28
+ 838 0008 7921     		movs	r1, #121
+ 839 000a 7868     		ldr	r0, [r7, #4]
+ 840 000c FFF7FEFF 		bl	S2LP_ReadRegister
+ 841 0010 0346     		mov	r3, r0
+ 842 0012 FB73     		strb	r3, [r7, #15]
+ 158:S2LP_Driver/s2lp_power.c **** 	return (S2LP_Sleep_Mode) GETBIT(conf0_val, 0);
+ 843              		.loc 1 158 9
+ 844 0014 FB7B     		ldrb	r3, [r7, #15]
+ 845 0016 03F00103 		and	r3, r3, #1
+ 846 001a DBB2     		uxtb	r3, r3
+ 159:S2LP_Driver/s2lp_power.c **** }
+ 847              		.loc 1 159 1
+ 848 001c 1846     		mov	r0, r3
+ 849 001e 1037     		adds	r7, r7, #16
+ 850              		.cfi_def_cfa_offset 8
+ 851 0020 BD46     		mov	sp, r7
+ 852              		.cfi_def_cfa_register 13
+ 853              		@ sp needed
+ 854 0022 80BD     		pop	{r7, pc}
+ 855              		.cfi_endproc
+ 856              	.LFE80:
+ 858              		.section	.text.S2LP_Power_GetLDOBypassState,"ax",%progbits
+ 859              		.align	1
+ 860              		.global	S2LP_Power_GetLDOBypassState
+ 861              		.syntax unified
+ 862              		.thumb
+ 863              		.thumb_func
+ 865              	S2LP_Power_GetLDOBypassState:
+ 866              	.LFB81:
+ 160:S2LP_Driver/s2lp_power.c **** 
+ 161:S2LP_Driver/s2lp_power.c **** bool S2LP_Power_GetLDOBypassState(S2LP_Handle* handle) {
+ 867              		.loc 1 161 56
+ 868              		.cfi_startproc
+ 869              		@ args = 0, pretend = 0, frame = 16
+ 870              		@ frame_needed = 1, uses_anonymous_args = 0
+ 871 0000 80B5     		push	{r7, lr}
+ 872              		.cfi_def_cfa_offset 8
+ 873              		.cfi_offset 7, -8
+ 874              		.cfi_offset 14, -4
+ 875 0002 84B0     		sub	sp, sp, #16
+ 876              		.cfi_def_cfa_offset 24
+ 877 0004 00AF     		add	r7, sp, #0
+ 878              		.cfi_def_cfa_register 7
+ 879 0006 7860     		str	r0, [r7, #4]
+ 162:S2LP_Driver/s2lp_power.c **** 	uint8_t const conf1_val = S2LP_ReadRegister(handle, S2LP_REG_PM_CONF1);
+ 880              		.loc 1 162 28
+ 881 0008 7821     		movs	r1, #120
+ 882 000a 7868     		ldr	r0, [r7, #4]
+ 883 000c FFF7FEFF 		bl	S2LP_ReadRegister
+ 884 0010 0346     		mov	r3, r0
+ 885 0012 FB73     		strb	r3, [r7, #15]
+ARM GAS  /tmp/ccI3YtsW.s 			page 19
+
+
+ 163:S2LP_Driver/s2lp_power.c **** 	return GETBIT(conf1_val, 2);
+ 886              		.loc 1 163 9
+ 887 0014 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 888 0016 9B08     		lsrs	r3, r3, #2
+ 889 0018 03F00103 		and	r3, r3, #1
+ 890 001c 002B     		cmp	r3, #0
+ 891 001e 14BF     		ite	ne
+ 892 0020 0123     		movne	r3, #1
+ 893 0022 0023     		moveq	r3, #0
+ 894 0024 DBB2     		uxtb	r3, r3
+ 164:S2LP_Driver/s2lp_power.c **** }
+ 895              		.loc 1 164 1
+ 896 0026 1846     		mov	r0, r3
+ 897 0028 1037     		adds	r7, r7, #16
+ 898              		.cfi_def_cfa_offset 8
+ 899 002a BD46     		mov	sp, r7
+ 900              		.cfi_def_cfa_register 13
+ 901              		@ sp needed
+ 902 002c 80BD     		pop	{r7, pc}
+ 903              		.cfi_endproc
+ 904              	.LFE81:
+ 906              		.section	.text.S2LP_Power_GetSMPSState,"ax",%progbits
+ 907              		.align	1
+ 908              		.global	S2LP_Power_GetSMPSState
+ 909              		.syntax unified
+ 910              		.thumb
+ 911              		.thumb_func
+ 913              	S2LP_Power_GetSMPSState:
+ 914              	.LFB82:
+ 165:S2LP_Driver/s2lp_power.c **** 
+ 166:S2LP_Driver/s2lp_power.c **** bool S2LP_Power_GetSMPSState(S2LP_Handle* handle) {
+ 915              		.loc 1 166 51
+ 916              		.cfi_startproc
+ 917              		@ args = 0, pretend = 0, frame = 16
+ 918              		@ frame_needed = 1, uses_anonymous_args = 0
+ 919 0000 80B5     		push	{r7, lr}
+ 920              		.cfi_def_cfa_offset 8
+ 921              		.cfi_offset 7, -8
+ 922              		.cfi_offset 14, -4
+ 923 0002 84B0     		sub	sp, sp, #16
+ 924              		.cfi_def_cfa_offset 24
+ 925 0004 00AF     		add	r7, sp, #0
+ 926              		.cfi_def_cfa_register 7
+ 927 0006 7860     		str	r0, [r7, #4]
+ 167:S2LP_Driver/s2lp_power.c **** 	uint8_t const conf4_val = S2LP_ReadRegister(handle, S2LP_REG_PM_CONF4);
+ 928              		.loc 1 167 28
+ 929 0008 7521     		movs	r1, #117
+ 930 000a 7868     		ldr	r0, [r7, #4]
+ 931 000c FFF7FEFF 		bl	S2LP_ReadRegister
+ 932 0010 0346     		mov	r3, r0
+ 933 0012 FB73     		strb	r3, [r7, #15]
+ 168:S2LP_Driver/s2lp_power.c **** 	return GETBIT(conf4_val, 5);
+ 934              		.loc 1 168 9
+ 935 0014 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 936 0016 5B09     		lsrs	r3, r3, #5
+ 937 0018 03F00103 		and	r3, r3, #1
+ 938 001c 002B     		cmp	r3, #0
+ARM GAS  /tmp/ccI3YtsW.s 			page 20
+
+
+ 939 001e 14BF     		ite	ne
+ 940 0020 0123     		movne	r3, #1
+ 941 0022 0023     		moveq	r3, #0
+ 942 0024 DBB2     		uxtb	r3, r3
+ 169:S2LP_Driver/s2lp_power.c **** }
+ 943              		.loc 1 169 1
+ 944 0026 1846     		mov	r0, r3
+ 945 0028 1037     		adds	r7, r7, #16
+ 946              		.cfi_def_cfa_offset 8
+ 947 002a BD46     		mov	sp, r7
+ 948              		.cfi_def_cfa_register 13
+ 949              		@ sp needed
+ 950 002c 80BD     		pop	{r7, pc}
+ 951              		.cfi_endproc
+ 952              	.LFE82:
+ 954              		.section	.text.S2LP_Power_GetBatteryDetectionState,"ax",%progbits
+ 955              		.align	1
+ 956              		.global	S2LP_Power_GetBatteryDetectionState
+ 957              		.syntax unified
+ 958              		.thumb
+ 959              		.thumb_func
+ 961              	S2LP_Power_GetBatteryDetectionState:
+ 962              	.LFB83:
+ 170:S2LP_Driver/s2lp_power.c **** 
+ 171:S2LP_Driver/s2lp_power.c **** bool S2LP_Power_GetBatteryDetectionState(S2LP_Handle* handle) {
+ 963              		.loc 1 171 63
+ 964              		.cfi_startproc
+ 965              		@ args = 0, pretend = 0, frame = 16
+ 966              		@ frame_needed = 1, uses_anonymous_args = 0
+ 967 0000 80B5     		push	{r7, lr}
+ 968              		.cfi_def_cfa_offset 8
+ 969              		.cfi_offset 7, -8
+ 970              		.cfi_offset 14, -4
+ 971 0002 84B0     		sub	sp, sp, #16
+ 972              		.cfi_def_cfa_offset 24
+ 973 0004 00AF     		add	r7, sp, #0
+ 974              		.cfi_def_cfa_register 7
+ 975 0006 7860     		str	r0, [r7, #4]
+ 172:S2LP_Driver/s2lp_power.c **** 	uint8_t const conf1_val = S2LP_ReadRegister(handle, S2LP_REG_PM_CONF1);
+ 976              		.loc 1 172 28
+ 977 0008 7821     		movs	r1, #120
+ 978 000a 7868     		ldr	r0, [r7, #4]
+ 979 000c FFF7FEFF 		bl	S2LP_ReadRegister
+ 980 0010 0346     		mov	r3, r0
+ 981 0012 FB73     		strb	r3, [r7, #15]
+ 173:S2LP_Driver/s2lp_power.c **** 	return GETBIT(conf1_val, 6);
+ 982              		.loc 1 173 9
+ 983 0014 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 984 0016 9B09     		lsrs	r3, r3, #6
+ 985 0018 03F00103 		and	r3, r3, #1
+ 986 001c 002B     		cmp	r3, #0
+ 987 001e 14BF     		ite	ne
+ 988 0020 0123     		movne	r3, #1
+ 989 0022 0023     		moveq	r3, #0
+ 990 0024 DBB2     		uxtb	r3, r3
+ 174:S2LP_Driver/s2lp_power.c **** }
+ 991              		.loc 1 174 1
+ARM GAS  /tmp/ccI3YtsW.s 			page 21
+
+
+ 992 0026 1846     		mov	r0, r3
+ 993 0028 1037     		adds	r7, r7, #16
+ 994              		.cfi_def_cfa_offset 8
+ 995 002a BD46     		mov	sp, r7
+ 996              		.cfi_def_cfa_register 13
+ 997              		@ sp needed
+ 998 002c 80BD     		pop	{r7, pc}
+ 999              		.cfi_endproc
+ 1000              	.LFE83:
+ 1002              		.section	.text.S2LP_Power_GetBLDThreshold,"ax",%progbits
+ 1003              		.align	1
+ 1004              		.global	S2LP_Power_GetBLDThreshold
+ 1005              		.syntax unified
+ 1006              		.thumb
+ 1007              		.thumb_func
+ 1009              	S2LP_Power_GetBLDThreshold:
+ 1010              	.LFB84:
+ 175:S2LP_Driver/s2lp_power.c **** 
+ 176:S2LP_Driver/s2lp_power.c **** S2LP_BLD_Threshold S2LP_Power_GetBLDThreshold(S2LP_Handle* handle) {
+ 1011              		.loc 1 176 68
+ 1012              		.cfi_startproc
+ 1013              		@ args = 0, pretend = 0, frame = 16
+ 1014              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1015 0000 80B5     		push	{r7, lr}
+ 1016              		.cfi_def_cfa_offset 8
+ 1017              		.cfi_offset 7, -8
+ 1018              		.cfi_offset 14, -4
+ 1019 0002 84B0     		sub	sp, sp, #16
+ 1020              		.cfi_def_cfa_offset 24
+ 1021 0004 00AF     		add	r7, sp, #0
+ 1022              		.cfi_def_cfa_register 7
+ 1023 0006 7860     		str	r0, [r7, #4]
+ 177:S2LP_Driver/s2lp_power.c **** 	uint8_t const conf1_val = S2LP_ReadRegister(handle, S2LP_REG_PM_CONF1);
+ 1024              		.loc 1 177 28
+ 1025 0008 7821     		movs	r1, #120
+ 1026 000a 7868     		ldr	r0, [r7, #4]
+ 1027 000c FFF7FEFF 		bl	S2LP_ReadRegister
+ 1028 0010 0346     		mov	r3, r0
+ 1029 0012 FB73     		strb	r3, [r7, #15]
+ 178:S2LP_Driver/s2lp_power.c **** 	return (S2LP_BLD_Threshold) GETBITS(conf1_val, 0b11, 4);
+ 1030              		.loc 1 178 30
+ 1031 0014 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1032 0016 1B11     		asrs	r3, r3, #4
+ 1033 0018 03F00303 		and	r3, r3, #3
+ 1034              		.loc 1 178 9
+ 1035 001c DBB2     		uxtb	r3, r3
+ 179:S2LP_Driver/s2lp_power.c **** }
+ 1036              		.loc 1 179 1
+ 1037 001e 1846     		mov	r0, r3
+ 1038 0020 1037     		adds	r7, r7, #16
+ 1039              		.cfi_def_cfa_offset 8
+ 1040 0022 BD46     		mov	sp, r7
+ 1041              		.cfi_def_cfa_register 13
+ 1042              		@ sp needed
+ 1043 0024 80BD     		pop	{r7, pc}
+ 1044              		.cfi_endproc
+ 1045              	.LFE84:
+ARM GAS  /tmp/ccI3YtsW.s 			page 22
+
+
+ 1047              		.section	.text.S2LP_Power_GetSMPSLevelMode,"ax",%progbits
+ 1048              		.align	1
+ 1049              		.global	S2LP_Power_GetSMPSLevelMode
+ 1050              		.syntax unified
+ 1051              		.thumb
+ 1052              		.thumb_func
+ 1054              	S2LP_Power_GetSMPSLevelMode:
+ 1055              	.LFB85:
+ 180:S2LP_Driver/s2lp_power.c **** 
+ 181:S2LP_Driver/s2lp_power.c **** S2LP_SMPS_Level_Mode S2LP_Power_GetSMPSLevelMode(S2LP_Handle* handle) {
+ 1056              		.loc 1 181 71
+ 1057              		.cfi_startproc
+ 1058              		@ args = 0, pretend = 0, frame = 16
+ 1059              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1060 0000 80B5     		push	{r7, lr}
+ 1061              		.cfi_def_cfa_offset 8
+ 1062              		.cfi_offset 7, -8
+ 1063              		.cfi_offset 14, -4
+ 1064 0002 84B0     		sub	sp, sp, #16
+ 1065              		.cfi_def_cfa_offset 24
+ 1066 0004 00AF     		add	r7, sp, #0
+ 1067              		.cfi_def_cfa_register 7
+ 1068 0006 7860     		str	r0, [r7, #4]
+ 182:S2LP_Driver/s2lp_power.c **** 	uint8_t const conf1_val = S2LP_ReadRegister(handle, S2LP_REG_PM_CONF1);
+ 1069              		.loc 1 182 28
+ 1070 0008 7821     		movs	r1, #120
+ 1071 000a 7868     		ldr	r0, [r7, #4]
+ 1072 000c FFF7FEFF 		bl	S2LP_ReadRegister
+ 1073 0010 0346     		mov	r3, r0
+ 1074 0012 FB73     		strb	r3, [r7, #15]
+ 183:S2LP_Driver/s2lp_power.c **** 	return (S2LP_SMPS_Level_Mode) GETBIT(conf1_val, 3);
+ 1075              		.loc 1 183 32
+ 1076 0014 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1077 0016 DB08     		lsrs	r3, r3, #3
+ 1078 0018 03F00103 		and	r3, r3, #1
+ 1079              		.loc 1 183 9
+ 1080 001c DBB2     		uxtb	r3, r3
+ 184:S2LP_Driver/s2lp_power.c **** }
+ 1081              		.loc 1 184 1
+ 1082 001e 1846     		mov	r0, r3
+ 1083 0020 1037     		adds	r7, r7, #16
+ 1084              		.cfi_def_cfa_offset 8
+ 1085 0022 BD46     		mov	sp, r7
+ 1086              		.cfi_def_cfa_register 13
+ 1087              		@ sp needed
+ 1088 0024 80BD     		pop	{r7, pc}
+ 1089              		.cfi_endproc
+ 1090              	.LFE85:
+ 1092              		.section	.text.S2LP_Power_GetFIRState,"ax",%progbits
+ 1093              		.align	1
+ 1094              		.global	S2LP_Power_GetFIRState
+ 1095              		.syntax unified
+ 1096              		.thumb
+ 1097              		.thumb_func
+ 1099              	S2LP_Power_GetFIRState:
+ 1100              	.LFB86:
+ 185:S2LP_Driver/s2lp_power.c **** 
+ARM GAS  /tmp/ccI3YtsW.s 			page 23
+
+
+ 186:S2LP_Driver/s2lp_power.c **** bool S2LP_Power_GetFIRState(S2LP_Handle* handle) {
+ 1101              		.loc 1 186 50
+ 1102              		.cfi_startproc
+ 1103              		@ args = 0, pretend = 0, frame = 16
+ 1104              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1105 0000 80B5     		push	{r7, lr}
+ 1106              		.cfi_def_cfa_offset 8
+ 1107              		.cfi_offset 7, -8
+ 1108              		.cfi_offset 14, -4
+ 1109 0002 84B0     		sub	sp, sp, #16
+ 1110              		.cfi_def_cfa_offset 24
+ 1111 0004 00AF     		add	r7, sp, #0
+ 1112              		.cfi_def_cfa_register 7
+ 1113 0006 7860     		str	r0, [r7, #4]
+ 187:S2LP_Driver/s2lp_power.c **** 	uint8_t const reg_val = S2LP_ReadRegister(handle, S2LP_REG_PA_CONFIG1);
+ 1114              		.loc 1 187 26
+ 1115 0008 6321     		movs	r1, #99
+ 1116 000a 7868     		ldr	r0, [r7, #4]
+ 1117 000c FFF7FEFF 		bl	S2LP_ReadRegister
+ 1118 0010 0346     		mov	r3, r0
+ 1119 0012 FB73     		strb	r3, [r7, #15]
+ 188:S2LP_Driver/s2lp_power.c **** 	return GETBIT(reg_val, 1);
+ 1120              		.loc 1 188 9
+ 1121 0014 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1122 0016 5B08     		lsrs	r3, r3, #1
+ 1123 0018 03F00103 		and	r3, r3, #1
+ 1124 001c 002B     		cmp	r3, #0
+ 1125 001e 14BF     		ite	ne
+ 1126 0020 0123     		movne	r3, #1
+ 1127 0022 0023     		moveq	r3, #0
+ 1128 0024 DBB2     		uxtb	r3, r3
+ 189:S2LP_Driver/s2lp_power.c **** }
+ 1129              		.loc 1 189 1
+ 1130 0026 1846     		mov	r0, r3
+ 1131 0028 1037     		adds	r7, r7, #16
+ 1132              		.cfi_def_cfa_offset 8
+ 1133 002a BD46     		mov	sp, r7
+ 1134              		.cfi_def_cfa_register 13
+ 1135              		@ sp needed
+ 1136 002c 80BD     		pop	{r7, pc}
+ 1137              		.cfi_endproc
+ 1138              	.LFE86:
+ 1140              		.text
+ 1141              	.Letext0:
+ 1142              		.file 2 "S2LP_Driver/s2lp_constants.h"
+ 1143              		.file 3 "/usr/arm-none-eabi/include/machine/_default_types.h"
+ 1144              		.file 4 "/usr/arm-none-eabi/include/sys/_stdint.h"
+ 1145              		.file 5 "/usr/lib/gcc/arm-none-eabi/12.2.0/include/stddef.h"
+ 1146              		.file 6 "../../../lib/libhalglue/bshal/bshal_spim.h"
+ 1147              		.file 7 "S2LP_Driver/s2lp_mcu_interface.h"
+ARM GAS  /tmp/ccI3YtsW.s 			page 24
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 s2lp_power.c
+     /tmp/ccI3YtsW.s:19     .text.S2LP_Power_SetSMPSVoltage:0000000000000000 $t
+     /tmp/ccI3YtsW.s:25     .text.S2LP_Power_SetSMPSVoltage:0000000000000000 S2LP_Power_SetSMPSVoltage
+     /tmp/ccI3YtsW.s:80     .text.S2LP_Power_SetKRMState:0000000000000000 $t
+     /tmp/ccI3YtsW.s:86     .text.S2LP_Power_SetKRMState:0000000000000000 S2LP_Power_SetKRMState
+     /tmp/ccI3YtsW.s:142    .text.S2LP_Power_SetKRMRatio:0000000000000000 $t
+     /tmp/ccI3YtsW.s:148    .text.S2LP_Power_SetKRMRatio:0000000000000000 S2LP_Power_SetKRMRatio
+     /tmp/ccI3YtsW.s:214    .text.S2LP_Power_SetSleepMode:0000000000000000 $t
+     /tmp/ccI3YtsW.s:220    .text.S2LP_Power_SetSleepMode:0000000000000000 S2LP_Power_SetSleepMode
+     /tmp/ccI3YtsW.s:284    .text.S2LP_Power_SetLDOBypassState:0000000000000000 $t
+     /tmp/ccI3YtsW.s:290    .text.S2LP_Power_SetLDOBypassState:0000000000000000 S2LP_Power_SetLDOBypassState
+     /tmp/ccI3YtsW.s:346    .text.S2LP_Power_SetInternalSMPSState:0000000000000000 $t
+     /tmp/ccI3YtsW.s:352    .text.S2LP_Power_SetInternalSMPSState:0000000000000000 S2LP_Power_SetInternalSMPSState
+     /tmp/ccI3YtsW.s:408    .text.S2LP_Power_SetBatteryDetectionState:0000000000000000 $t
+     /tmp/ccI3YtsW.s:414    .text.S2LP_Power_SetBatteryDetectionState:0000000000000000 S2LP_Power_SetBatteryDetectionState
+     /tmp/ccI3YtsW.s:470    .text.S2LP_Power_SetBLDThreshold:0000000000000000 $t
+     /tmp/ccI3YtsW.s:476    .text.S2LP_Power_SetBLDThreshold:0000000000000000 S2LP_Power_SetBLDThreshold
+     /tmp/ccI3YtsW.s:531    .text.S2LP_Power_SetSMPSLevelMode:0000000000000000 $t
+     /tmp/ccI3YtsW.s:537    .text.S2LP_Power_SetSMPSLevelMode:0000000000000000 S2LP_Power_SetSMPSLevelMode
+     /tmp/ccI3YtsW.s:601    .text.S2LP_Power_SetFIRState:0000000000000000 $t
+     /tmp/ccI3YtsW.s:607    .text.S2LP_Power_SetFIRState:0000000000000000 S2LP_Power_SetFIRState
+     /tmp/ccI3YtsW.s:663    .text.S2LP_Power_GetSMPSVoltage:0000000000000000 $t
+     /tmp/ccI3YtsW.s:669    .text.S2LP_Power_GetSMPSVoltage:0000000000000000 S2LP_Power_GetSMPSVoltage
+     /tmp/ccI3YtsW.s:708    .text.S2LP_Power_GetKRMState:0000000000000000 $t
+     /tmp/ccI3YtsW.s:714    .text.S2LP_Power_GetKRMState:0000000000000000 S2LP_Power_GetKRMState
+     /tmp/ccI3YtsW.s:756    .text.S2LP_Power_GetKRMRatio:0000000000000000 $t
+     /tmp/ccI3YtsW.s:762    .text.S2LP_Power_GetKRMRatio:0000000000000000 S2LP_Power_GetKRMRatio
+     /tmp/ccI3YtsW.s:816    .text.S2LP_Power_GetSleepMode:0000000000000000 $t
+     /tmp/ccI3YtsW.s:822    .text.S2LP_Power_GetSleepMode:0000000000000000 S2LP_Power_GetSleepMode
+     /tmp/ccI3YtsW.s:859    .text.S2LP_Power_GetLDOBypassState:0000000000000000 $t
+     /tmp/ccI3YtsW.s:865    .text.S2LP_Power_GetLDOBypassState:0000000000000000 S2LP_Power_GetLDOBypassState
+     /tmp/ccI3YtsW.s:907    .text.S2LP_Power_GetSMPSState:0000000000000000 $t
+     /tmp/ccI3YtsW.s:913    .text.S2LP_Power_GetSMPSState:0000000000000000 S2LP_Power_GetSMPSState
+     /tmp/ccI3YtsW.s:955    .text.S2LP_Power_GetBatteryDetectionState:0000000000000000 $t
+     /tmp/ccI3YtsW.s:961    .text.S2LP_Power_GetBatteryDetectionState:0000000000000000 S2LP_Power_GetBatteryDetectionState
+     /tmp/ccI3YtsW.s:1003   .text.S2LP_Power_GetBLDThreshold:0000000000000000 $t
+     /tmp/ccI3YtsW.s:1009   .text.S2LP_Power_GetBLDThreshold:0000000000000000 S2LP_Power_GetBLDThreshold
+     /tmp/ccI3YtsW.s:1048   .text.S2LP_Power_GetSMPSLevelMode:0000000000000000 $t
+     /tmp/ccI3YtsW.s:1054   .text.S2LP_Power_GetSMPSLevelMode:0000000000000000 S2LP_Power_GetSMPSLevelMode
+     /tmp/ccI3YtsW.s:1093   .text.S2LP_Power_GetFIRState:0000000000000000 $t
+     /tmp/ccI3YtsW.s:1099   .text.S2LP_Power_GetFIRState:0000000000000000 S2LP_Power_GetFIRState
+                           .group:0000000000000000 wm4.0.2a10468dd89b593cd64cc189d36e5bb7
+                           .group:0000000000000000 wm4.s2lp_constants.h.9.b7f616e3835971b5021c80c1c98c29b7
+                           .group:0000000000000000 wm4.s2lp_mcu_interface.h.9.9eeee19d530c6ae696c504e7de7f49cd
+                           .group:0000000000000000 wm4.stdbool.h.29.4a1c88fe569adb8d03217dd16982ca34
+                           .group:0000000000000000 wm4._newlib_version.h.4.529115dae5e4f67702b1de0b6e841f38
+                           .group:0000000000000000 wm4.features.h.33.3e67abe6fb64142d4f6fa9496796153c
+                           .group:0000000000000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:0000000000000000 wm4._intsup.h.10.48bafbb683905c4daa4565a85aeeb264
+                           .group:0000000000000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:0000000000000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:0000000000000000 wm4.stddef.h.39.3e0425629195acf083c9561151306b4d
+                           .group:0000000000000000 wm4.stm32f1xx.h.39.e8c98c5ce2cd95856eed179966374e12
+                           .group:0000000000000000 wm4.stm32f103xb.h.38.ec967d5ad9d3269cb0788eebda048e38
+                           .group:0000000000000000 wm4.cmsis_version.h.32.0f826810625204eca22a19868bdc7586
+                           .group:0000000000000000 wm4.core_cm3.h.66.fc46cac19810db8f98d67da7ef88f42c
+ARM GAS  /tmp/ccI3YtsW.s 			page 25
+
+
+                           .group:0000000000000000 wm4.cmsis_gcc.h.26.549e8fd988111c6b396c357ef98aeb59
+                           .group:0000000000000000 wm4.core_cm3.h.127.aaed3d1df272b0aa79c526153017805c
+                           .group:0000000000000000 wm4.stm32f103xb.h.573.10249aa7473ca93be896fed94046a725
+                           .group:0000000000000000 wm4.stm32f1xx.h.162.96b09079a093c34dbd7f0b85cbd0ddee
+                           .group:0000000000000000 wm4.stm32f1xx_hal_conf.h.24.fb218a6cd2ee35d840b3eac0f5fb4119
+                           .group:0000000000000000 wm4.stm32_hal_legacy.h.22.3d81dc02d9b9459e9eac6fdca7f8f18e
+                           .group:0000000000000000 wm4.stm32f1xx_hal_def.h.56.d1c3014f99fce17329ff5ab2921c0923
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc.h.94.78ba4ec8cedd7ba94683a5fabb61b31e
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc_ex.h.21.8406672c8a3f21f71eb8441fb8ecb4bd
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc.h.1201.89d14cbb1b46fba2de70512ccfd8d5ce
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio.h.21.0099da253a68660e916195d3e8928be3
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio_ex.h.21.93f1f3ec7660fa76375def81b976f73c
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio.h.262.7df79220ec7519ba80c1763e6b4854a6
+                           .group:0000000000000000 wm4.stm32f1xx_hal_exti.h.21.a7f1b393a0c9b2b56b72ccdbb8dee508
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma.h.21.11e5a204ed6aa790b1cdae2e4192bc9d
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma_ex.h.21.d438f745b4c04dc23f9f569190526864
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma.h.408.14794a3f8621230c9ac7fca0cacf3e57
+                           .group:0000000000000000 wm4.stm32f1xx_hal_can.h.21.d1dd4a884a3983bc975efc64fbbd5748
+                           .group:0000000000000000 wm4.stm32f1xx_hal_cortex.h.21.6ab92041a8778f53d2d2d96b3825535a
+                           .group:0000000000000000 wm4.stm32f1xx_hal_adc.h.21.8ae5a06b46334619d54b2469802d6db6
+                           .group:0000000000000000 wm4.stm32f1xx_hal_adc_ex.h.21.f5c9ba15472af26c826d75096ae3e02a
+                           .group:0000000000000000 wm4.stm32f1xx_hal_crc.h.21.b5b5d61856236c32a5704a7db1b8c77f
+                           .group:0000000000000000 wm4.stm32f1xx_hal_flash.h.21.6df147ac02cc6dec8c4706cc1a34879c
+                           .group:0000000000000000 wm4.stm32f1xx_hal_flash_ex.h.21.33e24ce7a8607e16d5a38297454fd963
+                           .group:0000000000000000 wm4.stm32f1xx_hal_i2c.h.21.6a947c870feb456d84d10dd871ee01bd
+                           .group:0000000000000000 wm4.stm32f1xx_hal_iwdg.h.21.14afe1e30714751a311b81d0791714c2
+                           .group:0000000000000000 wm4.stm32f1xx_hal_pwr.h.21.ec3e2cfd4c26fffa32fc4ff0a8ac7390
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rtc.h.21.833c91cab3eef49edc59fd371d3c1ce0
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rtc_ex.h.21.b671683f6728965b6d8404d04009ed32
+                           .group:0000000000000000 wm4.stm32f1xx_hal_spi.h.21.59f3c581a47a8dea5d070b46998af27e
+                           .group:0000000000000000 wm4.stm32f1xx_hal_tim.h.21.76f9d96f76cba41ae3b6e27311c6f5ff
+                           .group:0000000000000000 wm4.stm32f1xx_hal_uart.h.21.ffd6508e5e0a88f651472e5c80a9d587
+                           .group:0000000000000000 wm4.stm32f1xx_hal_usart.h.21.0b32d58c93817e5f10bce7603c316c1e
+                           .group:0000000000000000 wm4.stm32f1xx_hal_irda.h.21.b44168150ccb55c331f6e6afe3cf4b88
+                           .group:0000000000000000 wm4.stm32f1xx_hal_smartcard.h.21.d256a98de9ec7b58600da5aa4b29abdb
+                           .group:0000000000000000 wm4.stm32f1xx_hal_wwdg.h.21.ac611fc4089566604f02b81297147d50
+                           .group:0000000000000000 wm4.stm32f1xx_ll_usb.h.21.4cb0f3c145693f977427d01b787de0c7
+                           .group:0000000000000000 wm4.stm32f1xx_hal_pcd.h.160.b1d545af3cea9ada15575c2dedd78cdc
+                           .group:0000000000000000 wm4.stm32f1xx_hal.h.87.60093b86a987865736d7cddecce3c235
+                           .group:0000000000000000 wm4.ieeefp.h.77.25247dc27dbe3b23bfe98c2dc18f6ac5
+                           .group:0000000000000000 wm4.newlib.h.8.e83e89ee5a2baa7686bbb3d2021a9409
+                           .group:0000000000000000 wm4.config.h.224.18dfb280c62ae4ee788eb67b451eb1a6
+                           .group:0000000000000000 wm4._ansi.h.31.de524f58584151836e90d8620a16f8e8
+                           .group:0000000000000000 wm4.stdlib.h.13.4ed386f5c1a80d71e72172885d946ef2
+                           .group:0000000000000000 wm4.stddef.h.158.bfed30416c9480cd13bc4a25427d538f
+                           .group:0000000000000000 wm4._types.h.20.dd0d04dca3800a0d2a6129b87f3adbb2
+                           .group:0000000000000000 wm4.stddef.h.158.5f30652bb2ea05b142c1bbee9108c999
+                           .group:0000000000000000 wm4._types.h.127.34941de1b2539d59d5cac00e0dd27a45
+                           .group:0000000000000000 wm4.reent.h.17.e292bf8b0bec6c96e131a54347145a30
+                           .group:0000000000000000 wm4.lock.h.2.1461d1fff82dffe8bfddc23307f6484f
+                           .group:0000000000000000 wm4.reent.h.77.dcd6129ff07fe81bd5636db29abe53b2
+                           .group:0000000000000000 wm4.cdefs.h.49.39045112216f6a021dbdffe3bf5accce
+                           .group:0000000000000000 wm4.alloca.h.8.dfc0c703c47ec3e69746825b17d9e66d
+                           .group:0000000000000000 wm4.stdlib.h.56.f4862cfbf4363a1db01842d5bdf72c18
+                           .group:0000000000000000 wm4.bshal_i2cm.h.11.09ce5fde9ee09ba50563c37b9993575a
+                           .group:0000000000000000 wm4.inttypes.h.14.b28deb26920e51e0da310220ef0f9003
+                           .group:0000000000000000 wm4.inttypes.h.28.684aa7736e7ecc9a6ffc44acc61c7a90
+ARM GAS  /tmp/ccI3YtsW.s 			page 26
+
+
+                           .group:0000000000000000 wm4.bit_helpers.h.9.18ec339b3de5d33d832940f318efed57
+
+UNDEFINED SYMBOLS
+S2LP_ReadRegister
+S2LP_WriteRegister
+S2LP_BatchWriteRegisters
+S2LP_BatchReadRegisters
