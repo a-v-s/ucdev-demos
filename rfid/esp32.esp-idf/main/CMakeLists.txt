@@ -2,10 +2,12 @@ idf_component_register(
 	SRCS 
 		"esp32-rfid.c"
 		"common/rfid_demo.c"
+		"common/dis2.c"
 		"i2c.c"
 	INCLUDE_DIRS 
 		"."
 	REQUIRES
 		ucdev
+		u8g2
 		esp_timer
 )

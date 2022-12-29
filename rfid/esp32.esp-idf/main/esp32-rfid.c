@@ -19,6 +19,8 @@
 #include "bshal_i2cm.h"
 #include "i2c.h"
 
+#include "rom/ets_sys.h"
+
 #ifdef CONFIG_IDF_TARGET_ESP32
 #define HW_NR    HSPI_HOST
 
@@ -64,13 +66,21 @@ void demo_loop(bs_pdc_t*, size_t);
 
 //--
 // TODO
-void framebuffer_apply(){}
-void draw_plain_background(){}
-void display_init(void){}
-void print(char* str, int line){
-	printf("%d: %s\n", line, str);
-}
+void framebuffer_apply();
+void draw_plain_background();
+void display_init(void);
+void print(char* str, int line);
 //--
+
+//--
+	void bshal_delay_us(uint32_t us){
+		ets_delay_us(us);
+	}
+	void bshal_delay_ms(uint32_t ms){
+		bshal_delay_us(ms * 1000);
+	}
+//--
+
 
 uint32_t get_time_us(void) {
 	return esp_timer_get_time();
