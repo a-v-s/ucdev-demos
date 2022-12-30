@@ -4,6 +4,8 @@ idf_component_register(
 		bsrfid/drivers/rc52x.c
 		bsrfid/drivers/rc52x_ref.c
 		bsrfid/drivers/rc52x_transport.c
+		bsrfid/drivers/rc66x.c
+		bsrfid/drivers/rc66x_transport.c
 		libhalglue/bshal/esp32/bshal_gpio_esp32.c
 		libhalglue/bshal/esp32/bshal_i2cm_esp32.c
 		libhalglue/bshal/esp32/bshal_spim_esp32.c

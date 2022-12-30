@@ -13,65 +13,22 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
-#include "driver/spi_master.h"
+#include "driver/spi.h"
 
 #include "bshal_i2cm.h"
-#include "i2c.h"
+//#include "i2c.h"
 
 #include "rom/ets_sys.h"
 
-#ifdef CONFIG_IDF_TARGET_ESP32
-#define HW_NR    HSPI_HOST
-
-#define SPI_SCK 	17
-#define SPI_MISO 	16
-#define SPI_MOSI  	4
-#define SPI_CS 		2
-
-#define I2C_SDA 	32
-#define I2C_SCL 	33
 
 
-#elif defined CONFIG_IDF_TARGET_ESP32S3
-#define HW_NR    SPI2_HOST
-
-#define SPI_CS3   	4
-#define SPI_CS2   	5
-#define SPI_CS   	6
-#define SPI_MOSI 	7
-#define SPI_MISO 	15
-#define SPI_SCK  	16
-
-#define I2C_SDA 	14
-#define I2C_SCL 	13
-
-
-
-
-
-
-
-#elif defined CONFIG_IDF_TARGET_ESP32C3 
-#define HW_NR    SPI2_HOST
-
-#define SPI_CS2   	1
-#define SPI_CS3		0
-
-#define SPI_CS   	7
-#define SPI_MOSI 	4
-#define SPI_MISO 	5
-#define SPI_SCK  	6
-
-#define I2C_SDA 	2
-#define I2C_SCL 	3
-
-#endif
-
-void i2c_init(int, int);
-void framebuffer_apply();
-void draw_plain_background();
-void display_init(void);
-void print(char *str, int line);
+void i2c_init(int a, int b){}
+void framebuffer_apply(){}
+void draw_plain_background(){}
+void display_init(void){}
+void print(char *str, int line){
+	printf("%d: %s\n", line, str);
+}
 void demo_loop(bs_pdc_t*, size_t);
 
 //--
@@ -109,6 +66,7 @@ void delay_time_ms(uint32_t ms) {
 
 void rfid5_spi_init(rc52x_t *rc52x) {
 	static bshal_spim_instance_t rfid_spi_config;
+/*
 	rfid_spi_config.frequency = 1000000; // SPI speed for MFRC522 = 10 MHz
 	rfid_spi_config.bit_order = 0; //MSB
 	rfid_spi_config.mode = 0;
@@ -120,7 +78,7 @@ void rfid5_spi_init(rc52x_t *rc52x) {
 	rfid_spi_config.cs_pin = SPI_CS;
 
 	rfid_spi_config.rs_pin = -1;
-
+*/
 	rc52x->delay_ms = delay_time_ms;
 	rc52x->get_time_ms = get_time_ms;
 	bshal_spim_init(&rfid_spi_config);
@@ -129,48 +87,27 @@ void rfid5_spi_init(rc52x_t *rc52x) {
 }
 
 
-void rfid6_spi_init(rc52x_t *rc66x) {
-	static bshal_spim_instance_t rfid_spi_config;
-	rfid_spi_config.frequency = 1000000; // SPI speed for MFRC522 = 10 MHz
-	rfid_spi_config.bit_order = 0; //MSB
-	rfid_spi_config.mode = 0;
-	rfid_spi_config.hw_nr = HW_NR;
 
-	rfid_spi_config.sck_pin = SPI_SCK;
-	rfid_spi_config.miso_pin = SPI_MISO;
-	rfid_spi_config.mosi_pin = SPI_MOSI;
-	rfid_spi_config.cs_pin = SPI_CS2;
 
-	rfid_spi_config.rs_pin = -1;
-
-	rc66x->delay_ms = delay_time_ms;
-	rc66x->get_time_ms = get_time_ms;
-	bshal_spim_init(&rfid_spi_config);
-	rc66x->transport_type = bshal_transport_spi;
-	rc66x->transport_instance.spim = &rfid_spi_config;
-}
-
+/*
 void rfid5_i2c_init(rc52x_t *rc52x) {
 	rc52x->delay_ms = delay_time_ms;
 	rc52x->get_time_ms = get_time_ms;
 	rc52x->transport_type = bshal_transport_i2c;
 	rc52x->transport_instance.i2cm = gp_i2c;
 }
+*/
 
 void app_main(void) {
 
-	i2c_init(I2C_SDA, I2C_SCL);
+	//i2c_init(I2C_SDA, I2C_SCL);
 
 	rc52x_t rc52x_spi;
 	rfid5_spi_init(&rc52x_spi);
 
-	rc52x_t rc52x_i2c;
-	rfid5_i2c_init(&rc52x_i2c);
+//	rc52x_t rc52x_i2c;
+//	rfid5_i2c_init(&rc52x_i2c);
 
-#ifdef SPI_CS2
-	rc66x_t rc66x_spi;
-	rfid6_spi_init(&rc66x_spi);
-#endif
 
 	display_init();
 
@@ -180,6 +117,7 @@ void app_main(void) {
 
 	char str[32];
 	uint8_t version;
+/*
 	version = -1;
 	rc52x_get_chip_version(&rc52x_i2c, &version);
 	sprintf(str, "VERSION %02X", version);
@@ -189,6 +127,9 @@ void app_main(void) {
 		pdc_count++;
 	}
 	print(str, 1);
+*/
+
+
 
 	version = -1;
 	rc52x_get_chip_version(&rc52x_spi, &version);
@@ -200,17 +141,7 @@ void app_main(void) {
 	}
 	print(str, 2);
 
-#ifdef SPI_CS2
-	version = -1;
-	rc66x_get_chip_version(&rc66x_spi, &version);
-	sprintf(str, "VERSION %02X", version);
-	print(str, 3);
-	if (version != 0xFF) {
-		rc66x_init(&rc66x_spi);
-		pdcs[pdc_count] = rc66x_spi;
-		pdc_count++;
-	}
-#endif
+
 	print("PDCs:", 0);
 
 	framebuffer_apply();
