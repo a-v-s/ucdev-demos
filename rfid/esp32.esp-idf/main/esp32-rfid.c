@@ -23,47 +23,104 @@
 #ifdef CONFIG_IDF_TARGET_ESP32
 #define HW_NR    HSPI_HOST
 
-#define SPI_SCK 	17
-#define SPI_MISO 	16
-#define SPI_MOSI  	4
-#define SPI_CS 		2
+#define SPI_INT		35
+#define SPI_RST		27
+#define SPI_CS2		5
+#define SPI_CS3		21
 
-#define I2C_SDA 	32
-#define I2C_SCL 	33
+#define SPI_CS		2
+#define SPI_MOSI	4
+#define SPI_MISO	16
+#define SPI_SCK		17
+
+//#define UART_IO1
+//#define UART_IO2
+//#define UART_IO3
+//#define UART_IO4
+
+//#define UART_CTS
+#define UART_TXD	18
+#define UART_RXD	19
+//#define UART_RTS
+
+#define I2C_IO1		22
+#define I2C_IO2		23
+//#define I2C_IO3
+//#define I2C_IO4
+
+#define I2C_INT		39
+#define I2C_RST		25
+#define I2C_SDA		33
+#define I2C_SCL		32
 
 
 #elif defined CONFIG_IDF_TARGET_ESP32S3
 #define HW_NR    SPI2_HOST
 
-#define SPI_CS3   	4
-#define SPI_CS2   	5
-#define SPI_CS   	6
-#define SPI_MOSI 	7
-#define SPI_MISO 	15
-#define SPI_SCK  	16
+#define SPI_INT 	4
+#define SPI_RST		5
+#define SPI_CS2   	6
+#define SPI_CS3		7
 
-#define I2C_SDA 	14
+#define SPI_CS   	15
+#define SPI_MOSI 	16
+#define SPI_MISO 	17
+#define SPI_SCK  	18
+
+#define UART_IO1	38
+#define UART_IO2	37
+#define UART_IO3	36
+#define UART_IO4	35
+
+#define UART_CTS	8
+#define UART_TXD	1
+#define UART_RXD	2
+#define UART_RTS	9
+
+#define I2C_IO1		10
+#define I2C_IO2		21
+#define I2C_IO3		47
+//#define I2C_IO4		21
+
+#define I2C_INT		11
+#define I2C_RST		12
 #define I2C_SCL 	13
-
-
-
-
+#define I2C_SDA 	14
 
 
 
 #elif defined CONFIG_IDF_TARGET_ESP32C3 
 #define HW_NR    SPI2_HOST
 
-#define SPI_CS2   	1
-#define SPI_CS3		0
+//#define SPI_INT
+//#define SPI_RST
+#define SPI_CS2   	2
+#define SPI_CS3		3
 
-#define SPI_CS   	7
-#define SPI_MOSI 	4
-#define SPI_MISO 	5
-#define SPI_SCK  	6
+#define SPI_CS   	9
+#define SPI_MOSI 	0
+#define SPI_MISO 	1
+#define SPI_SCK  	10
 
-#define I2C_SDA 	2
-#define I2C_SCL 	3
+//#define UART_IO1
+//#define UART_IO2
+//#define UART_IO3
+//#define UART_IO4
+
+//#define UART_CTS
+#define UART_TXD	7
+#define UART_RXD	6
+//#define UART_RTS
+
+//#define I2C_IO1
+//#define I2C_IO2
+//#define I2C_IO3
+//#define I2C_IO4
+
+//#define I2C_INT
+//#define I2C_RST
+#define I2C_SCL 	5
+#define I2C_SDA 	4
 
 #endif
 
