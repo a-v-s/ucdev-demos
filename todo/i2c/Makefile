@@ -24,7 +24,7 @@ TARGET = i2c_demo
 ################################################################################
 # Set the root directory of the ucdev enviorement 
 ################################################################################
-UCDEV_ROOT=../..
+UCDEV_ROOT=../../../ucdev
 
 
 U8G2_DIR = $(UCDEV_ROOT)/ext/u8g2/csrc

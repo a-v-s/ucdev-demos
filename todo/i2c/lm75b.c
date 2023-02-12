@@ -6,7 +6,10 @@
  */
 
 #include <stdint.h>
+
+#ifdef __ACCUM_FBIT__
 #include <stdfix.h>
+#endif 
 
 #include "lm75b.h"
 #include "endian.h"

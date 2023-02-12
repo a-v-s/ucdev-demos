@@ -45,6 +45,7 @@ int find_card(bs_pdc_t *pdc, picc_t *picc) {
 	if (status)
 		return status;
 	status = PICC_Select(pdc, picc, 0);
+	printf("    Select retval %d\n", status);
 	if (status)
 		return status;
 	return status;
@@ -69,7 +70,7 @@ void demo_loop(bs_pdc_t *pdcs, size_t size) {
 
 		framebuffer_apply();
 		draw_plain_background();
-		//HAL_Delay(1000);
+		HAL_Delay(1000);
 
 	}
 }

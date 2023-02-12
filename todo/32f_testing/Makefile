@@ -23,7 +23,7 @@ TARGET = 32f_testing
 ################################################################################
 # Set the root directory of the ucdev enviorement 
 ################################################################################
-UCDEV_ROOT=../..
+UCDEV_ROOT=../../../ucdev
 
 UCGLIB_DIR = $(UCDEV_ROOT)/ext/ucglib/csrc
 U8G2_DIR = $(UCDEV_ROOT)/ext/u8g2/csrc
