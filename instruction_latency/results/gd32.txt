@@ -1,0 +1,16 @@
+----------------------------------------------------------------------------
+32F103 Instruction latency tester
+ Core         : Cortex-M3 r2p1
+ Guessed chip : GD32F103
+ Bootrom type : GD32F10x
+ Serial number: 6F473835353534074D313437
+----------------------------------------------------------------------------
+Default clocking (8 MHz):
+1000 ROM loops took 3036 cyles
+1000 RAM loops took 9043 cyles
+ClockSetup_HSE8_SYS48:
+1000 ROM loops took 3036 cyles
+1000 RAM loops took 9043 cyles
+ClockSetup_HSE8_SYS72:
+1000 ROM loops took 3036 cyles
+1000 RAM loops took 9043 cyles

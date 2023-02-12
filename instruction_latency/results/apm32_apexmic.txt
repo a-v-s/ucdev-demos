@@ -1,0 +1,16 @@
+----------------------------------------------------------------------------
+32F103 Instruction latency tester
+ Core         : Cortex-M3 r2p1
+ Guessed chip : APM32F103
+ Bootrom type : APM32
+ Serial number: 570032000C00005939574C4E
+----------------------------------------------------------------------------
+Default clocking (8 MHz):
+1000 ROM loops took 3033 cyles
+1000 RAM loops took 4043 cyles
+ClockSetup_HSE8_SYS48:
+1000 ROM loops took 4038 cyles
+1000 RAM loops took 4051 cyles
+ClockSetup_HSE8_SYS72:
+1000 ROM loops took 6042 cyles
+1000 RAM loops took 4063 cyles
