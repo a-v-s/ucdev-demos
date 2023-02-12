@@ -382,6 +382,10 @@
  *
  */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 /* Accuracy of timings and human fatigue controlled by next two lines */
 /*#define LOOPS	5000		/* Use this for slow or 16 bit machines */
 #define LOOPS	50000		/* Use this for slow or 16 bit machines */
@@ -488,7 +492,7 @@ Proc0()
 	Enumeration	 	EnumLoc;
 	String30		String1Loc;
 	String30		String2Loc;
-	extern char		*malloc();
+//	extern char		*malloc();
 
 	register unsigned int	i;
 #ifdef TIME
@@ -582,7 +586,7 @@ Proc0()
 	printf("This machine benchmarks at %ld dhrystones/second\n",
 		((long) LOOPS) * HZ / benchtime);
 #endif
-
+	return 0;
 }
 
 Proc1(PtrParIn)
@@ -606,6 +610,7 @@ REG RecordPtr	PtrParIn;
 		structassign(*PtrParIn, NextRecord);
 
 #undef	NextRecord
+	return 0;
 }
 
 Proc2(IntParIO)
@@ -626,6 +631,7 @@ OneToFifty	*IntParIO;
 		if (EnumLoc == Ident1)
 			break;
 	}
+	return 0;
 }
 
 Proc3(PtrParOut)
@@ -636,6 +642,7 @@ RecordPtr	*PtrParOut;
 	else
 		IntGlob = 100;
 	Proc7(10, IntGlob, &PtrGlb->IntComp);
+	return 0;
 }
 
 Proc4()
@@ -645,12 +652,14 @@ Proc4()
 	BoolLoc = Char1Glob == 'A';
 	BoolLoc |= BoolGlob;
 	Char2Glob = 'B';
+	return 0;
 }
 
 Proc5()
 {
 	Char1Glob = 'A';
 	BoolGlob = FALSE;
+	return 0;
 }
 
 extern boolean Func3();
@@ -672,6 +681,7 @@ REG Enumeration	*EnumParOut;
 	case Ident4:	break;
 	case Ident5:	*EnumParOut = Ident3;
 	}
+	return 0;
 }
 
 Proc7(IntParI1, IntParI2, IntParOut)
@@ -683,6 +693,7 @@ OneToFifty	*IntParOut;
 
 	IntLoc = IntParI1 + 2;
 	*IntParOut = IntParI2 + IntLoc;
+	return 0;
 }
 
 Proc8(Array1Par, Array2Par, IntParI1, IntParI2)
@@ -703,6 +714,7 @@ OneToFifty	IntParI2;
 	++Array2Par[IntLoc][IntLoc-1];
 	Array2Par[IntLoc+20][IntLoc] = Array1Par[IntLoc];
 	IntGlob = 5;
+	return 0;
 }
 
 Enumeration Func1(CharPar1, CharPar2)
