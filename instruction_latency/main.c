@@ -91,6 +91,7 @@ void run_test(void){
 
 
 int main(void){
+	__disable_irq(); // just to make sure interrupt don't mess with our timing
 	puts(
 "----------------------------------------------------------------------------"
 	);

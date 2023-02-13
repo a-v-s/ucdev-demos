@@ -30,12 +30,26 @@ C_SOURCES += main.c
 C_SOURCES += identify.c
 C_SOURCES += $(LIBHALGLUE_ROOT)/common/arm_cpuid.c
 
-C_SOURCES += SEGGER_RTT_V784/Syscalls/SEGGER_RTT_Syscalls_GCC.c
-C_SOURCES += SEGGER_RTT_V784/RTT/SEGGER_RTT.c
-C_SOURCES += SEGGER_RTT_V784/RTT/SEGGER_RTT_printf.c
-C_INCLUDES += SEGGER_RTT_V784/Syscalls/
-C_INCLUDES += SEGGER_RTT_V784/RTT/
-C_INCLUDES += SEGGER_RTT_V784/Config/
+
+#C_SOURCES += SEGGER_RTT_V784/Syscalls/SEGGER_RTT_Syscalls_GCC.c
+#C_SOURCES += SEGGER_RTT_V784/RTT/SEGGER_RTT.c
+#C_SOURCES += SEGGER_RTT_V784/RTT/SEGGER_RTT_printf.c
+#C_INCLUDES += SEGGER_RTT_V784/Syscalls/
+#C_INCLUDES += SEGGER_RTT_V784/RTT/
+#C_INCLUDES += SEGGER_RTT_V784/Config/
+
+
+LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/rtt/debug/arm_m3  -lrtt
+
+
+# Putting the regarget code in a static library does not work, 
+# But adding the source here does work. 
+#LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/retarget_rtt/debug/arm_m3  -lretarget_rtt
+C_SOURCES +=  $(UCDEV_ROOT)/ext/RTT/Syscalls/SEGGER_RTT_Syscalls_GCC.c
+C_INCLUDES += $(UCDEV_ROOT)/ext/RTT//Syscalls/
+C_INCLUDES += $(UCDEV_ROOT)/ext/RTT//RTT/
+C_INCLUDES += $(UCDEV_ROOT)/ext/RTT//Config/
+
 
 
 
