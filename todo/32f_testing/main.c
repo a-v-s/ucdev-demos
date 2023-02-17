@@ -61,7 +61,6 @@ UART_HandleTypeDef huart1;
 void initialise_uart(){
     __HAL_RCC_USART1_CLK_ENABLE();
 
-
     /**
      * USART1 GPIO Configuration
      * PB6     ------> USART1_TX
@@ -101,6 +100,7 @@ __attribute__((used)) int _write  (int fd, char * ptr, int len) {
 }
 
 
+
 int _read(int fd, char* ptr, int len) {
     HAL_StatusTypeDef hstatus;
 
@@ -112,6 +112,8 @@ int _read(int fd, char* ptr, int len) {
 		return 0;
 
 }
+
+
 
 
 
@@ -134,6 +136,10 @@ void SysTick_Handler(void) {
 #endif
 
 void SystemClock_Config(void) {
+
+	ClockSetup_HSE8_SYS72();
+
+
 #ifdef STM32F0
 	ClockSetup_HSE8_SYS48();
 #endif
@@ -400,16 +406,13 @@ void i2c_test(uint32_t speed) {
 
 
 int main() {
-
+//	memset(_global_impure_ptr, 0, sizeof (struct _reent));
+//	__sinit(_global_impure_ptr);
 
 	mcuid();
 
 	SystemClock_Config();
 	SystemCoreClockUpdate();
-
-
-
-
 
 #ifdef SEMI
 	initialise_monitor_handles();
@@ -431,11 +434,10 @@ int main() {
 	printf(" Serial number: %s\n", getserialstring());
 	printf("----------------------------------------\n");
 
+	//while (1); } int main2(void){
 
-	while (1); } int main2(void){
-
-		display_init();
-		print("test",1);
+//		display_init();
+//		print("test",1);
 	// ccs811 and hcd1080 are known issues on HK32 and GD32
 
 	// First do the standard PIO variant.

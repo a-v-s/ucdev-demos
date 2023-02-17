@@ -30,6 +30,7 @@
 
 void usbd_reenumerate(){
 	__HAL_RCC_GPIOA_CLK_ENABLE();
+	__HAL_RCC_GPIOC_CLK_ENABLE();
 	GPIO_InitTypeDef GPIO_InitStruct;
 	// Configure USB DM/DP pins
 	GPIO_InitStruct.Pin = (GPIO_PIN_11 | GPIO_PIN_12);
@@ -37,16 +38,25 @@ void usbd_reenumerate(){
 	GPIO_InitStruct.Pull = GPIO_PULLUP;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
 	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_11 | GPIO_PIN_12, GPIO_PIN_RESET);
+
+	GPIO_InitStruct.Pin = (GPIO_PIN_13);
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+
 	HAL_Delay(1);
 }
 
 void ClockSetup(void)
 {
-	ClockSetup_HSE8_SYS72();
-	//ClockSetup_HSE8_SYS48();
+	//ClockSetup_HSE8_SYS72();
+	ClockSetup_HSE8_SYS48();
 	//ClockSetup_HSI_SYS48();
+
+	SystemCoreClockUpdate();
 }
 
 int main() {

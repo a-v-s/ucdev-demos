@@ -1,0 +1,16 @@
+----------------------------------------------------------------------------
+32F103 Instruction latency tester
+ Core         : Cortex-M3 r2p1
+ Guessed chip : HK32F103
+ Bootrom type : HK32
+ Serial number: 2014770442250017E2070A15
+----------------------------------------------------------------------------
+Default clocking (8 MHz):
+1000 ROM loops took 3033 cyles
+1000 RAM loops took 4042 cyles
+ClockSetup_HSE8_SYS48:
+1000 ROM loops took 3044 cyles
+1000 RAM loops took 4053 cyles
+ClockSetup_HSE8_SYS72:
+1000 ROM loops took 3054 cyles
+1000 RAM loops took 4065 cyles

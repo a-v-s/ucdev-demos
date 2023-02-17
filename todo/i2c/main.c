@@ -71,10 +71,14 @@ void HardFault_Handler(void) {
 }
 
 void SysTick_Handler(void) {
-	HAL_IncTick();
+	//HAL_IncTick();
 }
 
 void SystemClock_Config(void) {
+	ClockSetup_HSE8_SYS72();
+
+
+
 #ifdef STM32F0
 	ClockSetup_HSE8_SYS48();
 #endif
@@ -128,13 +132,35 @@ void rfid5_init(rc52x_t *rc52x) {
 	RC52X_Init(rc52x);
 }
 
+int main__(void) {
+	SystemClock_Config();
+	SystemCoreClockUpdate();
+	HAL_Init();
+	bshal_delay_init();
+	bshal_delay_us(10);
+	gp_i2c = i2c_init();
+	ccs811_t ccs811 = { 0 };
+	if (0 == bshal_i2cm_isok(gp_i2c, CCS811_I2C_ADDR1)) {
+		ccs811.addr = CCS811_I2C_ADDR1;
+		ccs811.p_i2c = gp_i2c;
+	}
+
+	bshal_delay_ms(1000);
+
+	NVIC_SystemReset();
+
+}
+
+
+
+
 int main() {
 #ifdef SEMI
 	initialise_monitor_handles();
 	printf("Hello world!\n");
 #endif
 
-	bmp280_test();
+	//bmp280_test();
 
 	SystemClock_Config();
 	SystemCoreClockUpdate();
@@ -193,11 +219,13 @@ int main() {
 		pcf8563.p_i2c = gp_i2c;
 	}
 
+	// Makes GD32VF103 CLK line stay low after first access
 	if (0 == bshal_i2cm_isok(gp_i2c, CCS811_I2C_ADDR1)) {
 		ccs811.addr = CCS811_I2C_ADDR1;
 		ccs811.p_i2c = gp_i2c;
 	}
 
+	// Makes GD32VF103 CLK line stay low after first access
 	if (0 == bshal_i2cm_isok(gp_i2c, LM75B_ADDR)) {
 		lm75b.addr = LM75B_ADDR;
 		lm75b.p_i2c = gp_i2c;
@@ -208,28 +236,29 @@ int main() {
 		sht3x.p_i2c = gp_i2c;
 	}
 
-	if (0 == bshal_i2cm_isok(gp_i2c, BH1750_ADDR)) {
-		bh1750.addr = BH1750_ADDR;
-		bh1750.p_i2c = gp_i2c;
-	}
+	// GD32VF103 few rreads work then SCL remains low
+//	if (0 == bshal_i2cm_isok(gp_i2c, BH1750_ADDR)) {
+//		bh1750.addr = BH1750_ADDR;
+//		bh1750.p_i2c = gp_i2c;
+//	}
 
-	if (0 == bshal_i2cm_isok(gp_i2c, SI7021_ADDR)) {
-		// either si7021 or hcd1080
-		bool identify;
-		si70xx.addr = SI7021_ADDR;
-		si70xx.p_i2c = gp_i2c;
-		si70xx_identify(&si70xx, &identify);
-		if (!identify) {
-			si70xx.addr = 0;
-		}
-
-		hcd1080.addr = SI7021_ADDR;
-		hcd1080.p_i2c = gp_i2c;
-		hcd1080_identify(&hcd1080, &identify);
-		if (!identify) {
-			hcd1080.addr = 0;
-		}
-	}
+//	if (0 == bshal_i2cm_isok(gp_i2c, SI7021_ADDR)) {
+//		// either si7021 or hcd1080
+//		bool identify;
+//		si70xx.addr = SI7021_ADDR;
+//		si70xx.p_i2c = gp_i2c;
+//		si70xx_identify(&si70xx, &identify);
+//		if (!identify) {
+//			si70xx.addr = 0;
+//		}
+//		// Makes GD32VF103 CLK line stay low after first access
+//		hcd1080.addr = SI7021_ADDR;
+//		hcd1080.p_i2c = gp_i2c;
+//		hcd1080_identify(&hcd1080, &identify);
+//		if (!identify) {
+//			hcd1080.addr = 0;
+//		}
+//	}
 
 	char str[32];
 
@@ -254,6 +283,7 @@ int main() {
 
 		switch (state) {
 		case 3:
+			__NOP();
 			static float temp_C=0;
 			static uint16_t  co2_ppm=0,humidity_percent=0;
 			if (scd4x.addr) {
@@ -299,60 +329,81 @@ int main() {
 			}
 
 			if (lm75b.addr) {
-				accum temperature_a;
-				lm75b_get_temperature_C_accum(&lm75b, &temperature_a);
-				sprintf(buff, "LM75B:  %3d.%02d°C  ", (int) temperature_a,
-						(int) (100 * temperature_a) % 100);
+				//accum temperature_a;
+				float temperature_f;
+				//lm75b_get_temperature_C_accum(&lm75b, &temperature_a);
+				lm75b_get_temperature_C_float(&lm75b,  &temperature_f);
+				//sprintf(buff, "LM75B:  %3d.%02d°C  ", (int) temperature_a, (int) (100 * temperature_a) % 100);
+				sprintf(buff, "LM75B:  %3d.%02d°C  ", (int) temperature_f, (int) (100 * temperature_f) % 100);
 				print(buff, line);
 				line++;
 			}
 
 			if (hcd1080.addr) {
-				accum temperature_a = -99.99;
-				accum huminity_a = -1;
-				hcd1080_get_humidity_accum(&hcd1080, &huminity_a);
+//				accum temperature_a = -99.99;
+//				accum huminity_a = -1;
+//				hcd1080_get_humidity_accum(&hcd1080, &huminity_a);
+//
+//				hcd1080_get_temperature_C_accum(&hcd1080, &temperature_a);
+//
+//				sprintf(buff, "HCD1080:%3d.%02d°C %3d.%02d%%  ",
+//						(int) temperature_a % 999,
+//						abs((int) (100 * temperature_a)) % 100,
+//						(int) huminity_a, abs((int) (100 * huminity_a)) % 100);
 
-				hcd1080_get_temperature_C_accum(&hcd1080, &temperature_a);
-
+				float temperature_f = -99.99;
+				float huminity_f = -1;
+				hcd1080_get_humidity_float(&hcd1080, &huminity_f);
+				hcd1080_get_temperature_C_float(&hcd1080, &temperature_f);
 				sprintf(buff, "HCD1080:%3d.%02d°C %3d.%02d%%  ",
-						(int) temperature_a % 999,
-						abs((int) (100 * temperature_a)) % 100,
-						(int) huminity_a, abs((int) (100 * huminity_a)) % 100);
+						(int) temperature_f % 999,
+						abs((int) (100 * temperature_f)) % 100,
+						(int) huminity_f, abs((int) (100 * huminity_f)) % 100);
+
 				print(buff, line);
 				line++;
 			}
 			if (si70xx.addr) {
-				accum temperature_a;
-				si70xx_get_temperature_C_accum(&si70xx, &temperature_a);
-				accum huminity_a;
-				si70xx_get_humidity_accum(&si70xx, &huminity_a);
+//				accum temperature_a;
+//				si70xx_get_temperature_C_accum(&si70xx, &temperature_a);
+//				accum huminity_a;
+//				si70xx_get_humidity_accum(&si70xx, &huminity_a);
+
+				float temperature_f;
+				si70xx_get_temperature_C_float(&si70xx, &temperature_f);
+				float huminity_f;
+				si70xx_get_humidity_float(&si70xx, &huminity_f);
 
 				sprintf(buff, "SI70XX: %3d.%02d°C %3d.%02d%%  ",
-						(int) temperature_a %999,
-						abs((int) (100 * temperature_a)) % 100,
-						(int) huminity_a, abs((int) (100 * huminity_a)) % 100);
+						(int) temperature_f %999,
+						abs((int) (100 * temperature_f)) % 100,
+						(int) huminity_f, abs((int) (100 * huminity_f)) % 100);
 				print(buff, line);
 				line++;
 
 			}
 
 			if (sht3x.addr) {
-				accum temperature_a;
-				accum huminity_a;
-				sht3x_get_humidity_accum(&sht3x, &huminity_a);
-				sht3x_get_temperature_C_accum(&sht3x, &temperature_a);
+//				accum temperature_a;
+//				accum huminity_a;
+//				sht3x_get_humidity_accum(&sht3x, &huminity_a);
+//				sht3x_get_temperature_C_accum(&sht3x, &temperature_a);
 
+				float temperature_f;
+				float huminity_f;
+				sht3x_get_humidity_float(&sht3x, &huminity_f);
+				sht3x_get_temperature_C_float(&sht3x, &temperature_f);
 				sprintf(buff, "SHT3X:  %3d.%02d°C %3d.%02d%%  ",
-						(int) temperature_a %999,
-						abs((int) (100 * temperature_a)) % 100,
-						(int) huminity_a, abs((int) (100 * huminity_a)) % 100);
+						(int) temperature_f %999,
+						abs((int) (100 * temperature_f)) % 100,
+						(int) huminity_f, abs((int) (100 * huminity_f)) % 100);
 
 				print(buff, line);
 				line++;
 			}
 
 			if (bh1750.addr) {
-				static int lux;
+				static int lux = 0;
 
 				// Reading it too fast stops it from updating
 				// Therefore only reading it every 10 rounds
@@ -374,15 +425,15 @@ int main() {
 			}
 
 			if (bmp280.addr) {
-				accum temperature_a;
-				long accum pressure_la;
-				bmp280_measure_a(&bmp280, &temperature_a, &pressure_la);
 
+				float temperature_f;
+				float pressure_f;
+				bmp280_measure_f(&bmp280, &temperature_f, &pressure_f);
 
 				sprintf(buff, "BMP280: %3d.%02d°C %d hPa  ",
-						(int) temperature_a % 999,
-						abs((int) (100 * temperature_a)) % 100,
-						(int) pressure_la / 100);
+						(int) temperature_f % 999,
+						abs((int) (100 * temperature_f)) % 100,
+						(int) pressure_f / 100);
 				print(buff, line);
 				line++;
 

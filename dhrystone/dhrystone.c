@@ -21,7 +21,7 @@
  *			The time(2) function is library dependant; Most
  *			return the time in seconds, but beware of some, like
  *			Aztec C, which return other units.
- *			The LOOPS define is initially set for 50000 loops.
+ *			The loops define is initially set for 50000 loops.
  *			If you have a machine with large integers and is
  *			very fast, please change this number to 500000 to
  *			get better accuracy.  Please select the way to
@@ -382,34 +382,25 @@
  *
  */
 
-#include <stdio.h>
-#include <stdlib.h>
+
+#include <stdint.h>
 #include <string.h>
 
-/* Accuracy of timings and human fatigue controlled by next two lines */
-/*#define LOOPS	5000		/* Use this for slow or 16 bit machines */
-#define LOOPS	50000		/* Use this for slow or 16 bit machines */
-/*#define LOOPS	500000		/* Use this for faster machines */
 
 /* Compiler dependent options */
 #undef	NOENUM			/* Define if compiler has no enum's */
 #undef	NOSTRUCTASSIGN		/* Define if compiler can't assign structures */
 
-/* define only one of the next two defines */
-#define TIMES			/* Use times(2) time function */
-/*#define TIME			/* Use time(2) time function */
 
-/* define the granularity of your times(2) function (when used) */
-#define HZ      100             /* times(2) returns 1/60 second (most) */
+#define TIMEMS // Time in ms for more accuracy
 
-/* for compatibility with goofed up version */
-/*#define GOOF			/* Define if you want the goofed up version */
 
-#ifdef GOOF
-char	Version[] = "1.0";
-#else
-char	Version[] = "1.1";
-#endif
+// Do not malloc as we are on an embedded platform
+#define NO_MALLOC
+
+
+
+
 
 #ifdef	NOSTRUCTASSIGN
 #define	structassign(d, s)	memcpy(&(d), &(s), sizeof(d))
@@ -448,7 +439,7 @@ typedef struct Record 	RecordType;
 typedef RecordType *	RecordPtr;
 typedef int		boolean;
 
-#define	NULL		0
+
 #define	TRUE		1
 #define	FALSE		0
 
@@ -459,16 +450,17 @@ typedef int		boolean;
 extern Enumeration	Func1();
 extern boolean		Func2();
 
-#ifdef TIMES
-#include <sys/types.h>
-#include <sys/times.h>
-#endif
 
-main()
-{
-	Proc0();
-	exit(0);
-}
+
+void Proc8(Array1Dim	Array1Par, Array2Dim	Array2Par, OneToFifty	IntParI1, OneToFifty	IntParI2);
+void Proc7(OneToFifty	IntParI1, OneToFifty	IntParI2, OneToFifty	*IntParOut);
+void Proc6(Enumeration	EnumParIn, Enumeration	*EnumParOut);
+void Proc5(void);
+void Proc4(void);
+void Proc3(RecordPtr	*PtrParOut);
+void Proc2(OneToFifty	*IntParIO);
+void Proc1(RecordPtr PtrParIn);
+
 
 /*
  * Package 1
@@ -482,43 +474,47 @@ Array2Dim	Array2Glob;
 RecordPtr	PtrGlb;
 RecordPtr	PtrGlbNext;
 
-Proc0()
+uint32_t Proc0(uint32_t loops)
 {
 	OneToFifty		IntLoc1;
 	REG OneToFifty		IntLoc2;
 	OneToFifty		IntLoc3;
-	REG char		CharLoc;
+//	REG char		CharLoc;
 	REG char		CharIndex;
 	Enumeration	 	EnumLoc;
 	String30		String1Loc;
 	String30		String2Loc;
-//	extern char		*malloc();
 
 	register unsigned int	i;
-#ifdef TIME
-	long			time();
-	long			starttime;
-	long			benchtime;
-	long			nulltime;
 
-	starttime = time( (long *) 0);
-	for (i = 0; i < LOOPS; ++i);
-	nulltime = time( (long *) 0) - starttime; /* Computes o'head of loop */
-#endif
-#ifdef TIMES
-	time_t			starttime;
-	time_t			benchtime;
-	time_t			nulltime;
-	struct tms		tms;
+#ifdef TIMEMS
+	uint32_t		get_time_ms(void);
+	uint32_t			starttime;
+	uint32_t			benchtime;
+	uint32_t			nulltime;
 
-	times(&tms); starttime = tms.tms_utime;
-	for (i = 0; i < LOOPS; ++i);
-	times(&tms);
-	nulltime = tms.tms_utime - starttime; /* Computes overhead of looping */
+	starttime = get_time_ms();
+	for (i = 0; i < loops; ++i);
+	nulltime = get_time_ms() - starttime; /* Computes o'head of loop */
 #endif
 
+
+
+
+#ifdef NO_MALLOC
+// Do not malloc as we are on an embedded platform
+	RecordType GlbNext = {0};
+	PtrGlbNext = &GlbNext;
+	RecordType Glb = {0};
+	PtrGlb = &Glb;
+#else 
 	PtrGlbNext = (RecordPtr) malloc(sizeof(RecordType));
 	PtrGlb = (RecordPtr) malloc(sizeof(RecordType));
+#endif 
+
+
+
+
 	PtrGlb->PtrComp = PtrGlbNext;
 	PtrGlb->Discr = Ident1;
 	PtrGlb->EnumComp = Ident3;
@@ -532,13 +528,11 @@ Proc0()
 /*****************
 -- Start Timer --
 *****************/
-#ifdef TIME
-	starttime = time( (long *) 0);
-#endif
-#ifdef TIMES
-	times(&tms); starttime = tms.tms_utime;
-#endif
-	for (i = 0; i < LOOPS; ++i)
+
+#ifdef TIMEMS
+	starttime = get_time_ms();
+#endif 
+	for (i = 0; i < loops; ++i)
 	{
 
 		Proc5();
@@ -569,28 +563,17 @@ Proc0()
 -- Stop Timer --
 *****************/
 
-#ifdef TIME
-	benchtime = time( (long *) 0) - starttime - nulltime;
-	printf("Dhrystone(%s) time for %ld passes = %ld\n",
-		Version,
-		(long) LOOPS, benchtime);
-	printf("This machine benchmarks at %ld dhrystones/second\n",
-		((long) LOOPS) / benchtime);
+
+#ifdef TIMEMS
+	benchtime = get_time_ms() - starttime - nulltime;
+	return benchtime;
+
+
 #endif
-#ifdef TIMES
-	times(&tms);
-	benchtime = tms.tms_utime - starttime - nulltime;
-	printf("Dhrystone(%s) time for %ld passes = %ld\n",
-		Version,
-		(long) LOOPS, benchtime/HZ);
-	printf("This machine benchmarks at %ld dhrystones/second\n",
-		((long) LOOPS) * HZ / benchtime);
-#endif
-	return 0;
+
 }
 
-Proc1(PtrParIn)
-REG RecordPtr	PtrParIn;
+void Proc1(RecordPtr PtrParIn)
 {
 #define	NextRecord	(*(PtrParIn->PtrComp))
 
@@ -598,7 +581,7 @@ REG RecordPtr	PtrParIn;
 	PtrParIn->IntComp = 5;
 	NextRecord.IntComp = PtrParIn->IntComp;
 	NextRecord.PtrComp = PtrParIn->PtrComp;
-	Proc3(NextRecord.PtrComp);
+	Proc3(&NextRecord.PtrComp);
 	if (NextRecord.Discr == Ident1)
 	{
 		NextRecord.IntComp = 6;
@@ -610,11 +593,9 @@ REG RecordPtr	PtrParIn;
 		structassign(*PtrParIn, NextRecord);
 
 #undef	NextRecord
-	return 0;
 }
 
-Proc2(IntParIO)
-OneToFifty	*IntParIO;
+void Proc2(OneToFifty	*IntParIO)
 {
 	REG OneToFifty		IntLoc;
 	REG Enumeration		EnumLoc;
@@ -631,42 +612,35 @@ OneToFifty	*IntParIO;
 		if (EnumLoc == Ident1)
 			break;
 	}
-	return 0;
 }
 
-Proc3(PtrParOut)
-RecordPtr	*PtrParOut;
+void Proc3(RecordPtr	*PtrParOut)
 {
 	if (PtrGlb != NULL)
 		*PtrParOut = PtrGlb->PtrComp;
 	else
 		IntGlob = 100;
 	Proc7(10, IntGlob, &PtrGlb->IntComp);
-	return 0;
 }
 
-Proc4()
+void Proc4(void)
 {
 	REG boolean	BoolLoc;
 
 	BoolLoc = Char1Glob == 'A';
 	BoolLoc |= BoolGlob;
 	Char2Glob = 'B';
-	return 0;
 }
 
-Proc5()
+void Proc5(void)
 {
 	Char1Glob = 'A';
 	BoolGlob = FALSE;
-	return 0;
 }
 
 extern boolean Func3();
 
-Proc6(EnumParIn, EnumParOut)
-REG Enumeration	EnumParIn;
-REG Enumeration	*EnumParOut;
+void Proc6(Enumeration	EnumParIn, Enumeration	*EnumParOut)
 {
 	*EnumParOut = EnumParIn;
 	if (! Func3(EnumParIn) )
@@ -681,26 +655,18 @@ REG Enumeration	*EnumParOut;
 	case Ident4:	break;
 	case Ident5:	*EnumParOut = Ident3;
 	}
-	return 0;
 }
 
-Proc7(IntParI1, IntParI2, IntParOut)
-OneToFifty	IntParI1;
-OneToFifty	IntParI2;
-OneToFifty	*IntParOut;
+
+void Proc7(OneToFifty	IntParI1, OneToFifty	IntParI2, OneToFifty	*IntParOut)
 {
 	REG OneToFifty	IntLoc;
 
 	IntLoc = IntParI1 + 2;
 	*IntParOut = IntParI2 + IntLoc;
-	return 0;
 }
 
-Proc8(Array1Par, Array2Par, IntParI1, IntParI2)
-Array1Dim	Array1Par;
-Array2Dim	Array2Par;
-OneToFifty	IntParI1;
-OneToFifty	IntParI2;
+void Proc8(Array1Dim	Array1Par, Array2Dim	Array2Par, OneToFifty	IntParI1, OneToFifty	IntParI2)
 {
 	REG OneToFifty	IntLoc;
 	REG OneToFifty	IntIndex;
@@ -714,7 +680,6 @@ OneToFifty	IntParI2;
 	++Array2Par[IntLoc][IntLoc-1];
 	Array2Par[IntLoc+20][IntLoc] = Array1Par[IntLoc];
 	IntGlob = 5;
-	return 0;
 }
 
 Enumeration Func1(CharPar1, CharPar2)
