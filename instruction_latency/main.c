@@ -92,6 +92,7 @@ void run_test(void){
 
 int main(void){
 	__disable_irq(); // just to make sure interrupt don't mess with our timing
+	void * test = malloc(16);
 	puts(
 "----------------------------------------------------------------------------"
 	);
@@ -123,3 +124,5 @@ int main(void){
 
 	while (1);
 }
+
+//void _init(void) {}

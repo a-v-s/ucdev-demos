@@ -1,21 +1,22 @@
 ################################################################################
 # Set the MCU
 ################################################################################
-MCU ?= STM32F103xB
+#MCU ?= STM32F103xB
+MCU ?= STM32F103x6
 
-#	Working so far
+
 #	STM32F072xB		Blue Pill Variant
 #	STM32F103xB		Blue Pill
 #   STM32F401xC		Black Pill
 #   STM32F411xE		Black Pill
 #	STM32F303xC		Blue Pill with swapped chip
 
-# 	TODO
+
 #	STM32L152xC		Blue Pill with swapped chip 
 #	STM32F030x8		Blue Pill Variant
 #	STM32F030x6		Rabbit Pill
 #
-##	STM32L051xx		Green Pill (NOT PIN COMPATIBLE 3V3/GND)
+#	STM32L051xx		Green Pill (NOT PIN COMPATIBLE 3V3/GND)
 ################################################################################
 # Set Output Filename 
 ################################################################################

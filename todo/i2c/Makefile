@@ -142,7 +142,10 @@ CFLAGS += -DU8X8_WITH_USER_PTR
 
 #LDFLAGS += -u _printf_float
 
-
+C_SOURCES +=  $(UCDEV_ROOT)/ext/RTT/Syscalls/SEGGER_RTT_Syscalls_GCC.c
+C_INCLUDES += $(UCDEV_ROOT)/ext/RTT//Syscalls/
+C_INCLUDES += $(UCDEV_ROOT)/ext/RTT//RTT/
+C_INCLUDES += $(UCDEV_ROOT)/ext/RTT//Config/
 
 MK_DIR=$(UCDEV_ROOT)/build/make
 include $(MK_DIR)/all.mk
@@ -150,23 +153,33 @@ include $(MK_DIR)/all.mk
 
 
 
+
+
+
+
 ifeq ($(SUBARCH), M0)
 	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/u8g2/debug/arm_m0  -lu8g2
+	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/rtt/debug/arm_m0  -lrtt
+
 endif
 
 ifeq ($(SUBARCH), M0P)
 	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/u8g2/debug/arm_m0p  -lu8g2
+	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/rtt/debug/arm_m0p  -lrtt
 endif
 
 ifeq ($(SUBARCH), M3)
 	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/u8g2/debug/arm_m3  -lu8g2
+	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/rtt/debug/arm_m3  -lrtt
 endif
 
 ifeq ($(SUBARCH), M4F)
 	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/u8g2/debug/arm_m4f  -lu8g2
+	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/rtt/debug/arm_m4f  -lrtt
 endif
 
 ifeq ($(SUBARCH), RV32IMAC)
 	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/u8g2/debug/riscv_rv32imac  -lu8g2
+	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/rtt/debug/riscv_rv32imac  -lrtt
 endif
 

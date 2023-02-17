@@ -1,8 +1,3 @@
-/* Linker script to configure memory regions. */
-
-SEARCH_DIR(.)
-GROUP(-lgcc -lc -lnosys)
-
 MEMORY
 {
 FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 128K
