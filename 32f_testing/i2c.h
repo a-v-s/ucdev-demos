@@ -27,7 +27,7 @@
 
 #define CCS811_ADDR			0x5A
 //#define PCF8523_ADDR 		0x68 // RTC // ?? should be 0x51
-#define PCF8523_ADDR 		0x51
+#define PCF8563_ADDR 		0x51
 
 
 //#define PCA9685_ADDR 		0x41 		// PWM

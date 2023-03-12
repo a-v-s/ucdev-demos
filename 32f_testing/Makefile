@@ -6,7 +6,7 @@ MCU ?= STM32F103xB
 
 # Firmware size becomes a problem....
 # Have to check the i2c demo
-OPT = -Os -g3
+#OPT = -Os -g3
 
 #CFLAGS += -DSEMI
 #LDFLAGS += --specs=rdimon.specs

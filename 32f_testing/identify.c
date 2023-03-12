@@ -157,7 +157,7 @@ char * mcuid(){
 	if (read_csr(marchid) == GD32_MARCHID && read_csr(mvendorid) == GD32_MVENDORID)
 		return "GD32VF103";
 	if (read_csr(marchid) == CH32_MARCHID && read_csr(mvendorid) == CH32_MVENDORID)
-			return "CH32F103";
+			return "CH32V103";
 	return "Unkown";
 }
 #elif defined __ARM_EABI__
