@@ -173,13 +173,13 @@ char* parse_32f103_bootrom() {
 	// That is nasty
 
 	char *prob = "Unknown";
-	__HAL_RCC_CRC_CLK_DISABLE();
 	__HAL_RCC_CRC_CLK_ENABLE();
 	CRC_HandleTypeDef crc_handle;
 	crc_handle.Instance = CRC;
 	HAL_CRC_Init(&crc_handle);
+
 	// HAL_CRC_Accumulate length is in 32-bit words rather then 8-bit bytes
-	uint32_t crc32 = HAL_CRC_Accumulate(&crc_handle, 0x1FFFF000, 0x100);
+	uint32_t crc32 = HAL_CRC_Calculate(&crc_handle, 0x1FFFF000, 0x100);
 	switch (crc32) {
 	case 0xda6104d0:
 		prob = "STM32F103x6";
@@ -241,19 +241,26 @@ const char* mcuid() {
 	// Thus 0x100 is given to calculate up to 0x1FFFF400
 
 	__DSB();
-	__HAL_RCC_CRC_CLK_DISABLE();
 	__HAL_RCC_CRC_CLK_ENABLE();
 
 	CRC_HandleTypeDef crc_handle;
 	crc_handle.Instance = CRC;
 	HAL_CRC_Init(&crc_handle);
-	uint32_t bootrom_crc32 = HAL_CRC_Accumulate(&crc_handle, 0x1FFFF000, 0x100);
+	uint32_t bootrom_crc32 = HAL_CRC_Calculate(&crc_handle, 0x1FFFF000, 0x100);
 
 	cpuid_t *cpuid = (cpuid_t*) (&SCB->CPUID);
 	if ((cpuid->PartNo & (0b11 << 10)) == (0b11 << 10)) {
 		// Cortex family
 		if ((cpuid->PartNo & (0b10 << 4)) == (0b10 << 4)) {
 			// Cortex M
+
+			// This was derived from the Cortex M3 r1p1 TRM
+			// It was not detailed like this in later revisions
+			// Just giving CPUID values for them all,
+			// The two-digit Cortex-M variants won't fit this
+			// scheme anyways...
+			// But for now this will fit the target MCUs anyways
+
 			int m = cpuid->PartNo & 0xF;
 			int r = cpuid->Variant;
 			int p = cpuid->Revision;
@@ -285,7 +292,7 @@ const char* mcuid() {
 				}
 				if (romtable_pid.identity_code == 81
 						&& romtable_pid.continuation_code == 7) {
-					return "GD32F103";
+					return "GD32F10x";
 				}
 				if (romtable_pid.identity_code == 59
 						&& romtable_pid.continuation_code == 4) {
@@ -305,6 +312,7 @@ const char* mcuid() {
 						switch ((*(int32_t*) (0x1FFFF7d0))) {
 						case 0xFFFFFFFF:
 							return "CS32";
+							// or MS32, TODO how to detect?
 						case 0x0CF300FF:
 							return "APM32 (ApexMic)";
 						default:

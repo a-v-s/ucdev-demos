@@ -4,6 +4,10 @@
 MCU ?= STM32F103xB
 
 
+# Firmware size becomes a problem....
+# Have to check the i2c demo
+OPT = -Os -g3
+
 #CFLAGS += -DSEMI
 #LDFLAGS += --specs=rdimon.specs
 # How to do semihosting on RISCV?
@@ -34,11 +38,11 @@ U8G2_DIR = $(UCDEV_ROOT)/ext/u8g2/csrc
 C_SOURCES += main.c
 C_SOURCES += identify.c
 
-C_SOURCES += dis_ssd1331.c
+#C_SOURCES += dis_ssd1331.c
 
 C_SOURCES += uart.c
 
-#C_SOURCES += dis2.c
+C_SOURCES += dis2.c
 C_SOURCES += i2c.c
 
 C_SOURCES += lm75b.c
@@ -164,8 +168,8 @@ ifeq ($(SUBARCH), M0P)
 endif
 
 ifeq ($(SUBARCH), M3)
-	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/u8g2/debug/arm_m3  -lu8g2
-	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/ucg/debug/arm_m3   -lucg
+	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/u8g2/release_size/arm_m3  -lu8g2
+#	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/ucg/release_size/arm_m3   -lucg
 endif
 
 ifeq ($(SUBARCH), M4F)

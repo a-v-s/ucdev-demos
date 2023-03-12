@@ -154,17 +154,19 @@ int bmp280_measure_a(bmp280_t* bmp280, accum *temperature, long accum *pressure)
 	bmp280_compensate_a(&trimming, &measurement, temperature, pressure);
 }
 #endif
+
 int bmp280_measure_f(bmp280_t *bmp280, float *temperature, float *pressure) {
 	bmp280_trimming_t trimming;
 	bmp280_measurement_t measurement;
-
-	bshal_i2cm_recv_reg(bmp280->p_i2c, bmp280->addr, BMP280_REG_TRIM, &trimming,
+	int result;
+	result = bshal_i2cm_recv_reg(bmp280->p_i2c, bmp280->addr, BMP280_REG_TRIM, &trimming,
 			sizeof(trimming));
-
+	if (result) return result;
 	bshal_i2cm_recv_reg(bmp280->p_i2c, bmp280->addr, BMP280_REG_MEAS,
 			&measurement, sizeof(measurement));
-
+	if (result) return result;
 	bmp280_compensate_f(&trimming, &measurement, temperature, pressure);
+	return result;
 }
 
 int bmp280_init(bmp280_t *bmp280) {

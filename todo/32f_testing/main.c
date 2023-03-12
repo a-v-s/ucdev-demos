@@ -7,7 +7,7 @@
 
  MIT License
 
- Copyright (c) 2017, 2018, 2019, 2020 André van Schoubroeck <andre@blaatschaap.be>
+ Copyright (c) 2017 - 2023 André van Schoubroeck <andre@blaatschaap.be>
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -44,6 +44,26 @@
 #include "bh1750.h"
 #include "ccs811.h"
 #include "sht3x.h"
+#include "bmp280.h"
+#include "lm75b.h"
+#include "si70xx.h"
+#include "pcf8563.h"
+#include "hcd1080.h"
+
+
+
+#define SSD1306_index  0
+#define PCF8574T_index 1
+#define BH1750_index   2
+#define SHT3X_index    3
+#define LM75B_index    4
+#define EEPROM_index   5
+#define HCD1080_index  6
+#define CCS811_index   7
+#define PCF8523_index  8
+#define BMP280_index   9
+
+bool test_results[10][4];
 
 
 #ifdef UART
@@ -119,15 +139,12 @@ int _read(int fd, char* ptr, int len) {
 
 #endif
 
-
-
 bshal_i2cm_instance_t *gp_i2c = NULL;
 
 void HardFault_Handler(void) {
-	while (1);
+	while (1)
+		;
 }
-
-
 
 #if defined __ARM_EABI__
 void SysTick_Handler(void) {
@@ -138,7 +155,6 @@ void SysTick_Handler(void) {
 void SystemClock_Config(void) {
 
 	ClockSetup_HSE8_SYS72();
-
 
 #ifdef STM32F0
 	ClockSetup_HSE8_SYS48();
@@ -176,7 +192,7 @@ char* getserialstring(void) {
 	return serialstring;
 }
 
-void test_and_recover(uint32_t speed ) {
+void test_and_recover(uint32_t speed) {
 	if (0 == bshal_i2cm_isok(gp_i2c, SSD1306_ADDR)) {
 		printf("I²C BUS OK\n");
 	} else {
@@ -194,20 +210,20 @@ void test_and_recover(uint32_t speed ) {
 
 void i2c_test(uint32_t speed) {
 
-	printf("Running the I2C tests at %d kHz\n", speed/1000);
-
+	printf("Running the I2C tests at %d kHz\n", speed / 1000);
 
 	gp_i2c = i2c_init(speed);
-
-
 
 	// TODO: we need to run these tests at 100 and 400 KHz
 
 	printf("Running I²C addressing tests...\n");
 
+	// Display
 	printf("Testing SSD1306...     ");
 	if (0 == bshal_i2cm_isok(gp_i2c, SSD1306_ADDR)) {
 		printf("OK\n");
+		test_results[SSD1306_index][(speed >100000)] = true;
+
 	} else {
 		printf("Failed\n");
 		printf("Further testing aborted\n");
@@ -215,69 +231,83 @@ void i2c_test(uint32_t speed) {
 			;
 	}
 
-	printf("Testing ADXL345...     ");
-	if (0 == bshal_i2cm_isok(gp_i2c, ADXL345_ADDR)) {
-		printf("OK\n");
-	} else {
-		printf("Failed\n");
-		test_and_recover(speed);
-	}
+	// Not present in test setup
+//	printf("Testing ADXL345...     ");
+//	if (0 == bshal_i2cm_isok(gp_i2c, ADXL345_ADDR)) {
+//		printf("OK\n");
+//	} else {
+//		printf("Failed\n");
+//		test_and_recover(speed);
+//	}
 
+// Keypad
 	printf("Testing PCF8574T...    ");
 	if (0 == bshal_i2cm_isok(gp_i2c, PCF8574T_ADDR)) {
 		printf("OK\n");
+		test_results[PCF8574T_index][(speed >100000)] = true;
 	} else {
 		printf("Failed\n");
 		test_and_recover(speed);
 	}
 
+	// Light sensor
 	printf("Testing BH1750...      ");
 	if (0 == bshal_i2cm_isok(gp_i2c, BH1750_ADDR)) {
 		printf("OK\n");
+		test_results[BH1750_index][(speed >100000)] = true;
 	} else {
 		printf("Failed\n");
 		test_and_recover(speed);
 	}
 
-//	printf("Testing ...");
+	// Not present in test setup
+//	printf("Testing MFRC522...");
 //	if (0 == bshal_i2cm_isok(gp_i2c, MFRC522_ADDR)) {
 //		printf("OK\n");
 //	} else {
 //		printf("Failed\n");
 //	}
 
+// Temperature / Humidity
 	printf("Testing SHT3X...       ");
 	if (0 == bshal_i2cm_isok(gp_i2c, SHT3X_ADDR)) {
 		printf("OK\n");
+		test_results[SHT3X_index][(speed >100000)] = true;
 	} else {
 		printf("Failed\n");
 		test_and_recover(speed);
 	}
 
+	// Temperature
 	printf("Testing LM75B...       ");
 	if (0 == bshal_i2cm_isok(gp_i2c, LM75B_ADDR)) {
 		printf("OK\n");
+		test_results[LM75B_index][(speed >100000)] = true;
 	} else {
 		printf("Failed\n");
 		test_and_recover(speed);
 	}
 
+	// EEPROM
 	printf("Testing EEPROM...      ");
 	if (0 == bshal_i2cm_isok(gp_i2c, EEPROM_ADDR)) {
 		printf("OK\n");
+		test_results[EEPROM_index][(speed >100000)] = true;
 	} else {
 		printf("Failed\n");
 		test_and_recover(speed);
 	}
 
-	printf("Testing LIS3DH...      ");
-	if (0 == bshal_i2cm_isok(gp_i2c, LIS3DH_ADDR)) {
-		printf("OK\n");
-	} else {
-		printf("Failed\n");
-		test_and_recover(speed);
-	}
+	// Not present in test setup
+//	printf("Testing LIS3DH...      ");
+//	if (0 == bshal_i2cm_isok(gp_i2c, LIS3DH_ADDR)) {
+//		printf("OK\n");
+//	} else {
+//		printf("Failed\n");
+//		test_and_recover(speed);
+//	}
 
+// Not present in test setup
 //	printf("Testing PN532_ADDR...");
 //	if (0 == bshal_i2cm_isok(gp_i2c,PN532_ADDR )) {
 //		printf("OK\n");
@@ -285,45 +315,70 @@ void i2c_test(uint32_t speed) {
 //		printf("Failed\n");
 //	}
 
-	printf("Testing SSD1306...     ");
-	if (0 == bshal_i2cm_isok(gp_i2c, SSD1306_ADDR)) {
+// Temperature / Humidity
+//	printf("Testing SI7021...      ");
+//	if (0 == bshal_i2cm_isok(gp_i2c, SI7021_ADDR)) {
+//		printf("OK\n");
+//	} else {
+//		printf("Failed\n");
+//		test_and_recover(speed);
+//	}
+
+	// Temperature / Humidity
+	// Note: same module with different chips as on option
+	// Verify the right one is inserted
+	// The HCD1080 may cause trouble so that why this one
+	// is chosen.
+	printf("Testing HCD1080...     ");
+	if (0 == bshal_i2cm_isok(gp_i2c, HCD1080_ADDR)) {
 		printf("OK\n");
+		test_results[HCD1080_index][(speed >100000)] = true;
 	} else {
 		printf("Failed\n");
 		test_and_recover(speed);
 	}
 
-	printf("Testing SI7021...      ");
-	if (0 == bshal_i2cm_isok(gp_i2c, SI7021_ADDR)) {
-		printf("OK\n");
-	} else {
-		printf("Failed\n");
-		test_and_recover(speed);
-	}
-
+	// VOC sensor
 	printf("Testing CCS811...      ");
 	if (0 == bshal_i2cm_isok(gp_i2c, CCS811_ADDR)) {
 		printf("OK\n");
+		test_results[CCS811_index][(speed >100000)] = true;
 	} else {
 		printf("Failed\n");
 		test_and_recover(speed);
 	}
 
+	// RTC
 	printf("Testing PCF8523...     ");
 	if (0 == bshal_i2cm_isok(gp_i2c, PCF8523_ADDR)) {
 		printf("OK\n");
+		test_results[PCF8523_index][(speed >100000)] = true;
 	} else {
 		printf("Failed\n");
 		test_and_recover(speed);
 	}
 
+	// TODO: BMP280, Air pressure
+	printf("Testing BMP280...      ");
+	if (0 == bshal_i2cm_isok(gp_i2c, BMP280_I2C_ADDR)) {
+		printf("OK\n");
+		test_results[BMP280_index][(speed >100000)] = true;
+	} else {
+		printf("Failed\n");
+		test_and_recover(speed);
+	}
+
+	//return; // for now
+
 	printf("Running I²C communication tests...\n");
 
-	printf("Testing ADXL345...     ");
-	printf("TODO\n");
-
 	printf("Testing PCF8574T...    ");
-	printf("TODO\n");
+	if (0 == bshal_i2cm_isok(gp_i2c, PCF8574T_ADDR)) {
+		printf("Read Keypad %02X\n", read_keypad());
+		test_results[PCF8574T_index][2+(speed >100000)] = true;
+	} else {
+		printf("Skipped\n");
+	}
 
 	printf("Testing BH1750...      ");
 	if (0 == bshal_i2cm_isok(gp_i2c, BH1750_ADDR)) {
@@ -335,11 +390,12 @@ void i2c_test(uint32_t speed) {
 			// meassure twice?
 			bh1750_measure_ambient_light(&bh1750, &lux);
 			printf("OK:    %6d lux\n", lux);
+			test_results[BH1750_index][2+(speed >100000)] = true;
 		} else {
 			printf("Failed\n");
 			test_and_recover(speed);
 		}
-	}  else {
+	} else {
 		printf("Skipped\n");
 	}
 
@@ -356,6 +412,8 @@ void i2c_test(uint32_t speed) {
 			printf("OK:  %3d.%02d°C %3d.%02d%%  \n", (int) temperature_f % 999,
 					abs((int) (100 * temperature_f)) % 100, (int) huminity_f,
 					abs((int) (100 * huminity_f)) % 100);
+
+			test_results[SHT3X_index][2+(speed >100000)] = true;
 		} else {
 			printf("Failed\n");
 			test_and_recover(speed);
@@ -365,22 +423,92 @@ void i2c_test(uint32_t speed) {
 	}
 
 	printf("Testing LM75B...       ");
-	printf("TODO\n");
+	if (0 == bshal_i2cm_isok(gp_i2c, LM75B_ADDR)) {
+		lm75b_t lm75b;
+		lm75b.addr = LM75B_ADDR;
+		lm75b.p_i2c = gp_i2c;
+		float temperature_f;
+		if (lm75b_get_temperature_C_float(&lm75b, &temperature_f)) {
+			printf("Failed\n");
+			test_and_recover(speed);
+		} else {
+			printf("OK: LM75B:  %3d.%02d°C  \n", (int) temperature_f,
+					(int) (100 * temperature_f) % 100);
+
+			test_results[LM75B_index][2+(speed >100000)] = true;
+		}
+	} else {
+		printf("Skipped\n");
+	}
+
 	printf("Testing EEPROM...      ");
 	printf("TODO\n");
-	printf("Testing LIS3DH...      ");
-	printf("TODO\n");
+	test_results[EEPROM_index][2+(speed >100000)] = true;
+
 	printf("Testing SSD1306...     ");
-	printf("TODO\n");
-	printf("Testing SI7021...      ");
-	printf("TODO\n");
+	if (0 == bshal_i2cm_isok(gp_i2c, SSD1306_ADDR)) {
+		display_init();
+		draw_background();
+		char buff[16];
+		sprintf(buff,"I2C TEST @ %d", speed);
+		print(buff, 4);
+		framebuffer_apply();
+		puts("Check Display");
+
+		test_results[SSD1306_index][2+(speed >100000)] = true;
+	} else {
+		printf("Skipped\n");
+	}
+
+//	printf("Testing SI7021...      ");
+//	if (0 == bshal_i2cm_isok(gp_i2c, SI7021_ADDR)) {
+//		si70xx_t si70xx;
+//		si70xx.addr = SI7021_ADDR;
+//		si70xx.p_i2c = gp_i2c;
+//		float temperature_f;
+//		si70xx_get_temperature_C_float(&si70xx, &temperature_f);
+//		float huminity_f;
+//		if (si70xx_get_humidity_float(&si70xx, &huminity_f)) {
+//			printf("Failed\n");
+//			test_and_recover(speed);
+//		} else {
+//			printf("SI70XX: %3d.%02d°C %3d.%02d%%  ", (int) temperature_f % 999,
+//					abs((int) (100 * temperature_f)) % 100, (int) huminity_f,
+//					abs((int) (100 * huminity_f)) % 100);
+//		}
+//	} else {
+//		printf("Skipped\n");
+//	}
+
+	printf("Testing HCD1080...     ");
+	if (0 == bshal_i2cm_isok(gp_i2c, HCD1080_ADDR)) {
+		hcd1080_t hcd1080;
+		hcd1080.addr = HCD1080_ADDR;
+		hcd1080.p_i2c = gp_i2c;
+		float temperature_f;
+		hcd1080_get_temperature_C_float(&hcd1080, &temperature_f);
+		float huminity_f;
+		if (hcd1080_get_humidity_float(&hcd1080, &huminity_f)) {
+			printf("Failed\n");
+			test_and_recover(speed);
+		} else {
+			printf("OK: %3d.%02d°C %3d.%02d%%  \n", (int) temperature_f % 999,
+					abs((int) (100 * temperature_f)) % 100, (int) huminity_f,
+					abs((int) (100 * huminity_f)) % 100);
+
+			test_results[HCD1080_index][2+(speed >100000)] = true;
+		}
+	} else {
+		printf("Skipped\n");
+	}
+
 	printf("Testing CCS811...      ");
 
-   	if (0 == bshal_i2cm_isok(gp_i2c, CCS811_I2C_ADDR1)) {
+	if (0 == bshal_i2cm_isok(gp_i2c, CCS811_I2C_ADDR1)) {
 		ccs811_t ccs811;
 		ccs811.addr = CCS811_I2C_ADDR1;
 		ccs811.p_i2c = gp_i2c;
-		if (0==ccs811_init(&ccs811)) {
+		if (0 == ccs811_init(&ccs811)) {
 			bshal_delay_ms(2500); // it is slow
 
 			// I Swear this was failing on the HK32 befpre
@@ -388,6 +516,8 @@ void i2c_test(uint32_t speed) {
 			static uint16_t TVOC = 0;
 			if (0 == css811_measure(&ccs811, NULL, &TVOC)) {
 				printf("OK:    %4d ppb TVOC\n", TVOC);
+
+				test_results[CCS811_index][2+(speed >100000)] = true;
 			} else {
 				printf("Failed (meaure)\n");
 				test_and_recover(speed);
@@ -401,9 +531,67 @@ void i2c_test(uint32_t speed) {
 	}
 
 	printf("Testing PCF8523...     ");
-	printf("TODO\n");
-}
+	if (0 == bshal_i2cm_isok(gp_i2c, PCF8523_ADDR)) {
+		pcf8563_t pcf8563;
+		pcf8563.addr = PCF8523_ADDR;
+		pcf8563.p_i2c = gp_i2c;
+		pcf8563_time_t time = { 0 };
+		pcf8563_get_time(&pcf8563, &time);
+		char buff[32] = "OK:";
+		//buff[0] = buff[1] = buff[2] = ' ';
+		buff[3 + 0] = '2';
+		buff[3 + 1] = '0' + time.months.century;
+		buff[3 + 2] = '0' + time.years.tens;
+		buff[3 + 3] = '0' + time.years.unit;
+		buff[3 + 4] = '-';
+		buff[3 + 5] = '0' + time.months.tens;
+		buff[3 + 6] = '0' + time.months.unit;
+		buff[3 + 7] = '-';
+		buff[3 + 8] = '0' + time.days.tens;
+		buff[3 + 9] = '0' + time.days.unit;
+		buff[3 + 10] = ' ';
+		buff[3 + 11] = '0' + time.hours.tens;
+		buff[3 + 12] = '0' + time.hours.unit;
+		buff[3 + 13] = ':';
+		buff[3 + 14] = '0' + time.minutes.tens;
+		buff[3 + 15] = '0' + time.minutes.unit;
+		buff[3 + 16] = ':';
+		buff[3 + 17] = '0' + time.seconds.tens;
+		buff[3 + 18] = '0' + time.seconds.unit;
+		buff[3 + 19] = 0;
+		puts(buff);
 
+		test_results[PCF8523_index][2+(speed >100000)] = true;
+	} else {
+		puts("Skipped");
+	}
+
+	printf("Testing BMP280...      ");
+	if (0 == bshal_i2cm_isok(gp_i2c, BMP280_I2C_ADDR)) {
+		bmp280_t bmp280;
+		bmp280.p_i2c = gp_i2c;
+		bmp280.addr = BMP280_I2C_ADDR;
+		if (bmp280_init(&bmp280)) {
+			puts("Init Error");
+		} else {
+			float temperature, pressure;
+			if (bmp280_measure_f(&bmp280, &temperature, &pressure)) {
+				puts("Measure Error");
+			} else {
+				printf("OK: %3d.%02d°C %d hPa  \n",
+						(int) temperature % 999,
+						abs((int) (100 * temperature)) % 100,
+						(int) pressure / 100);
+
+				test_results[BMP280_index][2+(speed >100000)] = true;
+			}
+		}
+
+	} else {
+		puts("Skipped");
+	}
+
+}
 
 int main() {
 //	memset(_global_impure_ptr, 0, sizeof (struct _reent));
@@ -421,7 +609,6 @@ int main() {
 #ifdef UART
 	initialise_uart();
 #endif
-
 
 	HAL_Init();
 	bshal_delay_init();
@@ -460,6 +647,25 @@ int main() {
 	printf("----------------------------------------\n");
 	printf(" DONE \n");
 	printf("----------------------------------------\n");
+
+//	for (int i = 0 ; i < 10 ; i++ ) {
+//		printf ("| %d | %d | %d | %d |\n",
+//				test_results[i][0],
+//				test_results[i][1],
+//				test_results[i][2],
+//				test_results[i][3]);
+//	}
+
+	puts(mcuid());
+		for (int i = 0 ; i < 10 ; i++ ) {
+			printf ("| %c  %c ",
+					test_results[i][1] ? '1' : 'x',
+					test_results[i][3]? '4' : 'x');
+			if (i==4) printf("|\n");
+		}
+		printf("|\n");
+
+
 	int c;
 	int t;
 	while (1) {
@@ -467,6 +673,4 @@ int main() {
 //		(void) c;
 	}
 }
-
-
 

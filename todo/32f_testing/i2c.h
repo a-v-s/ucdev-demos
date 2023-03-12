@@ -21,11 +21,13 @@
 
 #define LIS3DH_ADDR			0x18	// Accelerometer
 #define PN532_ADDR			0x24	// RFID
-//#define SSD1306_ADDR		0x3C	// Displau
-#define SI7021_ADDR			0x40	//
-//#define EEPROM_ADDR		0x50	// EEPROM ON RTC BOARD
+//#define SSD1306_ADDR		0x3C	// Display
+#define SI7021_ADDR			0x40	// Humidity
+#define HCD1080_ADDR		0x40	// Humidity
+
 #define CCS811_ADDR			0x5A
-#define PCF8523_ADDR 		0x68 // RTC
+//#define PCF8523_ADDR 		0x68 // RTC // ?? should be 0x51
+#define PCF8523_ADDR 		0x51
 
 
 //#define PCA9685_ADDR 		0x41 		// PWM
