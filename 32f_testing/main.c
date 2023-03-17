@@ -556,6 +556,20 @@ int main() {
 	printf(" Serial number: %s\n", getserialstring());
 	printf("----------------------------------------\n");
 
+
+	gp_i2c = i2c_init(100000);
+	display_init();
+	draw_background();
+	char buff[16];
+	int test = 0;
+	while (1) {
+		sprintf(buff,"TEST  %d", test);
+		print(buff, 4);
+		sprintf(buff,"TEST  %08X", &test);
+		print(buff, 2);
+		framebuffer_apply();
+		puts("Check Display");
+	}
 	//while (1); } int main2(void){
 
 //		display_init();
