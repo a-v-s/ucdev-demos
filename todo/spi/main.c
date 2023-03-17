@@ -489,11 +489,11 @@ void screen_init() {
 	screen_spi_config.mosi_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_7);
 	screen_spi_config.sck_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_5);
 
-	screen_spi_config.ncd_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_4);
-	screen_spi_config.nrs_pin = -1;//bshal_gpio_encode_pin(GPIOB, GPIO_PIN_8);
-	screen_spi_config.nss_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_7);
+	//screen_spi_config.cd_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_1);
+	screen_spi_config.rs_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_10);
+	screen_spi_config.cs_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_4);
 
-	screen_spi_config.irq_pin = -1; //
+	//screen_spi_config.irq_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_11);
 
 	bshal_spim_init(&screen_spi_config);
 

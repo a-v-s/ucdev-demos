@@ -35,7 +35,7 @@ int display_init(bshal_spim_t *bsspim) {
 	//ucg_DrawGradientBox(&m_ucg, 0, 0, m_ucg.dimension.w, m_ucg.dimension.h);
 
 
-	{
+	if (0) {
 		// "Set master current attenuation factor"
 		// Default value is 0x0F
 		// Setting this to a lower value such as 0x04 solves the flicker

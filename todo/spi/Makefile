@@ -11,7 +11,7 @@ TARGET = spi_demo
 ################################################################################
 # Set the root directory of the ucdev enviorement 
 ################################################################################
-UCDEV_ROOT=../..
+UCDEV_ROOT=../../../ucdev
 
 
 UCGLIB_DIR = $(UCDEV_ROOT)/ext/ucglib/csrc
