@@ -16,9 +16,10 @@ UCDEV_ROOT=../../ucdev
 C_SOURCES += main.c
 C_SOURCES += dhrystone.c
 
-OPT= -O2
+OPT= -O2 -g3
 
 
+LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/rtt/debug/riscv_rv32imac  
 LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/rtt/debug/arm_m3  -lrtt
 
 
