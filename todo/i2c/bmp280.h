@@ -46,4 +46,7 @@ typedef struct {
 #define BMP280_I2C_ADDR2 (0x77)
 #define BMP280_I2C_ADDR BMP280_I2C_ADDR1
 
+
+int bmp280_measure_f(bmp280_t *bmp280, float *temperature, float *pressure) ;
+int bmp280_init(bmp280_t *bmp280);
 #endif // __BMP_280_H__

@@ -59,6 +59,6 @@ typedef struct {
 
 int scd4x_get_result_float(scd4x_t *scd4x, uint16_t *co2_ppm, float *temp_C,
 		uint16_t *humidity_percent);
-int scd4x_init(scd4x_t *scd4x);
+int scd4x_start(scd4x_t *scd4x);
 
 #endif /* SCD4X_H_ */

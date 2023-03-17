@@ -203,7 +203,19 @@ int main() {
 		scd4x.addr = SCD4X_I2C_ADDR;
 		scd4x.p_i2c = gp_i2c;
 
-		scd4x_init(&scd4x);
+		char serial [6] = {0};
+		scd4x_get_serial(&scd4x, serial);
+
+		char strserial [ 24];
+		sprintf(strserial, "%02X%02X%02X%02X%02X%02X" ,
+				serial[0],serial[1], serial[2],
+				serial[3], serial[4], serial[5]);
+
+//		scd4x_selftest(&scd4x);
+
+//		scd4x_factory_reset(&scd4x);
+
+		scd4x_start(&scd4x);
 	}
 
 
@@ -237,28 +249,28 @@ int main() {
 	}
 
 	// GD32VF103 few rreads work then SCL remains low
-//	if (0 == bshal_i2cm_isok(gp_i2c, BH1750_ADDR)) {
-//		bh1750.addr = BH1750_ADDR;
-//		bh1750.p_i2c = gp_i2c;
-//	}
+	if (0 == bshal_i2cm_isok(gp_i2c, BH1750_ADDR)) {
+		bh1750.addr = BH1750_ADDR;
+		bh1750.p_i2c = gp_i2c;
+	}
 
-//	if (0 == bshal_i2cm_isok(gp_i2c, SI7021_ADDR)) {
-//		// either si7021 or hcd1080
-//		bool identify;
-//		si70xx.addr = SI7021_ADDR;
-//		si70xx.p_i2c = gp_i2c;
-//		si70xx_identify(&si70xx, &identify);
-//		if (!identify) {
-//			si70xx.addr = 0;
-//		}
-//		// Makes GD32VF103 CLK line stay low after first access
-//		hcd1080.addr = SI7021_ADDR;
-//		hcd1080.p_i2c = gp_i2c;
-//		hcd1080_identify(&hcd1080, &identify);
-//		if (!identify) {
-//			hcd1080.addr = 0;
-//		}
-//	}
+	if (0 == bshal_i2cm_isok(gp_i2c, SI7021_ADDR)) {
+		// either si7021 or hcd1080
+		bool identify;
+		si70xx.addr = SI7021_ADDR;
+		si70xx.p_i2c = gp_i2c;
+		si70xx_identify(&si70xx, &identify);
+		if (!identify) {
+			si70xx.addr = 0;
+		}
+		// Makes GD32VF103 CLK line stay low after first access
+		hcd1080.addr = SI7021_ADDR;
+		hcd1080.p_i2c = gp_i2c;
+		hcd1080_identify(&hcd1080, &identify);
+		if (!identify) {
+			hcd1080.addr = 0;
+		}
+	}
 
 	char str[32];
 
