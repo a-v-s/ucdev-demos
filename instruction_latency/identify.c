@@ -284,7 +284,7 @@ const char* mcuid() {
 				}
 				if (romtable_pid.identity_code == 81
 						&& romtable_pid.continuation_code == 7) {
-					return "GD32F103";
+					return "GD32F10x";
 				}
 				if (romtable_pid.identity_code == 59
 						&& romtable_pid.continuation_code == 4) {

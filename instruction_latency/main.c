@@ -90,9 +90,74 @@ void run_test(void){
 }
 
 
+void peri_test(void) {
+	// This will test the available peripherals
+	// by turning their clocks on and see which
+	// bits will stick.
+	RCC->AHBENR = -1;
+	RCC->APB1ENR = -1;
+	RCC->APB2ENR = -1;
+
+	uint32_t ahb = RCC->AHBENR;
+	uint32_t apb1 = RCC->APB1ENR;
+	uint32_t apb2 = RCC->APB2ENR;
+
+	printf("AHB   %08X\n", ahb);
+	printf("APB1  %08X\n", apb1);
+	printf("APB2  %08X\n", apb2);
+
+}
+
+
+extern int error_val;
+typedef void * gen_ptr;
+extern int try_read_access(gen_ptr p);
+
+void scan_bus() {
+	// Cortex-M specifies 0x40000000 to 0x60000000
+	// as peripheral address space. STM32F103 appears
+	// to have 0x40000000 to 0x40030000 defined.
+
+	// Scanning the phole peripheral address space succeeds
+	// on some ranges and fails on others.
+
+	// Note: 0x42000000 to 0x44000000  is bit banding region
+	// Results are in this range
+
+
+	uint32_t results = 0;
+	puts("Scanning peripheral bus: 0x40000000 to 0x40030000");
+	puts("Offset 0x400");
+	for (int addr = 0x40000000; addr < 0x40030000; addr += 0x400) {
+	//for (int addr = 0x40000000; addr < 0x60000000; addr += 0x400) {
+		int pos = (addr >> 10) & 0b11111;
+		try_read_access(addr);
+		results |= ((!error_val) << (31-pos));
+		if (pos == 31) {
+			if (results) {
+				printf("%08X %08X\n", addr - 0x7c00, results);
+			}
+			results = 0;
+			bshal_delay_us(50);
+		}
+	}
+	puts("\n"
+	"----------------------------------------------------------------------------"
+		);
+}
+
+void scan_ram() {
+	for (int addr = 0x20005000; addr < 0x2000F000; addr += 0x400) {
+			try_read_access(addr);
+			printf("%3dk %d\n", 1+(addr-0x20000000)/0x400, !error_val);;
+	}
+}
+
 int main(void){
 	__disable_irq(); // just to make sure interrupt don't mess with our timing
-	void * test = malloc(16);
+
+
+
 	puts(
 "----------------------------------------------------------------------------"
 	);
@@ -104,21 +169,29 @@ int main(void){
 	puts(
 "----------------------------------------------------------------------------"
 	);
+
+	scan_bus();
+	peri_test();
+	scan_ram();
+	puts(
+"----------------------------------------------------------------------------"
+	);
+
 	dwt_init();
 
 	SystemCoreClockUpdate();
 	puts("Default clocking (8 MHz):");
 	run_test();
-
-	ClockSetup_HSE8_SYS48();
-	SystemCoreClockUpdate();
-	puts("ClockSetup_HSE8_SYS48:");
-	run_test();
-
-	ClockSetup_HSE8_SYS72();
-	SystemCoreClockUpdate();
-	puts("ClockSetup_HSE8_SYS72:");
-	run_test();
+//
+//	ClockSetup_HSE8_SYS48();
+//	SystemCoreClockUpdate();
+//	puts("ClockSetup_HSE8_SYS48:");
+//	run_test();
+//
+//	ClockSetup_HSE8_SYS72();
+//	SystemCoreClockUpdate();
+//	puts("ClockSetup_HSE8_SYS72:");
+//	run_test();
 	
 
 

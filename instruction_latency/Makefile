@@ -29,7 +29,10 @@ UCDEV_ROOT=../../ucdev
 
 C_SOURCES += main.c
 C_SOURCES += identify.c
+C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/stm32/bshal_gpio_stm32.c
+
 C_SOURCES += $(LIBHALGLUE_ROOT)/common/arm_cpuid.c
+C_SOURCES += $(LIBHALGLUE_ROOT)/common/bshal_delay.c
 
 
 #C_SOURCES += SEGGER_RTT_V784/Syscalls/SEGGER_RTT_Syscalls_GCC.c
@@ -51,7 +54,7 @@ C_INCLUDES += $(UCDEV_ROOT)/ext/RTT//Syscalls/
 C_INCLUDES += $(UCDEV_ROOT)/ext/RTT//RTT/
 C_INCLUDES += $(UCDEV_ROOT)/ext/RTT//Config/
 
-
+ASM_SOURCES += t_aux.s
 
 
 ifneq (,$(findstring RV32F1,$(MCU)))
@@ -84,8 +87,7 @@ ifneq (,$(findstring STM32L1,$(MCU)))
 endif
 
 
-C_SOURCES += $(LIBHALGLUE_ROOT)/common/bshal_delay.c
-C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/stm32/bshal_gpio_stm32.c
+
 
 
 ################################################################################
