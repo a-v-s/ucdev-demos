@@ -7,7 +7,7 @@
 
 #include "system.h"
 
-#include "ucg.h"W
+#include "ucg.h"
 static ucg_t m_ucg;
 
 #ifdef USE_OLD_HAL
