@@ -562,7 +562,7 @@ int main() {
 	draw_background();
 	char buff[16];
 	int test = 0;
-	while (1) {
+	while (0) {
 		sprintf(buff,"TEST  %d", test);
 		print(buff, 4);
 		sprintf(buff,"TEST  %08X", &test);
