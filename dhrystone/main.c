@@ -1,8 +1,9 @@
 #include <stdint.h>
 #include <system.h>
+#include <string.h>
+#include <stdio.h>
 
-
-#ifdef __ARM__
+#if ( __ARM_ARCH >= 7 ) && ( __ARM_ARCH_PROFILE == 'M' )
 void dwt_init(void) {
 	CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
 	__DSB();
@@ -24,34 +25,125 @@ uint32_t get_time_ms(void) {
 }
 
 #else
-void dwt_init(void){
+void dwt_init(void) {
 	timer_init();
 }
 #endif
 
 void bm(void) {
+	puts("---------------------------------------");
 	printf("SystemCoreClock is %lu\n", SystemCoreClock);
 	printf("Starting benchmark, please wait...\n");
-	uint32_t loops = SystemCoreClock>>5;
-
+	//uint32_t loops = SystemCoreClock >> 5;
+	uint32_t loops = SystemCoreClock >> 6;
+	float DSEC, DMIPS, DMIPS_MHZ;
+	uint32_t benchtime;
+	puts("---------------------------------------");
+	puts(" O0 ");
 	dwt_init();
 	__DSB();
 	__ISB();
-	uint32_t benchtime = Proc0(loops);
 
+	benchtime = d0(loops);
 
 	printf("Dhrystone time for %lu passes = %lu\n", loops, benchtime);
 
-	float DSEC = (1000.0f * ((float) loops / (float)benchtime));
-	float DMIPS = DSEC /1757; 
-	float DMIPS_MHZ = 1000000.0f * DMIPS / (float)SystemCoreClock;
+	DSEC = (1000.0f * ((float) loops / (float) benchtime));
+	DMIPS = DSEC / 1757;
+	DMIPS_MHZ = 1000000.0f * DMIPS / (float) SystemCoreClock;
 
-	printf("This machine benchmarks at %lu dhrystones/second\n", (uint32_t) DSEC);
-	printf("This machine benchmarks at %lu.%03lu DMIPS\n",  (uint32_t)DMIPS, (uint32_t) ( 1000.0f* DMIPS) % 1000);
-	printf("This machine benchmarks at %lu.%03lu DMIPS/MHz\n", (uint32_t)DMIPS_MHZ, (uint32_t) ( 1000.0f* DMIPS_MHZ) % 1000);    
+	printf("This machine benchmarks at %lu dhrystones/second\n",
+			(uint32_t) DSEC);
+	printf("This machine benchmarks at %lu.%03lu DMIPS\n", (uint32_t) DMIPS,
+			(uint32_t)(1000.0f * DMIPS) % 1000);
+	printf("This machine benchmarks at %lu.%03lu DMIPS/MHz\n",
+			(uint32_t) DMIPS_MHZ, (uint32_t)(1000.0f * DMIPS_MHZ) % 1000);
+
+	puts("---------------------------------------");
+	puts(" O1 ");
+	dwt_init();
+	__DSB();
+	__ISB();
+
+	benchtime = d1(loops);
+
+	printf("Dhrystone time for %lu passes = %lu\n", loops, benchtime);
+
+	DSEC = (1000.0f * ((float) loops / (float) benchtime));
+	DMIPS = DSEC / 1757;
+	DMIPS_MHZ = 1000000.0f * DMIPS / (float) SystemCoreClock;
+
+	printf("This machine benchmarks at %lu dhrystones/second\n",
+			(uint32_t) DSEC);
+	printf("This machine benchmarks at %lu.%03lu DMIPS\n", (uint32_t) DMIPS,
+			(uint32_t)(1000.0f * DMIPS) % 1000);
+	printf("This machine benchmarks at %lu.%03lu DMIPS/MHz\n",
+			(uint32_t) DMIPS_MHZ, (uint32_t)(1000.0f * DMIPS_MHZ) % 1000);
+
+	puts("---------------------------------------");
+	puts(" O2 ");
+	dwt_init();
+	__DSB();
+	__ISB();
+
+	benchtime = d2(loops);
+
+	printf("Dhrystone time for %lu passes = %lu\n", loops, benchtime);
+
+	DSEC = (1000.0f * ((float) loops / (float) benchtime));
+	DMIPS = DSEC / 1757;
+	DMIPS_MHZ = 1000000.0f * DMIPS / (float) SystemCoreClock;
+
+	printf("This machine benchmarks at %lu dhrystones/second\n",
+			(uint32_t) DSEC);
+	printf("This machine benchmarks at %lu.%03lu DMIPS\n", (uint32_t) DMIPS,
+			(uint32_t)(1000.0f * DMIPS) % 1000);
+	printf("This machine benchmarks at %lu.%03lu DMIPS/MHz\n",
+			(uint32_t) DMIPS_MHZ, (uint32_t)(1000.0f * DMIPS_MHZ) % 1000);
+
+	puts("---------------------------------------");
+	puts(" O3 ");
+	dwt_init();
+	__DSB();
+	__ISB();
+
+	benchtime = d3(loops);
+
+	printf("Dhrystone time for %lu passes = %lu\n", loops, benchtime);
+
+	DSEC = (1000.0f * ((float) loops / (float) benchtime));
+	DMIPS = DSEC / 1757;
+	DMIPS_MHZ = 1000000.0f * DMIPS / (float) SystemCoreClock;
+
+	printf("This machine benchmarks at %lu dhrystones/second\n",
+			(uint32_t) DSEC);
+	printf("This machine benchmarks at %lu.%03lu DMIPS\n", (uint32_t) DMIPS,
+			(uint32_t)(1000.0f * DMIPS) % 1000);
+	printf("This machine benchmarks at %lu.%03lu DMIPS/MHz\n",
+			(uint32_t) DMIPS_MHZ, (uint32_t)(1000.0f * DMIPS_MHZ) % 1000);
+
+	puts("---------------------------------------");
+	puts(" Os ");
+	dwt_init();
+	__DSB();
+	__ISB();
+
+	benchtime = ds(loops);
+
+	printf("Dhrystone time for %lu passes = %lu\n", loops, benchtime);
+
+	DSEC = (1000.0f * ((float) loops / (float) benchtime));
+	DMIPS = DSEC / 1757;
+	DMIPS_MHZ = 1000000.0f * DMIPS / (float) SystemCoreClock;
+
+	printf("This machine benchmarks at %lu dhrystones/second\n",
+			(uint32_t) DSEC);
+	printf("This machine benchmarks at %lu.%03lu DMIPS\n", (uint32_t) DMIPS,
+			(uint32_t)(1000.0f * DMIPS) % 1000);
+	printf("This machine benchmarks at %lu.%03lu DMIPS/MHz\n",
+			(uint32_t) DMIPS_MHZ, (uint32_t)(1000.0f * DMIPS_MHZ) % 1000);
 
 }
-
 
 int main(void) {
 	__disable_irq();
@@ -70,6 +162,7 @@ int main(void) {
 	ClockSetup_HSE8_SYS72();
 	bm();
 
-	while (1);
+	while (1)
+		;
 
 }
