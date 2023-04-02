@@ -14,7 +14,8 @@ TARGET = dhrystone
 UCDEV_ROOT=../../ucdev
 
 C_SOURCES += main.c
-#C_SOURCES += dhrystone.c
+C_SOURCES += identify.c
+C_SOURCES += $(LIBHALGLUE_ROOT)/common/arm_cpuid.c
 
 
 
