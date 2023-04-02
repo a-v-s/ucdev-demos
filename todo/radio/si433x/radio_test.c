@@ -107,6 +107,7 @@ void test_recv() {
 		bshal_spim_transmit(&radio_spi_config, &val, 1, true);
 		bshal_gpio_write_pin(radio_spi_config.cs_pin, 1);
 		//bshal_delay_ms(1);
+
 		reg = 0x08 | 0x80;
 		val = 0x00;
 		bshal_gpio_write_pin(radio_spi_config.cs_pin, 0);
@@ -115,9 +116,8 @@ void test_recv() {
 		bshal_gpio_write_pin(radio_spi_config.cs_pin, 1);
 		//bshal_delay_ms(1);
 
-
 		// start reception
-		reg = 0x07 | 0x80 ;
+		reg = 0x07 | 0x80;
 		val = 0x04;
 		bshal_gpio_write_pin(radio_spi_config.cs_pin, 0);
 		bshal_spim_transmit(&radio_spi_config, &reg, 1, true);
@@ -136,7 +136,6 @@ void test_recv() {
 		}
 		// packet received
 
-
 		val = 0x00;
 		reg = 0x4B; // received packet size
 		bshal_gpio_write_pin(radio_spi_config.cs_pin, 0);
@@ -144,7 +143,7 @@ void test_recv() {
 		bshal_spim_receive(&radio_spi_config, &val, 1, true);
 		bshal_gpio_write_pin(radio_spi_config.cs_pin, 1);
 
-		memset(buffer,0,sizeof(buffer));
+		memset(buffer, 0, sizeof(buffer));
 		reg = 0x7F; // fifo
 		bshal_gpio_write_pin(radio_spi_config.cs_pin, 0);
 		bshal_spim_transmit(&radio_spi_config, &reg, 1, true);
@@ -170,6 +169,7 @@ void test_send() {
 		bshal_spim_transmit(&radio_spi_config, &val, 1, true);
 		bshal_gpio_write_pin(radio_spi_config.cs_pin, 1);
 		//bshal_delay_ms(1);
+
 		reg = 0x08 | 0x80;
 		val = 0x01;
 		bshal_gpio_write_pin(radio_spi_config.cs_pin, 0);
@@ -178,8 +178,16 @@ void test_send() {
 		bshal_gpio_write_pin(radio_spi_config.cs_pin, 1);
 		//bshal_delay_ms(1);
 
-
 		sprintf(data, "Tx %5d", tx_count++);
+		reg = 0x7F | 0x80; // Fifo Data
+
+		// write
+		bshal_gpio_write_pin(radio_spi_config.cs_pin, 0);
+		bshal_spim_transmit(&radio_spi_config, &reg, 1, true);
+		bshal_spim_transmit(&radio_spi_config, data, val, true);
+		bshal_gpio_write_pin(radio_spi_config.cs_pin, 1);
+		//bshal_delay_ms(1);
+
 		reg = 0x3e | 0x80;
 		val = strlen(data);
 		bshal_gpio_write_pin(radio_spi_config.cs_pin, 0);
@@ -188,23 +196,10 @@ void test_send() {
 		bshal_gpio_write_pin(radio_spi_config.cs_pin, 1);
 //		//bshal_delay_ms(1);
 
-		reg = 0x7F | 0x80; // Fifo Data
-
-		// write
-		bshal_gpio_write_pin(radio_spi_config.cs_pin, 0);
-		bshal_spim_transmit(&radio_spi_config, &reg, 1, true);
-		bshal_spim_transmit(&radio_spi_config, data, val, true);
-		bshal_gpio_write_pin(radio_spi_config.cs_pin, 1);
-
-
-
-
-
-		//bshal_delay_ms(1);
 
 		// start transmission
-		reg = 4 | 0x80 ;
-		val = 0x08 ;
+		reg = 0x07 | 0x80;
+		val = 0x08;
 		bshal_gpio_write_pin(radio_spi_config.cs_pin, 0);
 		bshal_spim_transmit(&radio_spi_config, &reg, 1, true);
 		bshal_spim_transmit(&radio_spi_config, &val, 1, true);
@@ -269,8 +264,6 @@ void test_radio() {
 //	bshal_gpio_write_pin(radio_spi_config.cs_pin, 1);
 //	//bshal_delay_ms(1);
 
-
-
 	reg = 0x05 | 0x80;
 	val = 0x06; //Enable Interrupts
 
@@ -280,24 +273,21 @@ void test_radio() {
 	bshal_spim_transmit(&radio_spi_config, &val, 1, true);
 	bshal_gpio_write_pin(radio_spi_config.cs_pin, 1);
 
-
-	//si443x_set_frequency(868000);
-	si443x_set_frequency(434000);
-
+	si443x_set_frequency(868000);
+//	si443x_set_frequency(434000);
 
 }
-
+#define SERIALNUMBER  *((uint32_t*) (0x1FFFF7F0))
 void main(void) {
 	bshal_delay_init();
 	radio_spi_init();
 	test_radio();
 
-	bool dir = false;
-	;
+	bool dir = true;
 
-	if (dir)
-		test_send();
-	else
+	if (0x57013617 == SERIALNUMBER)
 		test_recv();
+	else
+		test_send();
 
 }

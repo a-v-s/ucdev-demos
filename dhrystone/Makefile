@@ -6,7 +6,7 @@ MCU ?= STM32F103xB
 ################################################################################
 # Set Output Filename 
 ################################################################################
-TARGET = blinky
+TARGET = dhrystone
 
 ################################################################################
 # Set the root directory of the ucdev enviorement 
@@ -14,7 +14,12 @@ TARGET = blinky
 UCDEV_ROOT=../../ucdev
 
 C_SOURCES += main.c
-C_SOURCES += dhrystone.c
+C_SOURCES += identify.c
+C_SOURCES += $(LIBHALGLUE_ROOT)/common/arm_cpuid.c
+
+
+
+C_SOURCES += $(UCDEV_ROOT)/lib/libhalglue/common/bshal_delay.c
 
 OPT= -O2 -g3
 
@@ -75,6 +80,38 @@ C_INCLUDES += $(LIBHALGLUE_ROOT)/bshal/
 # link script
 LDSCRIPT = $(shell tr '[:upper:]' '[:lower:]' <<< $(MCU)).ld
 
+
+
 MK_DIR=$(UCDEV_ROOT)/build/make
 include $(MK_DIR)/all.mk
 
+
+
+dhrystone: $(BUILD_DIR)/dhrystone_0.o 
+dhrystone: $(BUILD_DIR)/dhrystone_1.o 
+dhrystone: $(BUILD_DIR)/dhrystone_2.o 
+dhrystone: $(BUILD_DIR)/dhrystone_3.o 
+dhrystone: $(BUILD_DIR)/dhrystone_s.o
+
+
+OBJECTS += $(BUILD_DIR)/dhrystone_0.o
+OBJECTS += $(BUILD_DIR)/dhrystone_1.o
+OBJECTS += $(BUILD_DIR)/dhrystone_2.o
+OBJECTS += $(BUILD_DIR)/dhrystone_3.o
+OBJECTS += $(BUILD_DIR)/dhrystone_s.o
+
+
+$(BUILD_DIR)/dhrystone_0.o: dhrystone.c Makefile | $(BUILD_DIR) 
+	$(CC) -c -DBENCHMARK=d0 -O0 $(CPU) $(FPU) $(ABI) $(C_DEFS) -Wall -fdata-sections -ffunction-sections  dhrystone.c -o $@  
+
+$(BUILD_DIR)/dhrystone_1.o: dhrystone.c Makefile | $(BUILD_DIR) 
+	$(CC) -c -DBENCHMARK=d1 -O1 $(CPU) $(FPU) $(ABI) $(C_DEFS) -Wall -fdata-sections -ffunction-sections  dhrystone.c -o $@
+
+$(BUILD_DIR)/dhrystone_2.o: dhrystone.c Makefile | $(BUILD_DIR) 
+	$(CC) -c -DBENCHMARK=d2 -O2 $(CPU) $(FPU) $(ABI) $(C_DEFS) -Wall -fdata-sections -ffunction-sections  dhrystone.c -o $@	
+	
+$(BUILD_DIR)/dhrystone_3.o: dhrystone.c Makefile | $(BUILD_DIR) 
+	$(CC) -c -DBENCHMARK=d3 -O3 $(CPU) $(FPU) $(ABI) $(C_DEFS) -Wall -fdata-sections -ffunction-sections  dhrystone.c -o $@
+	
+$(BUILD_DIR)/dhrystone_s.o: dhrystone.c Makefile | $(BUILD_DIR) 
+	$(CC) -c -DBENCHMARK=ds -Os $(CPU) $(FPU) $(ABI) $(C_DEFS) -Wall -fdata-sections -ffunction-sections  dhrystone.c -o $@	

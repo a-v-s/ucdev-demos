@@ -447,34 +447,42 @@ typedef int		boolean;
 #define	REG
 #endif
 
-extern Enumeration	Func1();
-extern boolean		Func2();
 
 
 
-void Proc8(Array1Dim	Array1Par, Array2Dim	Array2Par, OneToFifty	IntParI1, OneToFifty	IntParI2);
-void Proc7(OneToFifty	IntParI1, OneToFifty	IntParI2, OneToFifty	*IntParOut);
-void Proc6(Enumeration	EnumParIn, Enumeration	*EnumParOut);
-void Proc5(void);
-void Proc4(void);
-void Proc3(RecordPtr	*PtrParOut);
-void Proc2(OneToFifty	*IntParIO);
-void Proc1(RecordPtr PtrParIn);
+static void Proc8(Array1Dim Array1Par, Array2Dim Array2Par, OneToFifty IntParI1,
+		OneToFifty IntParI2);
+static void Proc7(OneToFifty IntParI1, OneToFifty IntParI2,
+		OneToFifty *IntParOut);
+static void Proc6(Enumeration EnumParIn, Enumeration *EnumParOut);
+static void Proc5(void);
+static void Proc4(void);
+static void Proc3(RecordPtr *PtrParOut);
+static void Proc2(OneToFifty *IntParIO);
+static void Proc1(RecordPtr PtrParIn);
+static Enumeration Func1(CapitalLetter CharPar1, CapitalLetter CharPar2);
+static boolean Func2(String30 StrParI1, String30 StrParI2);
+static boolean Func3( REG Enumeration EnumParIn);
+;
 
 
 /*
  * Package 1
  */
-int		IntGlob;
-boolean		BoolGlob;
-char		Char1Glob;
-char		Char2Glob;
-Array1Dim	Array1Glob;
-Array2Dim	Array2Glob;
-RecordPtr	PtrGlb;
-RecordPtr	PtrGlbNext;
+__attribute__((weak)) int			IntGlob;
+__attribute__((weak)) boolean		BoolGlob;
+__attribute__((weak)) char		Char1Glob;
+__attribute__((weak)) char		Char2Glob;
+__attribute__((weak)) Array1Dim	Array1Glob;
+__attribute__((weak)) Array2Dim	Array2Glob;
+__attribute__((weak)) RecordPtr	PtrGlb;
+__attribute__((weak)) RecordPtr	PtrGlbNext;
 
-uint32_t Proc0(uint32_t loops)
+#ifndef BENCHMARK
+#define BENCHMARK Proc0
+#endif
+
+ int32_t BENCHMARK(uint32_t loops)
 {
 	OneToFifty		IntLoc1;
 	REG OneToFifty		IntLoc2;
@@ -573,7 +581,7 @@ uint32_t Proc0(uint32_t loops)
 
 }
 
-void Proc1(RecordPtr PtrParIn)
+static void Proc1(RecordPtr PtrParIn)
 {
 #define	NextRecord	(*(PtrParIn->PtrComp))
 
@@ -595,7 +603,7 @@ void Proc1(RecordPtr PtrParIn)
 #undef	NextRecord
 }
 
-void Proc2(OneToFifty	*IntParIO)
+static void Proc2(OneToFifty	*IntParIO)
 {
 	REG OneToFifty		IntLoc;
 	REG Enumeration		EnumLoc;
@@ -614,7 +622,7 @@ void Proc2(OneToFifty	*IntParIO)
 	}
 }
 
-void Proc3(RecordPtr	*PtrParOut)
+static void Proc3(RecordPtr	*PtrParOut)
 {
 	if (PtrGlb != NULL)
 		*PtrParOut = PtrGlb->PtrComp;
@@ -623,7 +631,7 @@ void Proc3(RecordPtr	*PtrParOut)
 	Proc7(10, IntGlob, &PtrGlb->IntComp);
 }
 
-void Proc4(void)
+static void Proc4(void)
 {
 	REG boolean	BoolLoc;
 
@@ -632,15 +640,15 @@ void Proc4(void)
 	Char2Glob = 'B';
 }
 
-void Proc5(void)
+static void Proc5(void)
 {
 	Char1Glob = 'A';
 	BoolGlob = FALSE;
 }
 
-extern boolean Func3();
 
-void Proc6(Enumeration	EnumParIn, Enumeration	*EnumParOut)
+
+static void Proc6(Enumeration	EnumParIn, Enumeration	*EnumParOut)
 {
 	*EnumParOut = EnumParIn;
 	if (! Func3(EnumParIn) )
@@ -658,7 +666,7 @@ void Proc6(Enumeration	EnumParIn, Enumeration	*EnumParOut)
 }
 
 
-void Proc7(OneToFifty	IntParI1, OneToFifty	IntParI2, OneToFifty	*IntParOut)
+static void Proc7(OneToFifty	IntParI1, OneToFifty	IntParI2, OneToFifty	*IntParOut)
 {
 	REG OneToFifty	IntLoc;
 
@@ -666,7 +674,7 @@ void Proc7(OneToFifty	IntParI1, OneToFifty	IntParI2, OneToFifty	*IntParOut)
 	*IntParOut = IntParI2 + IntLoc;
 }
 
-void Proc8(Array1Dim	Array1Par, Array2Dim	Array2Par, OneToFifty	IntParI1, OneToFifty	IntParI2)
+static void Proc8(Array1Dim	Array1Par, Array2Dim	Array2Par, OneToFifty	IntParI1, OneToFifty	IntParI2)
 {
 	REG OneToFifty	IntLoc;
 	REG OneToFifty	IntIndex;
@@ -682,7 +690,7 @@ void Proc8(Array1Dim	Array1Par, Array2Dim	Array2Par, OneToFifty	IntParI1, OneToF
 	IntGlob = 5;
 }
 
-Enumeration Func1(CharPar1, CharPar2)
+static Enumeration Func1(CharPar1, CharPar2)
 CapitalLetter	CharPar1;
 CapitalLetter	CharPar2;
 {
@@ -697,7 +705,7 @@ CapitalLetter	CharPar2;
 		return (Ident2);
 }
 
-boolean Func2(StrParI1, StrParI2)
+static boolean Func2(StrParI1, StrParI2)
 String30	StrParI1;
 String30	StrParI2;
 {
@@ -727,7 +735,7 @@ String30	StrParI2;
 	}
 }
 
-boolean Func3(EnumParIn)
+static boolean Func3(EnumParIn)
 REG Enumeration	EnumParIn;
 {
 	REG Enumeration	EnumLoc;
