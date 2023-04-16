@@ -118,17 +118,21 @@ int hcd1080_identify(hcd1080_t *hcd1080, bool *is_hcd1080) {
 	if (status)
 		return status;
 
-	cmd = HCD1080_REG_DEVICE_IO;
-	status = bshal_i2cm_send(hcd1080->p_i2c, hcd1080->addr, &cmd, sizeof(cmd),
-			false);
-	if (status)
-		return status;
-	status = bshal_i2cm_recv(hcd1080->p_i2c, hcd1080->addr, &device,
-			sizeof(device), false);
-	if (status)
-		return status;
+//	cmd = HCD1080_REG_DEVICE_IO;
+//	status = bshal_i2cm_send(hcd1080->p_i2c, hcd1080->addr, &cmd, sizeof(cmd),
+//			false);
+//	if (status)
+//		return status;
+//	status = bshal_i2cm_recv(hcd1080->p_i2c, hcd1080->addr, &device,
+//			sizeof(device), false);
+//	if (status)
+//		return status;
+//
+//	*is_hcd1080 = be16toh(device) == HCD1080_VAL_DEVICE_IO
+//			&& be16toh(manuf) == HCD1080_VAL_MANUFACTURER_ID;
 
-	*is_hcd1080 = be16toh(device) == HCD1080_VAL_DEVICE_IO
-			&& be16toh(manuf) == HCD1080_VAL_MANUFACTURER_ID;
+
+	// On MH32F103 reading DEVICE_IO register fails???
+	*is_hcd1080 = be16toh(manuf) == HCD1080_VAL_MANUFACTURER_ID;
 	return status;
 }
