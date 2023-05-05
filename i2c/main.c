@@ -71,7 +71,7 @@ void HardFault_Handler(void) {
 }
 
 void SysTick_Handler(void) {
-	//HAL_IncTick();
+	HAL_IncTick();
 }
 
 void SystemClock_Config(void) {
@@ -340,6 +340,8 @@ int main() {
 				line++;
 			}
 
+
+
 			if (lm75b.addr) {
 				//accum temperature_a;
 				float temperature_f;
@@ -350,6 +352,22 @@ int main() {
 				print(buff, line);
 				line++;
 			}
+
+//			if (bh1750.addr) {
+//				static int lux = 0;
+//
+//				// Reading it too fast stops it from updating
+//				// Therefore only reading it every 10 rounds
+//				static int swipswap = 1;
+//				if (!(swipswap % 10))
+//					bh1750_measure_ambient_light(&bh1750, &lux);
+//				swipswap++;
+//				sprintf(buff, "BH1750:    %6d lux", lux);
+//				print(buff, line);
+//				line++;
+//			}
+
+
 
 			if (hcd1080.addr) {
 //				accum temperature_a = -99.99;
@@ -395,6 +413,8 @@ int main() {
 
 			}
 
+
+
 			if (sht3x.addr) {
 //				accum temperature_a;
 //				accum huminity_a;
@@ -419,7 +439,7 @@ int main() {
 
 				// Reading it too fast stops it from updating
 				// Therefore only reading it every 10 rounds
-				static int swipswap;
+				static int swipswap = 1;
 				if (!(swipswap % 10))
 					bh1750_measure_ambient_light(&bh1750, &lux);
 				swipswap++;
@@ -427,6 +447,7 @@ int main() {
 				print(buff, line);
 				line++;
 			}
+
 			if (ccs811.addr) {
 				static uint16_t TVOC = 0;
 				static uint16_t eCO2 = 0;
@@ -435,6 +456,7 @@ int main() {
 				print(buff, line);
 				line++;
 			}
+
 
 			if (bmp280.addr) {
 
@@ -450,6 +472,8 @@ int main() {
 				line++;
 
 			}
+
+
 
 //			if (rc52x_version) {
 //				// When either SHT3x or HCD1080 are being read,
