@@ -349,7 +349,8 @@ void rfm69_configure_packet(void) {
 	rfm69_packet_config1_t config1;
 	config1.address_filtering = 0b00;
 	config1.crc_auto_clear_off = 0;
-	config1.crc_on = 1;
+	//config1.crc_on = 1;
+	config1.crc_on = 0;
 	config1.dc_free = 0b00;
 	config1.packet_format = 1; // Variable Length
 	rfm69_write_reg(RFM69_REG_PACKETCONFIG1, config1.as_uint8);
