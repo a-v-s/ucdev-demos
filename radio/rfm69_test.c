@@ -190,7 +190,7 @@ int si4x3x_init() {
 
 
 	//  si4x3x_set_frequency(915000);
-	si4x3x_set_frequency(868025);
+	si4x3x_set_frequency(868000);
 //	si4x3x_set_frequency(868000);
 	//	si4x3x_set_frequency(434000);
 
@@ -241,16 +241,40 @@ int main() {
 
 	char strbuff[32];
 	if (0x87141031 == SERIALNUMBER) {
-		rfm69_init();
-		print("RX " , 5);
+
+//		rfm69_init();
+//		print("RX " , 5);
+//		framebuffer_apply();
+//		rfm69_set_mode(rfm69_mode_rx);
+//		rfm69_restart();
+//
+//
+//		while (1) {
+//
+//			if (!rfm69_receive_request(&packet)) {
+//				printf("Packet Received\n");
+//				if (packet.header.size < 16)
+//				for (int i = 0; i < packet.header.size-sizeof(packet.header); i++)
+//					printf("%02X ", packet.data[i]);
+//
+//				sprintf(strbuff, "RX %02X",packet.data[4]);
+//				print(strbuff, 1);
+//				framebuffer_apply();
+//				memset(&packet, 0, sizeof(packet));
+//				draw_plain_background();
+//
+//			}
+//		}
+
+		si4x3x_init();
+		print("RX Si4x3x" , 5);
 		framebuffer_apply();
-		rfm69_set_mode(rfm69_mode_rx);
-		rfm69_restart();
+		si4x3x_configure_packet();
 
 
 		while (1) {
 
-			if (!rfm69_receive_request(&packet)) {
+			if (!si4x3x_receive_request(&packet)) {
 				printf("Packet Received\n");
 				if (packet.header.size < 16)
 				for (int i = 0; i < packet.header.size-sizeof(packet.header); i++)
@@ -264,6 +288,8 @@ int main() {
 
 			}
 		}
+
+
 	} else {
 //		// Si4x3x test
 //		si4x3x_init();

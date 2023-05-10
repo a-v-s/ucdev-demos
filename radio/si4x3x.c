@@ -213,7 +213,7 @@ int si4x3x_set_fdev(int hz) {
 }
 
 int si4x3x_set_bandwidth(int hz) {
-	si4x3x_reg_1c_t r1c;
+	si4x3x_reg_1C_t r1c;
 	int i;
 	for (i = 0; m_rxbw_entries[i].bandwidth; i++)
 		if (m_rxbw_entries[i].bandwidth > hz)
@@ -257,9 +257,69 @@ void si4x3x_configure_packet(void) {
 	si4x3x_write_reg8(0x05, 0x06); //Enable Interrupts
 	si4x3x_write_reg8(0x32, 0x00); // No Header
 
+	si4x3x_write_reg8(0x30, 0b10001001); // disable crc for first tst
+
 }
 
 #include "rfm69.h"
+
+int si4x3x_receive_request(rfm69_air_packet_t *p_request){
+	uint8_t reg,val;
+
+	// Clear fifo
+	reg = 0x08 | 0x80;
+	val = 0x02;
+	bshal_gpio_write_pin(radio_spi_config.cs_pin, 0);
+	bshal_spim_transmit(&radio_spi_config, &reg, 1, true);
+	bshal_spim_transmit(&radio_spi_config, &val, 1, true);
+	bshal_gpio_write_pin(radio_spi_config.cs_pin, 1);
+	//bshal_delay_ms(1);
+
+	reg = 0x08 | 0x80;
+	val = 0x00;
+	bshal_gpio_write_pin(radio_spi_config.cs_pin, 0);
+	bshal_spim_transmit(&radio_spi_config, &reg, 1, true);
+	bshal_spim_transmit(&radio_spi_config, &val, 1, true);
+	bshal_gpio_write_pin(radio_spi_config.cs_pin, 1);
+	//bshal_delay_ms(1);
+
+	// start reception
+	reg = 0x07 | 0x80;
+	val = 0x04;
+	bshal_gpio_write_pin(radio_spi_config.cs_pin, 0);
+	bshal_spim_transmit(&radio_spi_config, &reg, 1, true);
+	bshal_spim_transmit(&radio_spi_config, &val, 1, true);
+	bshal_gpio_write_pin(radio_spi_config.cs_pin, 1);
+	//bshal_delay_ms(1);
+
+	// read interrupt, should read transmission done
+	val = 0x00;
+	reg = 0x03;
+	while (!(val & 0b10)) {
+		bshal_gpio_write_pin(radio_spi_config.cs_pin, 0);
+		bshal_spim_transmit(&radio_spi_config, &reg, 1, true);
+		bshal_spim_receive(&radio_spi_config, &val, 1, true);
+		bshal_gpio_write_pin(radio_spi_config.cs_pin, 1);
+	}
+	// packet received
+
+	val = 0x00;
+	reg = 0x4B; // received packet size
+	bshal_gpio_write_pin(radio_spi_config.cs_pin, 0);
+	bshal_spim_transmit(&radio_spi_config, &reg, 1, true);
+	bshal_spim_receive(&radio_spi_config, &val, 1, true);
+	bshal_gpio_write_pin(radio_spi_config.cs_pin, 1);
+
+	memset(p_request, 0, sizeof(rfm69_air_packet_t));
+	reg = 0x7F; // fifo
+	bshal_gpio_write_pin(radio_spi_config.cs_pin, 0);
+	bshal_spim_transmit(&radio_spi_config, &reg, 1, true);
+	bshal_spim_receive(&radio_spi_config, p_request, val, true);
+	bshal_gpio_write_pin(radio_spi_config.cs_pin, 1);
+	return 0;
+
+
+}
 
 int si4x3x_send_request(rfm69_air_packet_t *p_request,
 		rfm69_air_packet_t *p_response) {
