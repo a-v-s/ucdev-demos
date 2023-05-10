@@ -78,6 +78,13 @@ void SystemClock_Config(void) {
 void * gp_i2c = NULL;
 
 int rfm69_init() {
+
+	// reset is active high!!!!
+	bshal_gpio_write_pin(radio_spi_config.rs_pin, 1);
+	bshal_delay_ms(5);
+	bshal_gpio_write_pin(radio_spi_config.rs_pin, 0);
+	bshal_delay_ms(20);
+
 	uint8_t partno = 0;
 	rfm69_read_reg(0x10, &partno);
 
@@ -142,15 +149,8 @@ int rfm69_init() {
 	//rfm69_write_reg(RFM69_REG_RSSITHRESH, 0xE4);
 	rfm69_write_reg(RFM69_REG_RSSITHRESH, 0xC4);
 
-	//rfm69_set_sync_word(0xdeadbeef);
+	rfm69_set_sync_word(0xdeadbeef);
 
-	rfm69_sync_config_t config;
-	config.fifo_fill_condition = 0;
-	config.sync_on = 1;
-	config.sync_size = 0; // size = sync_size + 1, thus 4
-	config.sync_tol = 0;
-	rfm69_write_reg(RFM69_REG_SYNCCONFIG, config.as_uint8);
-	rfm69_write_reg(RFM69_REG_SYNCVALUE1, 0xDE);
 
 
 
@@ -240,7 +240,7 @@ int main() {
 	rfm69_air_packet_t packet = { 0 };
 
 	char strbuff[32];
-	if (0x57013617 == SERIALNUMBER) {
+	if (0x87141031 == SERIALNUMBER) {
 		rfm69_init();
 		print("RX " , 5);
 		framebuffer_apply();
@@ -265,10 +265,11 @@ int main() {
 			}
 		}
 	} else {
-		// Si4x3x test
+//		// Si4x3x test
+//		si4x3x_init();
+//		print("TX Si4432" , 5);
 
-		si4x3x_init();
-		print("TX Si4432" , 5);
+		rfm69_init();
 		framebuffer_apply();
 		while (1) {
 
@@ -279,7 +280,8 @@ int main() {
 			packet.data[2] = 0xBE;
 			packet.data[3] = 0xEF;
 			packet.data[4]++;
-			si4x3x_send_request(&packet, &packet);
+			//si4x3x_send_request(&packet, &packet);
+			rfm69_send_request(&packet, &packet);
 			sprintf(strbuff, "TX %02X",packet.data[4]);
 			draw_plain_background();
 			print(strbuff, 1);
