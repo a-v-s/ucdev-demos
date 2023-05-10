@@ -69,15 +69,13 @@ bshal_i2cm_instance_t *gp_i2c = NULL;
 void HardFault_Handler(void) {
 	while(1);
 }
-
+#ifdef STM32
 void SysTick_Handler(void) {
 	HAL_IncTick();
 }
+#endif
 
 void SystemClock_Config(void) {
-	ClockSetup_HSE8_SYS72();
-
-
 
 #ifdef STM32F0
 	ClockSetup_HSE8_SYS48();
@@ -165,7 +163,9 @@ int main() {
 	SystemClock_Config();
 	SystemCoreClockUpdate();
 
+#ifdef STM32
 	HAL_Init();
+#endif
 
 	bshal_delay_init();
 	bshal_delay_us(10);

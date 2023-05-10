@@ -50,7 +50,7 @@ C_SOURCES += ccs811.c
 C_SOURCES += bmp280.c
 C_SOURCES += scd4x.c
 
-C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/stm32/bshal_i2cm_stm32.c
+
 
 
 ifneq (,$(findstring RV32F1,$(MCU)))
@@ -104,8 +104,22 @@ endif
 # error: 'SCB_Type' has no member named 'PFR'
 #C_SOURCES += $(LIBHALGLUE_ROOT)/common/arm_cpuid.c
 
+
+ifneq (,$(findstring STM32,$(MCU)))
+	C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/stm32/bshal_gpio_stm32.c
+	C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/stm32/bshal_i2cm_stm32.c
+		LDSCRIPT = $(shell echo $(MCU) | tr '[:upper:]' '[:lower:]' ).ld
+endif
+
+ifneq (,$(findstring EFR32,$(MCU)))
+	C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/gecko/bshal_i2cm_gecko.c
+	C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/gecko/bshal_spim_gecko.c
+	C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/gecko/bshal_gpio_gecko.c
+	LDSCRIPT = $(shell echo $(SERIES) | tr '[:upper:]' '[:lower:]' ).ld
+endif
+
+
 C_SOURCES += $(LIBHALGLUE_ROOT)/common/bshal_delay.c
-C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/stm32/bshal_gpio_stm32.c
 
 C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/bshal_i2cm.c
 #C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/bshal_spim.c
@@ -113,12 +127,6 @@ C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/extlib/u8x8_i2c.c
 C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/extlib/u8x8_gpio_delay.c
 
 
-
-#C_SOURCES += $(UCDEV_ROOT)/lib/bsrfid/drivers/rc52x_transport.c
-#C_SOURCES += $(UCDEV_ROOT)/lib/bsrfid/drivers/rc52x.c
-#C_SOURCES += $(UCDEV_ROOT)/lib/bsrfid/drivers/rc66x_transport.c
-#C_SOURCES += $(UCDEV_ROOT)/lib/bsrfid/drivers/rc66x.c
-#C_SOURCES += $(UCDEV_ROOT)/lib/bsrfid/cards/picc.c
 
 
 ################################################################################
@@ -129,13 +137,14 @@ C_INCLUDES += $(U8G2_DIR)
 C_INCLUDES += $(LIBHALGLUE_ROOT)/bshal/extlib/
 C_INCLUDES += $(LIBHALGLUE_ROOT)/common/
 C_INCLUDES += $(LIBHALGLUE_ROOT)/bshal/
+C_INCLUDES += $(LIBHALGLUE_ROOT)/hal/
 
 C_INCLUDES += $(UCDEV_ROOT)/lib/bsrfid/
 C_INCLUDES += $(UCDEV_ROOT)/lib/bsrfid/drivers/
 C_INCLUDES += $(UCDEV_ROOT)/lib/bsrfid/cards
 
 # link script
-LDSCRIPT = $(shell tr '[:upper:]' '[:lower:]' <<< $(MCU)).ld
+
 
 # u8g2 library
 CFLAGS += -DU8X8_WITH_USER_PTR
