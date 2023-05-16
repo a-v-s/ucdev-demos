@@ -83,7 +83,7 @@ int rfm69_init() {
 	bshal_gpio_write_pin(radio_spi_config.rs_pin, 1);
 	bshal_delay_ms(5);
 	bshal_gpio_write_pin(radio_spi_config.rs_pin, 0);
-	bshal_delay_ms(20);
+	bshal_delay_ms(50);
 
 	uint8_t partno = 0;
 	rfm69_read_reg(0x10, &partno);
@@ -91,8 +91,8 @@ int rfm69_init() {
 	printf("Verification partno %02X\n", partno);
 
 	//  rfm69_set_frequency(915000);
-	//rfm69_set_frequency(868000);
-	rfm69_set_frequency(434000);
+	rfm69_set_frequency(868000);
+	//rfm69_set_frequency(434000);
 
 	/*
 	 * Europe: 433 MHz Band:
@@ -173,7 +173,7 @@ int si4x3x_init() {
 	bshal_gpio_write_pin(radio_spi_config.rs_pin, 1);
 	bshal_delay_ms(5);
 	bshal_gpio_write_pin(radio_spi_config.rs_pin, 0);
-	bshal_delay_ms(20);
+	bshal_delay_ms(50);
 
 	uint8_t dt = 0;
 	si4x3x_read_reg8(0x00, &dt);
@@ -186,11 +186,28 @@ int si4x3x_init() {
 	print("Si4432", 5);
 	framebuffer_apply();
 
+
+	// The frequency that was tuned to was 11 kHz too low for
+	// low band and 22 kHz too low for high band.
+	// Seems register 9 is needed to set the correct load capacitance.
+	// As on these AliExpress modules, there are no specs for the crystal
+	// So I have to trial and error to find the correct value,
+	// Tested various values, found 0x69 to give the correct frequency
+	// on the 868 MHz module. Need to repeat the test on 434 MHz modules
+	si4x3x_write_reg8(0x09, 0x69);
+
+
+	//  915 MHz band for the Americas
 	//  si4x3x_set_frequency(915000);
-//	si4x3x_set_frequency(868000);
-//	si4x3x_set_frequency(868000);
+
+
+	// Europe
+	si4x3x_set_frequency(868000);
+	////si4x3x_set_frequency(868022);
+
+	// Europe
 	//si4x3x_set_frequency(434000);
-	si4x3x_set_frequency(434012); // According to SDR I am 12 kHz too low
+	//si4x3x_set_frequency(434011); // According to SDR I am 12 kHz too low
 
 	si4x3x_configure_packet();
 
@@ -334,8 +351,8 @@ int main() {
 	radio_init();
 
 	if (0x87141031 == SERIALNUMBER) {
-		//si4x3x_send_test();
-		si4x3x_recv_test();
+		si4x3x_send_test();
+		//si4x3x_recv_test();
 		//rfm69_recv_test();
 		//rfm69_send_test();
 

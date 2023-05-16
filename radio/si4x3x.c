@@ -183,6 +183,7 @@ int si4x3x_set_frequency(int kHz) {
 	//r75.sbsel = 0;
 	si4x3x_write_reg8(0x75, r75.as_uint8);
 
+
 	si4x3x_write_reg16(0x76, fc);
 
 	return 0;
@@ -349,6 +350,10 @@ void si4x3x_configure_packet(void) {
 	si4x3x_write_reg8(0x06, 0xFF); //Enable Interrupts
 
 	si4x3x_write_reg8(0x30, 0b10001001); // disable crc for first tst
+
+	// Set CRC to CCIT, as this is what SX123x uses. still nothing
+	//si4x3x_write_reg8(0x30, 0b10001100);
+
 	si4x3x_write_reg8(0x32, 0x00); // No Header
 	si4x3x_write_reg8(0x33, 0x00); // No Header
 
