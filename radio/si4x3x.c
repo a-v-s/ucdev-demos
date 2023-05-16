@@ -347,7 +347,9 @@ void si4x3x_configure_packet(void) {
 	si4x3x_write_reg8(0x71, 0b00100011); //GFSK, FIFO
 	si4x3x_write_reg8(0x05, 0xFF); //Enable Interrupts
 	si4x3x_write_reg8(0x06, 0xFF); //Enable Interrupts
+
 	si4x3x_write_reg8(0x32, 0x00); // No Header
+	si4x3x_write_reg8(0x33, 0x00); // No Header
 
 	//si4x3x_write_reg8(0x30, 0b10001001); // disable crc for first tst
 

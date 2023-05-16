@@ -11,9 +11,8 @@ bshal_spim_instance_t radio_spi_config;
 // Looks like a pettern, we can optimise this
 // so we don't need to keep a table
 const static rfm69_rxbw_entry_t m_rxbw_entries[] = {
-		{ 2600, { 7, 0b10, 0b010 } },
-		{ 3100, { 7, 0b01, 0b010 } },
-		{ 3900, { 7, 0b00, 0b010 } },
+		{ 2600, { 7, 0b10, 0b010 } }, { 3100, { 7, 0b01, 0b010 } }, { 3900, { 7,
+				0b00, 0b010 } },
 
 		{ 5200, { 6, 0b10, 0b010 } }, { 6300, { 6, 0b01, 0b010 } }, { 7800, { 6,
 				0b00, 0b010 } },
@@ -60,17 +59,28 @@ int rfm69_write_fifo(void *data, uint8_t size) {
 	result = bshal_spim_transmit(&radio_spi_config, buff, sizeof(buff), true);
 	if (result)
 		return result;
+	result = bshal_spim_transmit(&radio_spi_config, &size, sizeof(size), true);
+	if (result)
+		return result;
+
 	return bshal_spim_transmit(&radio_spi_config, data, size, false);
 
 }
 
-int rfm69_read_fifo(void *data, uint8_t size) {
+int rfm69_read_fifo(void *data, uint8_t *size) {
 	int result;
 	uint8_t buff[1] = { RFM69_REG_FIFO | RFM69_READ };
 	result = bshal_spim_transmit(&radio_spi_config, buff, sizeof(buff), true);
 	if (result)
 		return result;
-	return bshal_spim_receive(&radio_spi_config, data, size, false);
+	uint8_t recv_size = 0;
+	result = bshal_spim_receive(&radio_spi_config, &recv_size, 1, true);
+	if (result)
+		return result;
+	if (recv_size > *size)
+		return -1;
+	*size = recv_size;
+	return bshal_spim_receive(&radio_spi_config, data, recv_size, false);
 }
 
 int rfm69_set_frequency(int kHz) {
@@ -78,8 +88,7 @@ int rfm69_set_frequency(int kHz) {
 	//int regval = (float) (1000*kHz) / (float) RFM69_FSTEP_HZ;
 
 	// Without the need of float
-	int regval = ( (uint64_t)(1000*kHz) << 19 ) / RFM69_XTAL_FREQ;
-
+	int regval = ((uint64_t)(1000 * kHz) << 19) / RFM69_XTAL_FREQ;
 
 	int status;
 
@@ -319,7 +328,11 @@ int rfm69_receive_request(rfm69_air_packet_t *p_packet) {
 	if (irq_flags_2.payload_ready) {
 		// there is data, but how much to read
 		// Is there a FIFO LEVEL register???
-		rfm69_read_fifo(p_packet, sizeof(rfm69_air_packet_t));
+		uint8_t size = sizeof(rfm69_air_packet_t);
+		rfm69_read_fifo(p_packet, &size);
+
+//		uint8_t buffer[64];
+//		rfm69_read_fifo(buffer, sizeof(buffer));
 
 		uint8_t rssi_raw;
 		rfm69_read_reg(RFM69_REG_RSSIVALUE, &rssi_raw);
@@ -359,6 +372,7 @@ void rfm69_configure_packet(void) {
 	config1.crc_on = 0; // for  inter-module testing
 	config1.dc_free = 0b00;
 	config1.packet_format = 1; // Variable Length
+	//config1.packet_format = 0; // Fixed Length for testing
 	rfm69_write_reg(RFM69_REG_PACKETCONFIG1, config1.as_uint8);
 
 	rfm69_packet_config2_t config2;
@@ -382,7 +396,6 @@ void rfm69_configure_packet(void) {
 
 	rfm69_write_reg(RFM69_REG_PAYLOADLENGTH, 0x40); // Max size when receiving
 	rfm69_write_reg(RFM69_REG_FIFOTHRESH, 0x80); // Start sending when 1 byte is in fifo
-
 
 	// Two RFM69 can communicate with RSSI timeout set to 0x10
 	// But receiving an Si4432 requires a higher value.
@@ -419,5 +432,4 @@ int rfm69_set_bandwidth(int hz) {
 	}
 	return -1;
 }
-
 
