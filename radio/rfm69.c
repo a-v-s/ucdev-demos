@@ -151,7 +151,7 @@ int rfm69_set_sync_word(uint32_t sync_word) {
 	config.sync_on = 1;
 	config.sync_size = 3; // size = sync_size + 1, thus 4
 	config.sync_tol = 0;
-//	rfm69_write_reg(RFM69_REG_SYNCCONFIG, config.as_uint8);
+	rfm69_write_reg(RFM69_REG_SYNCCONFIG, config.as_uint8);
 //	rfm69_write_reg(RFM69_REG_SYNCVALUE1, sync_word >> 24);
 //	rfm69_write_reg(RFM69_REG_SYNCVALUE2, sync_word >> 16);
 //	rfm69_write_reg(RFM69_REG_SYNCVALUE3, sync_word >> 8);
@@ -337,6 +337,12 @@ int rfm69_receive_request(rfm69_air_packet_t *p_packet) {
 	} else {
 		status = -1;
 	}
+
+//	if (irq_flags_1.timeout) {
+//		// What does timeout mean?
+//		rfm69_restart();
+//	}
+
 	bshal_delay_ms(1);
 	return status;
 }
@@ -350,7 +356,7 @@ void rfm69_configure_packet(void) {
 	config1.address_filtering = 0b00;
 	config1.crc_auto_clear_off = 0;
 	//config1.crc_on = 1;
-	config1.crc_on = 0;
+	config1.crc_on = 0; // for  inter-module testing
 	config1.dc_free = 0b00;
 	config1.packet_format = 1; // Variable Length
 	rfm69_write_reg(RFM69_REG_PACKETCONFIG1, config1.as_uint8);
@@ -377,7 +383,12 @@ void rfm69_configure_packet(void) {
 	rfm69_write_reg(RFM69_REG_PAYLOADLENGTH, 0x40); // Max size when receiving
 	rfm69_write_reg(RFM69_REG_FIFOTHRESH, 0x80); // Start sending when 1 byte is in fifo
 
-	rfm69_write_reg(RFM69_REG_RXTIMEOUT2, 0x10); // RSSI Timeout
+
+	// Two RFM69 can communicate with RSSI timeout set to 0x10
+	// But receiving an Si4432 requires a higher value.
+	// I put it to 0x40 but it can probably be smaller
+	//rfm69_write_reg(RFM69_REG_RXTIMEOUT2, 0x10); // RSSI Timeout
+	rfm69_write_reg(RFM69_REG_RXTIMEOUT2, 0x40); // RSSI Timeout
 
 }
 

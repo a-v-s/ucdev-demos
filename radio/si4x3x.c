@@ -392,6 +392,6 @@ int si4x3x_send_request(rfm69_air_packet_t *p_request,
 		si4x3x_read_reg8(0x03, &r03);
 		si4x3x_read_reg8(0x04, &r04);
 	}
-
+	bshal_delay_ms(1);
 	return 0;
 }
