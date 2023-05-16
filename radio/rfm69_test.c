@@ -204,7 +204,7 @@ int si4x3x_init() {
 	//si4x3x_set_tx_power(0);
 	//si4x3x_set_tx_power(-4);
 
-	si4x3x_set_sync_word(0xdeadbeef);
+
 	//si4x3x_set_sync_word(0xefbeadde);
 
 	return 0;
@@ -340,7 +340,7 @@ int main() {
 		//rfm69_send_test();
 
 	} else {
-		//rfm69_send_test();
-		si4x3x_send_test();
+		rfm69_send_test();
+		//si4x3x_send_test();
 	}
 }

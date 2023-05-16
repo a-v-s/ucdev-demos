@@ -348,10 +348,15 @@ void si4x3x_configure_packet(void) {
 	si4x3x_write_reg8(0x05, 0xFF); //Enable Interrupts
 	si4x3x_write_reg8(0x06, 0xFF); //Enable Interrupts
 
+	si4x3x_write_reg8(0x30, 0b10001001); // disable crc for first tst
 	si4x3x_write_reg8(0x32, 0x00); // No Header
 	si4x3x_write_reg8(0x33, 0x00); // No Header
 
-	//si4x3x_write_reg8(0x30, 0b10001001); // disable crc for first tst
+	si4x3x_write_reg8(0x35, 0b00010010); // Preamble detection
+
+	si4x3x_set_sync_word(0xdeadbeef);
+
+
 
 }
 
