@@ -350,6 +350,10 @@ int main() {
 	bshal_delay_ms(1000);
 	radio_init();
 
+
+	si4x6x_test();
+	while (1);
+
 	if (0x87141031 == SERIALNUMBER) {
 		si4x3x_send_test();
 		//si4x3x_recv_test();

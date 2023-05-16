@@ -24,6 +24,7 @@ C_SOURCES += rfm69_test.c
 C_SOURCES += rfm69.c
 
 C_SOURCES += si4x3x.c
+C_SOURCES += si4x6x.c
 
 
 C_INCLUDES += $(U8G2_DIR) 
