@@ -2,6 +2,8 @@
 
 #include <endian.h>
 
+#include "rfm69.h"
+
 const static si4x3x_rxbw_entry_t m_rxbw_entries[] = { { 2600, { .ndec_exp = 5,
 		.dwn3_bypass = 0, .filset = 1 } }, { 2800, { .ndec_exp = 5,
 		.dwn3_bypass = 0, .filset = 2 } }, { 3100, { .ndec_exp = 5,
@@ -42,26 +44,24 @@ const static si4x3x_rxbw_entry_t m_rxbw_entries[] = { { 2600, { .ndec_exp = 5,
 		.dwn3_bypass = 0, .filset = 5 } }, { 64100, { .ndec_exp = 1,
 		.dwn3_bypass = 0, .filset = 6 } },
 
-		/*
-		{ 69200, { .ndec_exp = 1,
-		.dwn3_bypass = 0, .filset = 7 } },
+/*
+ { 69200, { .ndec_exp = 1,
+ .dwn3_bypass = 0, .filset = 7 } },
 
-{ 75200, { .ndec_exp = 0, .dwn3_bypass = 0, .filset = 1 } }, { 83200, {
-		.ndec_exp = 0, .dwn3_bypass = 0, .filset = 2 } }, { 90000, { .ndec_exp =
-		0, .dwn3_bypass = 0, .filset = 3 } }, { 95300, { .ndec_exp = 0,
-		.dwn3_bypass = 0, .filset = 4 } }, { 112100, { .ndec_exp = 0,
-		.dwn3_bypass = 0, .filset = 5 } }, { 127900, { .ndec_exp = 0,
-		.dwn3_bypass = 0, .filset = 6 } }, { 137900, { .ndec_exp = 0,
-		.dwn3_bypass = 0, .filset = 7 } },
+ { 75200, { .ndec_exp = 0, .dwn3_bypass = 0, .filset = 1 } }, { 83200, {
+ .ndec_exp = 0, .dwn3_bypass = 0, .filset = 2 } }, { 90000, { .ndec_exp =
+ 0, .dwn3_bypass = 0, .filset = 3 } }, { 95300, { .ndec_exp = 0,
+ .dwn3_bypass = 0, .filset = 4 } }, { 112100, { .ndec_exp = 0,
+ .dwn3_bypass = 0, .filset = 5 } }, { 127900, { .ndec_exp = 0,
+ .dwn3_bypass = 0, .filset = 6 } }, { 137900, { .ndec_exp = 0,
+ .dwn3_bypass = 0, .filset = 7 } },
 
-*/
+ */
 // There are some more entries... but we are not working
 // that wide banded yet... also... the above follows a nice
 // pattern so we can reduce it to a formula.
-
 // The wide band entries do not follow the pattern above.
 // Good enough for now.
-
 // Termination
 		{ 0, { 0, 0, 0 } }, };
 
@@ -100,6 +100,52 @@ int si4x3x_read_reg16(uint16_t reg, uint16_t *val) {
 	return result;
 }
 
+int si4x3x_clear_tx_fifo() {
+	si4x3x_reg_08_t r08;
+	si4x3x_read_reg8(0x08, &r08);
+	r08.ffclrtx = 1;
+	si4x3x_write_reg8(0x08, r08.as_uint8);
+	r08.ffclrtx = 0;
+	si4x3x_write_reg8(0x08, r08.as_uint8);
+	return 0;
+}
+
+int si4x3x_clear_rx_fifo() {
+	si4x3x_reg_08_t r08;
+	si4x3x_read_reg8(0x08, &r08);
+	r08.ffclrrx = 1;
+	si4x3x_write_reg8(0x08, r08.as_uint8);
+	r08.ffclrrx = 0;
+	si4x3x_write_reg8(0x08, r08.as_uint8);
+	return 0;
+}
+
+int si4x3x_write_fifo(void *data, uint8_t size) {
+	si4x3x_reg_3e_t r3e = { };
+	r3e.pklen = size;
+	si4x3x_clear_tx_fifo();
+	si4x3x_write_reg8(0x3e, r3e.as_uint8);
+	uint8_t fifo_access = 0x7F | SI4X3X_WRITE;
+	bshal_spim_transmit(&radio_spi_config, &fifo_access, 1, true);
+	bshal_spim_transmit(&radio_spi_config, data, size, false);
+	return 0;
+}
+
+int si4x3x_read_fifo(void *data, uint8_t *size) {
+	si4x3x_reg_4b_t r4b;
+	int result = 0;
+	si4x3x_read_reg8(0x4B, &r4b);
+	if (*size < r4b.rxplen) {
+		result = -1;
+	} else {
+		*size = r4b.rxplen;
+	}
+	uint8_t fifo_access = 0x7F | SI4X3X_READ;
+	bshal_spim_transmit(&radio_spi_config, &fifo_access, 1, true);
+	bshal_spim_receive(&radio_spi_config, data, *size, false);
+	si4x3x_clear_rx_fifo();
+	return 0;
+}
 int si4x3x_set_frequency(int kHz) {
 	int fb, fc, hbsel;
 
@@ -124,36 +170,19 @@ int si4x3x_set_frequency(int kHz) {
 //		hbsel = 1;
 //	}
 
-	// Get the same without using floats
+// Get the same without using floats
 	int Hz = kHz * 1000;
 	hbsel = Hz >= 480000000;
 	fb = ((Hz >> hbsel) - 240000000) / 10000000;
 	fc = (((Hz >> hbsel) % 10000000) * 20) / 3125;
 
-
-
-
-
-
-
 	si4x3x_reg_75_t r75 = { 0 };
 	r75.fb = fb;
 	r75.hbsel = hbsel;
-	r75.sbsel = 1;
-
-//	uint8_t reg = 0x75 | 0x80;
-//	bshal_gpio_write_pin(radio_spi_config.cs_pin, 0);
-//	bshal_spim_transmit(&radio_spi_config, &reg, 1, true);
-//	bshal_spim_transmit(&radio_spi_config, &r75, 1, true);
-//	bshal_gpio_write_pin(radio_spi_config.cs_pin, 1);
+	r75.sbsel = 1; // AN440 says sbsel = 1 is recommended.
+	//r75.sbsel = 0;
 	si4x3x_write_reg8(0x75, r75.as_uint8);
 
-//	uint16_t r76 = htobe16(fc);
-//	uint8_t reg = 0x76 | 0x80;
-//	bshal_gpio_write_pin(radio_spi_config.cs_pin, 0);
-//	bshal_spim_transmit(&radio_spi_config, &reg, 1, true);
-//	bshal_spim_transmit(&radio_spi_config, &r76, 2, true);
-//	bshal_gpio_write_pin(radio_spi_config.cs_pin, 1);
 	si4x3x_write_reg16(0x76, fc);
 
 	return 0;
@@ -183,11 +212,11 @@ int si4x3x_set_bitrate(int bps) {
 
 	uint16_t txdr;
 	if (bps < 30000) {
-		r70.txdtrtscale = 1 ;
-		txdr =  ((uint64_t)(bps) << 21) / 1000000;
+		r70.txdtrtscale = 1;
+		txdr = ((uint64_t)(bps) << 21) / 1000000;
 	} else {
-		r70.txdtrtscale = 0 ;
-		txdr =  ((uint64_t)(bps) << 16) / 1000000;
+		r70.txdtrtscale = 0;
+		txdr = ((uint64_t)(bps) << 16) / 1000000;
 	}
 	si4x3x_write_reg8(0x70, r70.as_uint8);
 
@@ -213,7 +242,7 @@ int si4x3x_set_fdev(int hz) {
 }
 
 int si4x3x_set_bandwidth(int hz) {
-	si4x3x_reg_1C_t r1c;
+	si4x3x_reg_1c_t r1c;
 	int i;
 	for (i = 0; m_rxbw_entries[i].bandwidth; i++)
 		if (m_rxbw_entries[i].bandwidth > hz)
@@ -224,6 +253,68 @@ int si4x3x_set_bandwidth(int hz) {
 		return 0;
 	}
 	return -1;
+}
+
+int si4x3x_update_clock_recovery(void) {
+	// Clock Recovery registers 20 t/m 25 need to be
+	// updated when the bandwidth filter, frequency deviation
+	// or bitrate change to make reception work.
+
+	si4x3x_reg_70_t r70;
+	si4x3x_read_reg8(0x70, &r70);
+	uint16_t r6e;
+	si4x3x_read_reg16(0x6e, &r6e);
+
+	uint64_t Rb = ((uint64_t)(1000000 * (uint64_t) r6e))
+			>> (uint64_t)(r70.txdtrtscale ? 21 : 16);
+
+	si4x3x_reg_72_t r72;
+	si4x3x_read_reg8(0x72, &r72);
+	int Fd = 625 * r72.fd;
+
+	si4x3x_reg_1c_t r1c;
+	si4x3x_read_reg8(0x1c, &r1c);
+
+	uint64_t rxosr_val;
+	if (r1c.ndec_exp < 3) {
+		rxosr_val = (500000 * (1 + (2 * r1c.dwn3_bypass)))
+				/ ((Rb * (1 + r70.enmanch)) >> (3 - r1c.ndec_exp));
+	} else {
+		rxosr_val = (500000 * (1 + (2 * r1c.dwn3_bypass)))
+				/ ((Rb * (1 + r70.enmanch)) << (r1c.ndec_exp - 3));
+	}
+
+	uint64_t ncoff_val = ((uint64_t)(Rb) << (20 + r1c.ndec_exp + r70.enmanch))
+			/ (500000 * (1 + 2 * r1c.dwn3_bypass));
+
+	// Default value is off? Formula seems to match WDS output
+	uint64_t crgain_val = 2
+			+ (((uint64_t)(Rb) << (16 + r70.enmanch)) / (rxosr_val * Fd));
+
+	// Default value appears to be
+	//uint64_t crgain_val =  (((uint64_t)(Rb) << (15 + r70.enmanch)) / (rxosr_val * Fd));
+
+
+	si4x3x_reg_20_t r20 = { };
+	si4x3x_reg_21_t r21;
+	si4x3x_read_reg8(0x21, &r21);
+	r20.rxosr_7_0 = rxosr_val;
+	r21.rxosr_10_8 = rxosr_val >> 8;
+	si4x3x_write_reg8(0x20, r20.as_uint8);
+	si4x3x_write_reg8(0x21, r21.as_uint8);
+
+	si4x3x_write_reg16(0x22, ncoff_val);
+
+	si4x3x_reg_24_t r24 = { };
+	si4x3x_reg_25_t r25 = { };
+
+	r24.crgain_10_8 = crgain_val >> 8;
+	r25.crgain_7_0 = crgain_val;
+	si4x3x_write_reg8(0x24, r24.as_uint8);
+	si4x3x_write_reg8(0x25, r25.as_uint8);
+
+	return 0;
+
 }
 
 int si4x3x_set_tx_power(int tx_power) {
@@ -254,70 +345,32 @@ int si4x3x_set_tx_power(int tx_power) {
 void si4x3x_configure_packet(void) {
 	// Now.... let's configure packet mode and such
 	si4x3x_write_reg8(0x71, 0b00100011); //GFSK, FIFO
-	si4x3x_write_reg8(0x05, 0x06); //Enable Interrupts
+	si4x3x_write_reg8(0x05, 0xFF); //Enable Interrupts
+	si4x3x_write_reg8(0x06, 0xFF); //Enable Interrupts
 	si4x3x_write_reg8(0x32, 0x00); // No Header
 
-	si4x3x_write_reg8(0x30, 0b10001001); // disable crc for first tst
+	//si4x3x_write_reg8(0x30, 0b10001001); // disable crc for first tst
 
 }
 
-#include "rfm69.h"
+int si4x3x_receive_request(rfm69_air_packet_t *p_request) {
+	uint8_t reg, val;
+	si4x3x_reg_03_t r03 = { };
+	si4x3x_reg_04_t r04 = { };
 
-int si4x3x_receive_request(rfm69_air_packet_t *p_request){
-	uint8_t reg,val;
+	si4x3x_clear_rx_fifo();
+	si4x3x_write_reg8(0x07, 0x04);
 
-	// Clear fifo
-	reg = 0x08 | 0x80;
-	val = 0x02;
-	bshal_gpio_write_pin(radio_spi_config.cs_pin, 0);
-	bshal_spim_transmit(&radio_spi_config, &reg, 1, true);
-	bshal_spim_transmit(&radio_spi_config, &val, 1, true);
-	bshal_gpio_write_pin(radio_spi_config.cs_pin, 1);
-	//bshal_delay_ms(1);
-
-	reg = 0x08 | 0x80;
-	val = 0x00;
-	bshal_gpio_write_pin(radio_spi_config.cs_pin, 0);
-	bshal_spim_transmit(&radio_spi_config, &reg, 1, true);
-	bshal_spim_transmit(&radio_spi_config, &val, 1, true);
-	bshal_gpio_write_pin(radio_spi_config.cs_pin, 1);
-	//bshal_delay_ms(1);
-
-	// start reception
-	reg = 0x07 | 0x80;
-	val = 0x04;
-	bshal_gpio_write_pin(radio_spi_config.cs_pin, 0);
-	bshal_spim_transmit(&radio_spi_config, &reg, 1, true);
-	bshal_spim_transmit(&radio_spi_config, &val, 1, true);
-	bshal_gpio_write_pin(radio_spi_config.cs_pin, 1);
-	//bshal_delay_ms(1);
-
-	// read interrupt, should read transmission done
-	val = 0x00;
-	reg = 0x03;
-	while (!(val & 0b10)) {
-		bshal_gpio_write_pin(radio_spi_config.cs_pin, 0);
-		bshal_spim_transmit(&radio_spi_config, &reg, 1, true);
-		bshal_spim_receive(&radio_spi_config, &val, 1, true);
-		bshal_gpio_write_pin(radio_spi_config.cs_pin, 1);
+	while (!r03.ipkvalid) {
+		bshal_delay_ms(1);
+		si4x3x_read_reg8(0x03, &r03);
+		si4x3x_read_reg8(0x04, &r04);
 	}
-	// packet received
 
-	val = 0x00;
-	reg = 0x4B; // received packet size
-	bshal_gpio_write_pin(radio_spi_config.cs_pin, 0);
-	bshal_spim_transmit(&radio_spi_config, &reg, 1, true);
-	bshal_spim_receive(&radio_spi_config, &val, 1, true);
-	bshal_gpio_write_pin(radio_spi_config.cs_pin, 1);
+	uint8_t size = sizeof(rfm69_air_packet_t);
+	si4x3x_read_fifo(p_request, &size);
 
-	memset(p_request, 0, sizeof(rfm69_air_packet_t));
-	reg = 0x7F; // fifo
-	bshal_gpio_write_pin(radio_spi_config.cs_pin, 0);
-	bshal_spim_transmit(&radio_spi_config, &reg, 1, true);
-	bshal_spim_receive(&radio_spi_config, p_request, val, true);
-	bshal_gpio_write_pin(radio_spi_config.cs_pin, 1);
 	return 0;
-
 
 }
 
@@ -326,58 +379,18 @@ int si4x3x_send_request(rfm69_air_packet_t *p_request,
 	uint8_t reg;
 	uint8_t val;
 
-	// Clear fifo
-	reg = 0x08 | 0x80;
-	val = 0x01;
-	bshal_gpio_write_pin(radio_spi_config.cs_pin, 0);
-	bshal_spim_transmit(&radio_spi_config, &reg, 1, true);
-	bshal_spim_transmit(&radio_spi_config, &val, 1, true);
-	bshal_gpio_write_pin(radio_spi_config.cs_pin, 1);
-	//bshal_delay_ms(1);
+//	// Clear fifo
+	si4x3x_clear_tx_fifo();
 
-	reg = 0x08 | 0x80;
-	val = 0x01;
-	bshal_gpio_write_pin(radio_spi_config.cs_pin, 0);
-	bshal_spim_transmit(&radio_spi_config, &reg, 1, true);
-	bshal_spim_transmit(&radio_spi_config, &val, 1, true);
-	bshal_gpio_write_pin(radio_spi_config.cs_pin, 1);
-	//bshal_delay_ms(1);
+	si4x3x_write_fifo(p_request, p_request->header.size);
 
-	reg = 0x7F | 0x80; // Fifo Data
+	si4x3x_write_reg8(0x07, 0x08);
 
-	// write
-	bshal_gpio_write_pin(radio_spi_config.cs_pin, 0);
-	bshal_spim_transmit(&radio_spi_config, &reg, 1, true);
-	bshal_spim_transmit(&radio_spi_config, p_request, p_request->header.size,
-			true);
-	bshal_gpio_write_pin(radio_spi_config.cs_pin, 1);
-	//bshal_delay_ms(1);
-
-	// Data size
-	reg = 0x3e | 0x80;
-	bshal_gpio_write_pin(radio_spi_config.cs_pin, 0);
-	bshal_spim_transmit(&radio_spi_config, &reg, 1, true);
-	bshal_spim_transmit(&radio_spi_config, &p_request->header.size, 1, true);
-	bshal_gpio_write_pin(radio_spi_config.cs_pin, 1);
-//		//bshal_delay_ms(1);
-
-	// start transmission
-	reg = 0x07 | 0x80;
-	val = 0x08;
-	bshal_gpio_write_pin(radio_spi_config.cs_pin, 0);
-	bshal_spim_transmit(&radio_spi_config, &reg, 1, true);
-	bshal_spim_transmit(&radio_spi_config, &val, 1, true);
-	bshal_gpio_write_pin(radio_spi_config.cs_pin, 1);
-	//bshal_delay_ms(1);
-
-	// read interrupt, should read transmission done
-	val = 0x00;
-	reg = 0x03;
-	while (!(val & 0b100)) {
-		bshal_gpio_write_pin(radio_spi_config.cs_pin, 0);
-		bshal_spim_transmit(&radio_spi_config, &reg, 1, true);
-		bshal_spim_receive(&radio_spi_config, &val, 1, true);
-		bshal_gpio_write_pin(radio_spi_config.cs_pin, 1);
+	si4x3x_reg_03_t r03 = { };
+	si4x3x_reg_03_t r04 = { };
+	while (!r03.ipksent) {
+		si4x3x_read_reg8(0x03, &r03);
+		si4x3x_read_reg8(0x04, &r04);
 	}
 
 	return 0;

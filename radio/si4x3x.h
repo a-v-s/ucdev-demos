@@ -161,7 +161,7 @@ typedef union {
 		unsigned int clkt :2;
 	};
 	uint8_t as_uint8;
-} si4x3x_reg_0A_t;
+} si4x3x_reg_0a_t;
 
 typedef union {
 	struct {
@@ -170,7 +170,7 @@ typedef union {
 		unsigned int gpiodrv0 :2;
 	};
 	uint8_t as_uint8;
-} si4x3x_reg_0B_t;
+} si4x3x_reg_0b_t;
 
 typedef union {
 	struct {
@@ -179,7 +179,7 @@ typedef union {
 		unsigned int gpiodrv1 :2;
 	};
 	uint8_t as_uint8;
-} si4x3x_reg_0C_t;
+} si4x3x_reg_0c_t;
 
 typedef union {
 	struct {
@@ -188,7 +188,7 @@ typedef union {
 		unsigned int gpiodrv2 :2;
 	};
 	uint8_t as_uint8;
-} si4x3x_reg_0D_t;
+} si4x3x_reg_0d_t;
 
 typedef union {
 	struct {
@@ -201,7 +201,7 @@ typedef union {
 		unsigned int extitst2 :1;
 	};
 	uint8_t as_uint8;
-} si4x3x_reg_0E_t;
+} si4x3x_reg_0e_t;
 
 typedef union {
 	struct {
@@ -211,7 +211,7 @@ typedef union {
 		unsigned int adcstart_adcdone :1;
 	};
 	uint8_t as_uint8;
-} si4x3x_reg_0F_t;
+} si4x3x_reg_0f_t;
 
 //---
 
@@ -269,14 +269,14 @@ typedef union {
 		unsigned int lbdt :5;
 	};
 	uint8_t as_uint8;
-} si4x3x_reg_1A_t;
+} si4x3x_reg_1a_t;
 
 typedef union {
 	struct {
 		unsigned int vbat :5;
 	};
 	uint8_t as_uint8;
-} si4x3x_reg_1B_t;
+} si4x3x_reg_1b_t;
 
 typedef union {
 	struct {
@@ -285,7 +285,7 @@ typedef union {
 		unsigned int dwn3_bypass :1;
 	};
 	uint8_t as_uint8;
-} si4x3x_reg_1C_t;
+} si4x3x_reg_1c_t;
 
 typedef union {
 	struct {
@@ -297,7 +297,7 @@ typedef union {
 		unsigned int afcbd :1;
 	};
 	uint8_t as_uint8;
-} si4x3x_reg_1D_t;
+} si4x3x_reg_1d_t;
 
 typedef union {
 	struct {
@@ -306,7 +306,7 @@ typedef union {
 		unsigned int swant_timer :1;
 	};
 	uint8_t as_uint8;
-} si4x3x_reg_1E_t;
+} si4x3x_reg_1e_t;
 
 typedef union {
 	struct {
@@ -314,13 +314,51 @@ typedef union {
 		unsigned int crfast :3;
 	};
 	uint8_t as_uint8;
-} si4x3x_reg_1F_t;
+} si4x3x_reg_1f_t;
 
 //---
 
 // reg 20, 21 stretch 11 bit value txosr
 // reg 21, 22, 23 stretch a 20 bit value ncoff
 // reg 24,25, stretch 11 bit value crgain
+
+typedef union {
+	struct {
+		unsigned int rxosr_7_0 : 8;
+	};
+	uint8_t as_uint8;
+}si4x3x_reg_20_t;
+
+
+typedef union {
+	struct {
+		unsigned int ncoff_19_16 : 4;
+		unsigned int skip2phth : 1;
+		unsigned int rxosr_10_8 : 3;
+	};
+	uint8_t as_uint8;
+}si4x3x_reg_21_t;
+
+
+// 22, 23 can be written 16 bit "ncoff"
+
+typedef union {
+	struct {
+		unsigned int crgain_10_8:3;
+		unsigned int cgainx2 : 1;
+		unsigned int rxncocomp : 1;
+	};
+	uint8_t as_uint8;
+}si4x3x_reg_24_t;
+
+typedef union {
+	struct {
+		unsigned int crgain_7_0:8;
+	};
+	uint8_t as_uint8;
+}si4x3x_reg_25_t;
+
+
 
 typedef union {
 	struct {
@@ -355,7 +393,7 @@ typedef union {
 		unsigned int adclim :8;
 	};
 	uint8_t as_uint8;
-} si4x3x_reg_2A_t;
+} si4x3x_reg_2a_t;
 
 // 2b, 2c, 10 bit val afc_corr
 // 2c, 2d, 11 bit val ookcnt
@@ -366,7 +404,7 @@ typedef union {
 		unsigned int attacl :3;
 	};
 	uint8_t as_uint8;
-} si4x3x_reg_2E_t;
+} si4x3x_reg_2e_t;
 
 // 2f undefined
 
@@ -432,6 +470,84 @@ typedef union {
 	uint8_t as_uint8;
 } si4x3x_reg_35_t;
 
+// 35 .. 39 sync word
+// 3a .. 3d transmission header
+
+typedef union {
+	struct {
+		unsigned int pklen :8;
+	};
+	uint8_t as_uint8;
+} si4x3x_reg_3e_t;
+
+// 3f .. 42 check header
+// 43 .. 46 header enable
+// 47 .. 4A received header
+
+typedef union {
+	struct {
+		unsigned int rxplen :8;
+	};
+	uint8_t as_uint8;
+} si4x3x_reg_4b_t;
+
+// 4c .. 4e, not defined
+
+typedef union {
+	struct {
+		unsigned int adc8 :6;
+	};
+	uint8_t as_uint8;
+} si4x3x_reg_4f_t;
+
+// 50 .. 5f not defined
+
+typedef union {
+	struct {
+		unsigned int :4;
+		unsigned int invalid_preamble_threshold :4;
+	};
+	uint8_t as_uint8;
+} si4x3x_reg_60_t;
+
+// 61 not defined
+
+typedef union {
+	struct {
+		unsigned int enbuf :1;
+		unsigned int bufovr :1;
+		unsigned int enamp2x :1;
+		unsigned int enbias2x :1;
+		unsigned int clkhyst :1;
+		unsigned int pwst :3;
+	};
+	uint8_t as_uint8;
+} si4x3x_reg_62_t;
+
+// 64..68 not defined
+
+typedef union {
+	struct {
+		unsigned int pga :4;
+		unsigned int lnagain :1;
+		unsigned int agcen :1;
+		unsigned int sgin :1;
+	};
+	uint8_t as_uint8;
+} si4x3x_reg_69_t;
+
+// 6a..6c not defined
+
+typedef union {
+	struct {
+		unsigned int txpow :3;
+		unsigned int lna_sw :1;
+	};
+	uint8_t as_uint8;
+} si4x3x_reg_6d_t;
+
+// 6e, 6f tx data rate
+
 typedef union {
 	struct {
 		unsigned int enwhite :1;
@@ -458,6 +574,27 @@ typedef union {
 
 typedef union {
 	struct {
+		unsigned int fd :8;
+	};
+	uint8_t as_uint8;
+} si4x3x_reg_72_t;
+
+typedef union {
+	struct {
+		unsigned int fo0 :8; // 10 bit vaL
+	};
+	uint8_t as_uint8;
+} si4x3x_reg_73_t;
+
+typedef union {
+	struct {
+		unsigned int fo8 :2; // 10 bit vaL
+	};
+	uint8_t as_uint8;
+} si4x3x_reg_74_t;
+
+typedef union {
+	struct {
 		unsigned int fb :5;
 		unsigned int hbsel :1;
 		unsigned int sbsel :1;
@@ -466,17 +603,48 @@ typedef union {
 	uint8_t as_uint8;
 } si4x3x_reg_75_t;
 
+// 76, 77 16 BIT VAL FC
+
 typedef union {
 	struct {
-		unsigned int txpow :3;
-		unsigned int lna_sw :1;
+		unsigned int fhch :8;
 	};
 	uint8_t as_uint8;
-} si4x3x_reg_6d_t;
+} si4x3x_reg_79_t;
+
+typedef union {
+	struct {
+		unsigned int fhs :8;
+	};
+	uint8_t as_uint8;
+} si4x3x_reg_7a_t;
+
+// 7b not used
+
+typedef union {
+	struct {
+		unsigned int txafthr :6;
+	};
+	uint8_t as_uint8;
+} si4x3x_reg_7c_t;
+
+typedef union {
+	struct {
+		unsigned int txfaethr :6;
+	};
+	uint8_t as_uint8;
+} si4x3x_reg_7d_t;
+
+typedef union {
+	struct {
+		unsigned int rxafthr :6;
+	};
+	uint8_t as_uint8;
+} si4x3x_reg_7e_t;
 
 typedef struct {
 	uint16_t bandwidth;
-	si4x3x_reg_1C_t rxbw;
+	si4x3x_reg_1c_t rxbw;
 } si4x3x_rxbw_entry_t;
 
 #pragma pack(pop)
