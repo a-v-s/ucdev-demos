@@ -195,7 +195,7 @@ typedef union {
         unsigned int fifo_overrun : 1;
         unsigned int fifo_level : 1;
         unsigned int fifo_not_empty : 1;
-        unsigned int fifo_full : 1
+        unsigned int fifo_full : 1;
     };
     uint8_t as_uint8;
 } rfm69_irq_flags_2_t;
