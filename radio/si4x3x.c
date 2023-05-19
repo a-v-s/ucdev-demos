@@ -42,21 +42,17 @@ const static si4x3x_rxbw_entry_t m_rxbw_entries[] = { { 2600, { .ndec_exp = 5,
 		1, .dwn3_bypass = 0, .filset = 3 } }, { 47900, { .ndec_exp = 1,
 		.dwn3_bypass = 0, .filset = 4 } }, { 56200, { .ndec_exp = 1,
 		.dwn3_bypass = 0, .filset = 5 } }, { 64100, { .ndec_exp = 1,
-		.dwn3_bypass = 0, .filset = 6 } },
+		.dwn3_bypass = 0, .filset = 6 } }, { 69200, { .ndec_exp = 1,
+		.dwn3_bypass = 0, .filset = 7 } },
 
-/*
- { 69200, { .ndec_exp = 1,
- .dwn3_bypass = 0, .filset = 7 } },
+{ 75200, { .ndec_exp = 0, .dwn3_bypass = 0, .filset = 1 } }, { 83200, {
+		.ndec_exp = 0, .dwn3_bypass = 0, .filset = 2 } }, { 90000, { .ndec_exp =
+		0, .dwn3_bypass = 0, .filset = 3 } }, { 95300, { .ndec_exp = 0,
+		.dwn3_bypass = 0, .filset = 4 } }, { 112100, { .ndec_exp = 0,
+		.dwn3_bypass = 0, .filset = 5 } }, { 127900, { .ndec_exp = 0,
+		.dwn3_bypass = 0, .filset = 6 } }, { 137900, { .ndec_exp = 0,
+		.dwn3_bypass = 0, .filset = 7 } },
 
- { 75200, { .ndec_exp = 0, .dwn3_bypass = 0, .filset = 1 } }, { 83200, {
- .ndec_exp = 0, .dwn3_bypass = 0, .filset = 2 } }, { 90000, { .ndec_exp =
- 0, .dwn3_bypass = 0, .filset = 3 } }, { 95300, { .ndec_exp = 0,
- .dwn3_bypass = 0, .filset = 4 } }, { 112100, { .ndec_exp = 0,
- .dwn3_bypass = 0, .filset = 5 } }, { 127900, { .ndec_exp = 0,
- .dwn3_bypass = 0, .filset = 6 } }, { 137900, { .ndec_exp = 0,
- .dwn3_bypass = 0, .filset = 7 } },
-
- */
 // There are some more entries... but we are not working
 // that wide banded yet... also... the above follows a nice
 // pattern so we can reduce it to a formula.
@@ -183,7 +179,6 @@ int si4x3x_set_frequency(int kHz) {
 	//r75.sbsel = 0;
 	si4x3x_write_reg8(0x75, r75.as_uint8);
 
-
 	si4x3x_write_reg16(0x76, fc);
 
 	return 0;
@@ -295,7 +290,6 @@ int si4x3x_update_clock_recovery(void) {
 	// Default value appears to be
 	//uint64_t crgain_val =  (((uint64_t)(Rb) << (15 + r70.enmanch)) / (rxosr_val * Fd));
 
-
 	si4x3x_reg_20_t r20 = { };
 	si4x3x_reg_21_t r21;
 	si4x3x_read_reg8(0x21, &r21);
@@ -360,8 +354,6 @@ void si4x3x_configure_packet(void) {
 	si4x3x_write_reg8(0x35, 0b00010010); // Preamble detection
 
 	si4x3x_set_sync_word(0xdeadbeef);
-
-
 
 }
 

@@ -133,15 +133,16 @@ int rfm69_init() {
 	rfm69_calibarte_rc();
 
 	rfm69_configure_packet();
-
-	rfm69_set_bitrate(12500);
-	rfm69_set_fdev(12500);
-	rfm69_set_bandwidth(25000);
+//
+//	rfm69_set_bitrate(12500);
+//	rfm69_set_fdev(12500);
+//	rfm69_set_bandwidth(25000);
 
 // THese appear to be the Si4463 defaults
-//	rfm69_set_bitrate(100000);
-//	rfm69_set_fdev(50000);
-//	rfm69_set_bandwidth(100000);
+	//rfm69_set_bitrate(100000);
+	rfm69_set_bitrate(100000);
+	rfm69_set_fdev(50000);
+	rfm69_set_bandwidth(100000);
 
 
 	//rfm69_set_tx_power(17);
@@ -153,17 +154,20 @@ int rfm69_init() {
 	rfm69_write_reg(RFM69_REG_RSSITHRESH, 0xC4);
 
 	rfm69_set_sync_word(0xdeadbeef);
-	//rfm69_set_sync_word(0x2dd42dd4);
 
 
-//// for testing
-//	rfm69_sync_config_t config;
-//	config.fifo_fill_condition = 0;
-//	config.sync_on = 1;
-//	config.sync_size = 0; // size = sync_size + 1, thus 4
-//	config.sync_tol = 0;
-//
-//	rfm69_write_reg(RFM69_REG_SYNCVALUE1, 0xDE);
+
+//	rfm69_set_sync_word(0xb42bb42b); // default on si4663
+	//rfm69_set_sync_word(0xAAAAAAAA); // sync on preamble for debugginh
+	rfm_set_sync_word_16bit(0xAAAA);
+	//rfm_set_sync_word_16bit(0x5555);
+	//rfm_set_sync_word_16bit(0xb42b);
+	// rfm_set_sync_word_16bit(0x2bb4); // might be endianness after all?
+//	rfm69_set_sync_word(0x2bb42bb4); // endiannes after all
+
+
+
+
 
 	/*
 	 The DAGC is enabled by setting RegTestDagc to 0x20 for low modulation index systems
@@ -299,6 +303,7 @@ void rfm69_recv_test() {
 	rfm69_set_mode(rfm69_mode_rx);
 	rfm69_restart();
 
+	int cnt = 0;
 	while (1) {
 
 		if (!rfm69_receive_request(&packet)) {
@@ -309,6 +314,8 @@ void rfm69_recv_test() {
 
 				sprintf(strbuff, "RX %02X", packet.data[4]);
 			print(strbuff, 1);
+			sprintf(strbuff, "CNT %02X", cnt++);
+			print(strbuff, 2);
 			framebuffer_apply();
 			memset(&packet, 0, sizeof(packet));
 			draw_plain_background();
@@ -345,6 +352,7 @@ int main() {
 	SystemClock_Config();
 	SystemCoreClockUpdate();
 	dwt_init();
+	bshal_delay_init();
 	HAL_Init();
 
 	bshal_delay_init();
@@ -371,7 +379,7 @@ int main() {
 
 	} else {
 		si4x6x_send_test();
-		//rfm69_send_test();
+//		rfm69_send_test();
 		//si4x3x_send_test();
 	}
 }

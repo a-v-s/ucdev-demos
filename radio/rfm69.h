@@ -233,7 +233,7 @@ typedef union{
 } rfm69_rxbw_t;
 
 typedef struct {
-	uint16_t bandwidth;
+	uint32_t bandwidth;
 	rfm69_rxbw_t rxbw;
 } rfm69_rxbw_entry_t;
 

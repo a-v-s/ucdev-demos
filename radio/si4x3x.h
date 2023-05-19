@@ -643,7 +643,7 @@ typedef union {
 } si4x3x_reg_7e_t;
 
 typedef struct {
-	uint16_t bandwidth;
+	uint32_t bandwidth;
 	si4x3x_reg_1c_t rxbw;
 } si4x3x_rxbw_entry_t;
 

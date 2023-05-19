@@ -74,12 +74,19 @@ int rfm69_read_fifo(void *data, uint8_t *size) {
 	if (result)
 		return result;
 	uint8_t recv_size = 0;
-	result = bshal_spim_receive(&radio_spi_config, &recv_size, 1, true);
-	if (result)
-		return result;
-	if (recv_size > *size)
-		return -1;
-	*size = recv_size;
+
+	// temporary disabled for testing
+	// using fixed size packets for debugging purposes
+	if (0) {
+		result = bshal_spim_receive(&radio_spi_config, &recv_size, 1, true);
+		if (result)
+			return result;
+		if (recv_size > *size)
+			return -1;
+		*size = recv_size;
+	} else {
+		recv_size = *size;
+	}
 	return bshal_spim_receive(&radio_spi_config, data, recv_size, false);
 }
 
@@ -170,6 +177,26 @@ int rfm69_set_sync_word(uint32_t sync_word) {
 	rfm69_write_reg(RFM69_REG_SYNCVALUE2, (sync_word & 0xFF00) >> 8);
 	rfm69_write_reg(RFM69_REG_SYNCVALUE3, (sync_word & 0xFF0000) >> 16);
 	rfm69_write_reg(RFM69_REG_SYNCVALUE4, (sync_word & 0xFF000000) >> 24);
+	return 0;
+}
+
+int rfm69_set_sync_word_24bit(uint32_t sync_word) {
+	//debug_println("Setting SYNC word to %08X", sync_word);
+	rfm69_sync_config_t config;
+	config.fifo_fill_condition = 0;
+	config.sync_on = 1;
+	config.sync_size = 2; // size = sync_size + 1, thus 3
+	config.sync_tol = 0;
+	rfm69_write_reg(RFM69_REG_SYNCCONFIG, config.as_uint8);
+//	rfm69_write_reg(RFM69_REG_SYNCVALUE1, sync_word >> 24);
+//	rfm69_write_reg(RFM69_REG_SYNCVALUE2, sync_word >> 16);
+//	rfm69_write_reg(RFM69_REG_SYNCVALUE3, sync_word >> 8);
+//	rfm69_write_reg(RFM69_REG_SYNCVALUE4, sync_word );
+
+	rfm69_write_reg(RFM69_REG_SYNCVALUE1, sync_word & 0xFF);
+	rfm69_write_reg(RFM69_REG_SYNCVALUE2, (sync_word & 0xFF00) >> 8);
+	rfm69_write_reg(RFM69_REG_SYNCVALUE3, (sync_word & 0xFF0000) >> 16);
+//	rfm69_write_reg(RFM69_REG_SYNCVALUE4, (sync_word & 0xFF000000) >> 24);
 	return 0;
 }
 
@@ -329,7 +356,13 @@ int rfm69_receive_request(rfm69_air_packet_t *p_packet) {
 		// there is data, but how much to read
 		// Is there a FIFO LEVEL register???
 		uint8_t size = sizeof(rfm69_air_packet_t);
-		rfm69_read_fifo(p_packet, &size);
+		//rfm69_read_fifo(p_packet, &size);
+
+		uint8_t buffer[64] = {};
+		size = 64;
+		rfm69_read_fifo(buffer, &size);
+		memcpy(p_packet, buffer, 64);
+
 
 //		uint8_t buffer[64];
 //		rfm69_read_fifo(buffer, sizeof(buffer));
@@ -372,11 +405,12 @@ void rfm69_configure_packet(void) {
 	config1.dc_free = 0b00;
 
 
-	//config1.crc_on = 1;
-	//config1.packet_format = 0; // Fixed Length for intermodule testing
+//	config1.crc_on = 1;
+//	config1.packet_format = 1; // Variable Length
+
 
 	config1.crc_on = 0; // for  inter-module testing
-	config1.packet_format = 1; // Variable Length
+	config1.packet_format = 0; // Fixed Length for intermodule testing
 
 
 

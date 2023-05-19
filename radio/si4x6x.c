@@ -106,7 +106,30 @@ int si4x6x_read_fifo(void *data, uint8_t size) {
 
 
 int si4x6x_set_sync_word(uint32_t sync_word) {
+	uint8_t debug[5];
+	si4x6x_get_properties(0x11,0x00,debug, 5);
 
+	bool pol = (sync_word & 0x80000000);
+	// is the polarity of the sync the problem?
+	si4x6x_set_property(0x10,0x04,1|(pol << 5));
+
+	si4x6x_set_property(0x11,0x00,0x03);
+
+	// The bits in the sync word are transmitted in the opposite
+	// order of the values put in the register.
+	// Its awkward to write in C, when its just 2 assembly instructions
+	// TODO: is there a RISC-V equivalent of the rbit instruction?
+#if defined(__arm__)
+	asm("rbit %0,%0" : "=r"(sync_word) );
+	asm("rev %0,%0" : "=r"(sync_word));
+#else
+#error "Not implemented on other architectures yet"
+#endif
+
+
+	si4x6x_set_properties(0x11,0x01,&sync_word, 4);
+	si4x6x_get_properties(0x11,0x00,debug, 5);
+	return 0;
 }
 
 int si4x6x_test(void) {
@@ -160,7 +183,27 @@ int si4x6x_test(void) {
 //
 	//si4x6x_set_frequency(434000); 	// works now
 
-	si4x6x_get_properties(0x40, 0x00, buffer, sizeof(buffer));
+
+	// What did it generate???
+//	si4x6x_set_property(0x12, 0x08, 0x2A); // Configuration bits for reception of a variable length packet.
+
+	si4x6x_set_property(0x12, 0x08, 0x02);
+	si4x6x_set_property(0x12, 0x09, 0x01); // Field number containing the received packet length byte(s).
+
+	//si4x6x_set_sync_word(0xdeadbeef);
+
+
+	char prop[]= {
+	 0x00,//   PKT_FIELD_1_LENGTH_12_8 - Unsigned 13-bit Field 1 length value.
+	 0x01,//   PKT_FIELD_1_LENGTH_7_0 - Unsigned 13-bit Field 1 length value.
+	 0x04,//   PKT_FIELD_1_CONFIG - General data processing and packet configuration bits for Field 1.
+	 0x00,//   PKT_FIELD_1_CRC_CONFIG - Configuration of CRC control bits across Field 1.
+	 0x00,//   PKT_FIELD_2_LENGTH_12_8 - Unsigned 13-bit Field 2 length value.
+	 0x3F,//   PKT_FIELD_2_LENGTH_7_0 - Unsigned 13-bit Field 2 length value.
+	 0x00,//   PKT_FIELD_2_CONFIG - General data processing and packet configuration bits for Field 2.
+	 0x00,//   PKT_FIELD_2_CRC_CONFIG - Configuration of CRC control bits across Field 2.
+	};
+	si4x6x_set_properties(0x12, 0x0d, prop, sizeof(prop));
 
 
 
@@ -170,15 +213,23 @@ int si4x6x_test(void) {
 
 void si4x6x_send_test(void) {
 	si4x6x_test();
+	int cnt = 0;
 	while (true) {
 
 		bshal_delay_ms(1000);
-		rfm69_air_packet_t packet;
+		rfm69_air_packet_t packet = {};
 		packet.header.size = 64;
 		packet.data[0] = 1;
-		packet.data[2] = 2;
-		packet.data[3] = 4;
-		packet.data[4] = 8;
+		packet.data[1] = 2;
+		packet.data[2] = 4;
+		packet.data[3] = 8;
+
+		packet.data[4] =cnt++;
+
+		packet.data[5] = 0xAA;
+		packet.data[6] = 0xAA;
+		packet.data[7] = 0x55;
+		packet.data[8] = 0x55;
 		si4x6x_send_request(&packet, &packet);
 
 	}
@@ -329,8 +380,12 @@ int si4x6x_send_request(rfm69_air_packet_t *p_request,
 	int result = si4x6x_write_fifo(p_request, p_request->header.size);
 	if (result)
 		return result;
-	si4x6x_cmd_start_tx_t start_tx = { .tx_len_7_0 = p_request->header.size,
-			.tx_complete_state = 3 };
+//	si4x6x_cmd_start_tx_t start_tx = { .tx_len_7_0 = p_request->header.size,
+//			.tx_complete_state = 3 };
+
+	si4x6x_cmd_start_tx_t start_tx = { 	.tx_complete_state = 3 };
+
+
 	return si4x6x_command(SI4X6X_CMD_START_TX, &start_tx, sizeof(start_tx),
 			NULL, 0);
 }
