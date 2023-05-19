@@ -89,10 +89,24 @@ int si4x6x_get_property(uint8_t group, uint8_t property, uint8_t *value) {
 }
 
 int si4x6x_write_fifo(void *data, uint8_t size) {
-	return si4x6x_command(SI4X6X_CMD_WRITE_TX_FIFO, data, size, NULL, 0);
+	//return si4x6x_command(SI4X6X_CMD_WRITE_TX_FIFO, data, size, NULL, 0);
+
+	// Seems variable length packet.can't automatically set size
+	// on the Si4x6x  (It did on the Si4x3x)
+	// So we'll have to write the length value to the fifo like we
+	// do on the RFM69
+	uint8_t clear_fifo = 0x01;
+	si4x6x_command(SI4X6X_CMD_FIFO_INFO, &clear_fifo, 1, NULL, 0);
+
+	uint8_t cmd[] = {SI4X6X_CMD_WRITE_TX_FIFO, size};
+	int result = bshal_spim_transmit(&radio_spi_config, &cmd, 2, true);
+	bshal_spim_transmit(&radio_spi_config, data,size,false);
+
+	return 0;
+
 }
 
-int si4x6x_read_fifo(void *data, uint8_t size) {
+int si4x6x_read_fifo(void *data, uint8_t *size) {
 	uint8_t cmd = SI4X6X_CMD_READ_RX_FIFO;
 	int result;
 	result = bshal_spim_transmit(&radio_spi_config, &cmd, 1, true);
@@ -100,7 +114,18 @@ int si4x6x_read_fifo(void *data, uint8_t size) {
 		bshal_gpio_write_pin(radio_spi_config.cs_pin, !radio_spi_config.cs_pol);
 		return result;
 	}
-	result = bshal_spim_receive(&radio_spi_config, data,size, false);
+	uint8_t recv_size;
+	result = bshal_spim_receive(&radio_spi_config, &recv_size,1, true);
+	if (*size < recv_size) {
+		result = -1;
+	} else {
+		*size = recv_size;
+	}
+	bshal_spim_receive(&radio_spi_config, data, *size, false);
+
+
+
+	//result = bshal_spim_receive(&radio_spi_config, data,size, false);
 	return result;
 }
 
@@ -120,8 +145,10 @@ int si4x6x_set_sync_word(uint32_t sync_word) {
 	// Its awkward to write in C, when its just 2 assembly instructions
 	// TODO: is there a RISC-V equivalent of the rbit instruction?
 #if defined(__arm__)
-	asm("rbit %0,%0" : "=r"(sync_word) );
-	asm("rev %0,%0" : "=r"(sync_word));
+//	asm("rbit %0,%0" : "=r"(sync_word) );
+//	asm("rev %0,%0" : "=r"(sync_word)); // enianness?
+		asm("rbit %0,%1" : "=r"(sync_word) : "r"(sync_word));
+		asm("rev %0,%1" : "=r"(sync_word) : "r"(sync_word));
 #else
 #error "Not implemented on other architectures yet"
 #endif
@@ -187,10 +214,14 @@ int si4x6x_test(void) {
 	// What did it generate???
 //	si4x6x_set_property(0x12, 0x08, 0x2A); // Configuration bits for reception of a variable length packet.
 
+	// Configuration bits for reception of a variable length packet.
+	// This property is applicable only in RX mode,
 	si4x6x_set_property(0x12, 0x08, 0x02);
+
+
 	si4x6x_set_property(0x12, 0x09, 0x01); // Field number containing the received packet length byte(s).
 
-	//si4x6x_set_sync_word(0xdeadbeef);
+	si4x6x_set_sync_word(0xdeadbeef);
 
 
 	char prop[]= {
@@ -218,7 +249,7 @@ void si4x6x_send_test(void) {
 
 		bshal_delay_ms(1000);
 		rfm69_air_packet_t packet = {};
-		packet.header.size = 64;
+		packet.header.size = 4+9;
 		packet.data[0] = 1;
 		packet.data[1] = 2;
 		packet.data[2] = 4;
@@ -380,10 +411,20 @@ int si4x6x_send_request(rfm69_air_packet_t *p_request,
 	int result = si4x6x_write_fifo(p_request, p_request->header.size);
 	if (result)
 		return result;
-//	si4x6x_cmd_start_tx_t start_tx = { .tx_len_7_0 = p_request->header.size,
-//			.tx_complete_state = 3 };
 
-	si4x6x_cmd_start_tx_t start_tx = { 	.tx_complete_state = 3 };
+	// Seems variable length packet.can't automatically set size
+	// on the Si4x6x  (It did on the Si4x3x)
+	// So we'll have to write the length value to the fifo like we
+	// do on the RFM69. TODO: confirm this is really the case, am I not
+	// overlooking something?? One would think setting the size to 0
+	// to let the packet handler handle the length *should* fix this.
+	// Also the options to let the CRC include or exclude the length
+	// suggest it should be able to handle it, so I think I am missing
+	// something.
+	si4x6x_cmd_start_tx_t start_tx = { .tx_len_7_0 = p_request->header.size + 1,
+			.tx_complete_state = 3 };
+
+	//si4x6x_cmd_start_tx_t start_tx = { 	.tx_complete_state = 3 };
 
 
 	return si4x6x_command(SI4X6X_CMD_START_TX, &start_tx, sizeof(start_tx),

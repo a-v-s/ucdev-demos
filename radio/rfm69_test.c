@@ -159,7 +159,7 @@ int rfm69_init() {
 
 //	rfm69_set_sync_word(0xb42bb42b); // default on si4663
 	//rfm69_set_sync_word(0xAAAAAAAA); // sync on preamble for debugginh
-	rfm_set_sync_word_16bit(0xAAAA);
+	//rfm_set_sync_word_16bit(0xAAAA);
 	//rfm_set_sync_word_16bit(0x5555);
 	//rfm_set_sync_word_16bit(0xb42b);
 	// rfm_set_sync_word_16bit(0x2bb4); // might be endianness after all?
@@ -308,11 +308,11 @@ void rfm69_recv_test() {
 
 		if (!rfm69_receive_request(&packet)) {
 			printf("Packet Received\n");
-			if (packet.header.size < 16)
+			// if (packet.header.size < 16)
 				//				for (int i = 0; i < packet.header.size-sizeof(packet.header); i++)
 				//					printf("%02X ", packet.data[i]);
 
-				sprintf(strbuff, "RX %02X", packet.data[4]);
+			sprintf(strbuff, "RX %02X", packet.data[4]);
 			print(strbuff, 1);
 			sprintf(strbuff, "CNT %02X", cnt++);
 			print(strbuff, 2);

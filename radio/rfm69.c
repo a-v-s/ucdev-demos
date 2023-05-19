@@ -77,7 +77,7 @@ int rfm69_read_fifo(void *data, uint8_t *size) {
 
 	// temporary disabled for testing
 	// using fixed size packets for debugging purposes
-	if (0) {
+	if (1) {
 		result = bshal_spim_receive(&radio_spi_config, &recv_size, 1, true);
 		if (result)
 			return result;
@@ -356,16 +356,8 @@ int rfm69_receive_request(rfm69_air_packet_t *p_packet) {
 		// there is data, but how much to read
 		// Is there a FIFO LEVEL register???
 		uint8_t size = sizeof(rfm69_air_packet_t);
-		//rfm69_read_fifo(p_packet, &size);
+		rfm69_read_fifo(p_packet, &size);
 
-		uint8_t buffer[64] = {};
-		size = 64;
-		rfm69_read_fifo(buffer, &size);
-		memcpy(p_packet, buffer, 64);
-
-
-//		uint8_t buffer[64];
-//		rfm69_read_fifo(buffer, sizeof(buffer));
 
 		uint8_t rssi_raw;
 		rfm69_read_reg(RFM69_REG_RSSIVALUE, &rssi_raw);
