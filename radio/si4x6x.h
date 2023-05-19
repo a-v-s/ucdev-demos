@@ -99,6 +99,41 @@ typedef struct {
 	unsigned int num_repeat :8;
 } si4x6x_cmd_start_tx_t;
 
+
+
+typedef struct {
+	unsigned int channel :8;
+	union {
+		struct {
+			unsigned int start :2;
+			unsigned int :1;
+			unsigned int update :1;
+		};
+		uint8_t condition;
+	};
+	unsigned int rx_len_12_8 :5;
+	unsigned int :3;
+	unsigned int rx_len_7_0 :8;
+	union {
+		unsigned int rxtimeout_state :4;
+		uint8_t next_state1;
+	};
+	union {
+		unsigned int rxvalid_state :4;
+		uint8_t next_state2;
+	};
+	union {
+		unsigned int rxinvalid_state :4;
+		uint8_t next_state3;
+	};
+
+} si4x6x_cmd_start_rx_t;
+
+typedef struct {
+
+} si4x6x_cmd_get_int_status_t;
+
+
 typedef struct {
 	unsigned int revext :8;
 	unsigned int revbranch :8;

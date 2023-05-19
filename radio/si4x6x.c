@@ -92,6 +92,23 @@ int si4x6x_write_fifo(void *data, uint8_t size) {
 	return si4x6x_command(SI4X6X_CMD_WRITE_TX_FIFO, data, size, NULL, 0);
 }
 
+int si4x6x_read_fifo(void *data, uint8_t size) {
+	uint8_t cmd = SI4X6X_CMD_READ_RX_FIFO;
+	int result;
+	result = bshal_spim_transmit(&radio_spi_config, &cmd, 1, true);
+	if (result) {
+		bshal_gpio_write_pin(radio_spi_config.cs_pin, !radio_spi_config.cs_pol);
+		return result;
+	}
+	result = bshal_spim_receive(&radio_spi_config, data,size, false);
+	return result;
+}
+
+
+int si4x6x_set_sync_word(uint32_t sync_word) {
+
+}
+
 int si4x6x_test(void) {
 	si4x6x_part_info_t part_info = { };
 	si4x6x_func_info_t func_info = { };
@@ -137,7 +154,7 @@ int si4x6x_test(void) {
 	uint8_t buffer[4];
 //
 
-	si4x6x_set_frequency(868000);	// works now
+	si4x6x_set_frequency(867975);	// works now
 
 //	si4x6x_set_frequency(870000);	// works now
 //
@@ -145,8 +162,14 @@ int si4x6x_test(void) {
 
 	si4x6x_get_properties(0x40, 0x00, buffer, sizeof(buffer));
 
-	uint8_t test[9] = { };
-	int f = 434000;
+
+
+	return 0;
+}
+
+
+void si4x6x_send_test(void) {
+	si4x6x_test();
 	while (true) {
 
 		bshal_delay_ms(1000);
@@ -157,12 +180,23 @@ int si4x6x_test(void) {
 		packet.data[3] = 4;
 		packet.data[4] = 8;
 		si4x6x_send_request(&packet, &packet);
-		memset(test, 0, 9);
-		si4x6x_command(0x20, test, 4, test, 9);
-		(void) test;
 
 	}
-	return 0;
+}
+
+void si4x6x_recv_test(void) {
+	si4x6x_test();
+	rfm69_air_packet_t packet;
+	while (true) {
+		memset(&packet,0,sizeof(packet));
+		si4x6x_receive_request(&packet);
+		if (packet.header.size) {
+			puts("Packet Received");
+
+		}
+
+	}
+
 }
 int si4x6x_set_frequency(int kHz) {
 	// Assuming 30 MHz crystal
@@ -264,6 +298,30 @@ int si4x6x_set_frequency(int kHz) {
 	val.frac_19_16 = frac >> 16;
 
 	return si4x6x_set_properties(0x40, 0x00, &val, sizeof(val));
+}
+
+int si4x6x_receive_request(rfm69_air_packet_t *p_request) {
+	si4x6x_cmd_start_rx_t start_rx = { .rx_len_7_0 = 64,
+			.rxtimeout_state = 3,
+			.rxvalid_state = 3,
+			.rxinvalid_state = 3,
+	};
+
+	si4x6x_command(SI4X6X_CMD_START_RX, &start_rx, sizeof(start_rx),
+				NULL, 0);
+
+	// Quick and dirty get PACKET_RX
+	uint8_t test[9] = {};
+	while (! (test[3] & 0b10000) ) {
+		si4x6x_command(0x20, NULL, 0, test, 9);
+	}
+
+	//si4x6x_read_fifo(p_packet, sizeof (rfm69_air_packet_t) );
+	uint8_t buffer[64];
+	si4x6x_read_fifo(buffer, sizeof (buffer) );
+	// quick an ddirty for testing
+	memcpy(p_request, buffer, 64);
+	return 0;
 }
 
 int si4x6x_send_request(rfm69_air_packet_t *p_request,

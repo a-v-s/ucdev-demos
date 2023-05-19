@@ -29,7 +29,7 @@ const static rfm69_rxbw_entry_t m_rxbw_entries[] = {
 		{ 83300, { 2, 0b10, 0b010 } }, { 100000, { 2, 0b01, 0b010 } }, { 125000,
 				{ 2, 0b00, 0b010 } },
 
-		{ 11670, { 1, 0b10, 0b010 } }, { 200000, { 1, 0b01, 0b010 } }, { 250000,
+		{ 116700, { 1, 0b10, 0b010 } }, { 200000, { 1, 0b01, 0b010 } }, { 250000,
 				{ 1, 0b00, 0b010 } },
 
 		{ 333300, { 0, 0b10, 0b010 } }, { 400000, { 0, 0b01, 0b010 } }, {
@@ -368,11 +368,18 @@ void rfm69_configure_packet(void) {
 	rfm69_packet_config1_t config1;
 	config1.address_filtering = 0b00;
 	config1.crc_auto_clear_off = 0;
-	config1.crc_on = 1;
-	//config1.crc_on = 0; // for  inter-module testing
+
 	config1.dc_free = 0b00;
+
+
+	//config1.crc_on = 1;
+	//config1.packet_format = 0; // Fixed Length for intermodule testing
+
+	config1.crc_on = 0; // for  inter-module testing
 	config1.packet_format = 1; // Variable Length
-	//config1.packet_format = 0; // Fixed Length for testing
+
+
+
 	rfm69_write_reg(RFM69_REG_PACKETCONFIG1, config1.as_uint8);
 
 	rfm69_packet_config2_t config2;

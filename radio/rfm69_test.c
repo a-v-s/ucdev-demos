@@ -138,6 +138,12 @@ int rfm69_init() {
 	rfm69_set_fdev(12500);
 	rfm69_set_bandwidth(25000);
 
+// THese appear to be the Si4463 defaults
+//	rfm69_set_bitrate(100000);
+//	rfm69_set_fdev(50000);
+//	rfm69_set_bandwidth(100000);
+
+
 	//rfm69_set_tx_power(17);
 	//rfm69_set_tx_power(10);
 	rfm69_set_tx_power(0);
@@ -147,6 +153,8 @@ int rfm69_init() {
 	rfm69_write_reg(RFM69_REG_RSSITHRESH, 0xC4);
 
 	rfm69_set_sync_word(0xdeadbeef);
+	//rfm69_set_sync_word(0x2dd42dd4);
+
 
 //// for testing
 //	rfm69_sync_config_t config;
@@ -351,17 +359,19 @@ int main() {
 	radio_init();
 
 
-	si4x6x_test();
-	while (1);
+	//si4x6x_test();
+//	while (1);
 
 	if (0x87141031 == SERIALNUMBER) {
-		si4x3x_send_test();
+		//si4x6x_recv_test();
+		//si4x3x_send_test();
 		//si4x3x_recv_test();
-		//rfm69_recv_test();
+		rfm69_recv_test();
 		//rfm69_send_test();
 
 	} else {
-		rfm69_send_test();
+		si4x6x_send_test();
+		//rfm69_send_test();
 		//si4x3x_send_test();
 	}
 }
