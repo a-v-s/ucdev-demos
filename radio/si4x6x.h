@@ -99,7 +99,10 @@ typedef struct {
 	unsigned int num_repeat :8;
 } si4x6x_cmd_start_tx_t;
 
-
+typedef struct {
+	uint8_t rx_fifo_count;
+	uint8_t tx_fifo_space;
+} si4x6x_cmd_fifo_count_response_t;
 
 typedef struct {
 	unsigned int channel :8;

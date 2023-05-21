@@ -98,47 +98,48 @@ int si4x6x_write_fifo(void *data, uint8_t size) {
 	uint8_t clear_fifo = 0x01;
 	si4x6x_command(SI4X6X_CMD_FIFO_INFO, &clear_fifo, 1, NULL, 0);
 
-	uint8_t cmd[] = {SI4X6X_CMD_WRITE_TX_FIFO, size};
+	uint8_t cmd[] = { SI4X6X_CMD_WRITE_TX_FIFO, size };
 	int result = bshal_spim_transmit(&radio_spi_config, &cmd, 2, true);
-	bshal_spim_transmit(&radio_spi_config, data,size,false);
+	bshal_spim_transmit(&radio_spi_config, data, size, false);
 
 	return 0;
 
 }
 
 int si4x6x_read_fifo(void *data, uint8_t *size) {
-	uint8_t cmd = SI4X6X_CMD_READ_RX_FIFO;
 	int result;
-	result = bshal_spim_transmit(&radio_spi_config, &cmd, 1, true);
-	if (result) {
-		bshal_gpio_write_pin(radio_spi_config.cs_pin, !radio_spi_config.cs_pol);
-		return result;
-	}
-	uint8_t recv_size;
-	result = bshal_spim_receive(&radio_spi_config, &recv_size,1, true);
+	si4x6x_cmd_fifo_count_response_t fifo_count;
+	si4x6x_command(SI4X6X_CMD_FIFO_INFO, NULL, 0, &fifo_count,
+			sizeof(fifo_count));
+
+	uint8_t recv_size = fifo_count.rx_fifo_count;
 	if (*size < recv_size) {
 		result = -1;
 	} else {
 		*size = recv_size;
 	}
+
+	uint8_t cmd = SI4X6X_CMD_READ_RX_FIFO;
+	result = bshal_spim_transmit(&radio_spi_config, &cmd, 1, true);
+	if (result) {
+		bshal_gpio_write_pin(radio_spi_config.cs_pin, !radio_spi_config.cs_pol);
+		return result;
+	}
+
 	bshal_spim_receive(&radio_spi_config, data, *size, false);
 
-
-
-	//result = bshal_spim_receive(&radio_spi_config, data,size, false);
 	return result;
 }
 
-
 int si4x6x_set_sync_word(uint32_t sync_word) {
 	uint8_t debug[5];
-	si4x6x_get_properties(0x11,0x00,debug, 5);
+	si4x6x_get_properties(0x11, 0x00, debug, 5);
 
 	bool pol = (sync_word & 0x80000000);
 	// is the polarity of the sync the problem?
-	si4x6x_set_property(0x10,0x04,1|(pol << 5));
+	si4x6x_set_property(0x10, 0x04, 1 | (pol << 5));
 
-	si4x6x_set_property(0x11,0x00,0x03);
+	si4x6x_set_property(0x11, 0x00, 0x03);
 
 	// The bits in the sync word are transmitted in the opposite
 	// order of the values put in the register.
@@ -153,13 +154,12 @@ int si4x6x_set_sync_word(uint32_t sync_word) {
 #error "Not implemented on other architectures yet"
 #endif
 
-
-	si4x6x_set_properties(0x11,0x01,&sync_word, 4);
-	si4x6x_get_properties(0x11,0x00,debug, 5);
+	si4x6x_set_properties(0x11, 0x01, &sync_word, 4);
+	si4x6x_get_properties(0x11, 0x00, debug, 5);
 	return 0;
 }
 
-int si4x6x_test(void) {
+int si4x6x_init(void) {
 	si4x6x_part_info_t part_info = { };
 	si4x6x_func_info_t func_info = { };
 
@@ -210,7 +210,6 @@ int si4x6x_test(void) {
 //
 	//si4x6x_set_frequency(434000); 	// works now
 
-
 	// What did it generate???
 //	si4x6x_set_property(0x12, 0x08, 0x2A); // Configuration bits for reception of a variable length packet.
 
@@ -218,44 +217,38 @@ int si4x6x_test(void) {
 	// This property is applicable only in RX mode,
 	si4x6x_set_property(0x12, 0x08, 0x02);
 
-
 	si4x6x_set_property(0x12, 0x09, 0x01); // Field number containing the received packet length byte(s).
 
 	si4x6x_set_sync_word(0xdeadbeef);
 
-
-	char prop[]= {
-	 0x00,//   PKT_FIELD_1_LENGTH_12_8 - Unsigned 13-bit Field 1 length value.
-	 0x01,//   PKT_FIELD_1_LENGTH_7_0 - Unsigned 13-bit Field 1 length value.
-	 0x04,//   PKT_FIELD_1_CONFIG - General data processing and packet configuration bits for Field 1.
-	 0x00,//   PKT_FIELD_1_CRC_CONFIG - Configuration of CRC control bits across Field 1.
-	 0x00,//   PKT_FIELD_2_LENGTH_12_8 - Unsigned 13-bit Field 2 length value.
-	 0x3F,//   PKT_FIELD_2_LENGTH_7_0 - Unsigned 13-bit Field 2 length value.
-	 0x00,//   PKT_FIELD_2_CONFIG - General data processing and packet configuration bits for Field 2.
-	 0x00,//   PKT_FIELD_2_CRC_CONFIG - Configuration of CRC control bits across Field 2.
-	};
+	char prop[] = { 0x00, //   PKT_FIELD_1_LENGTH_12_8 - Unsigned 13-bit Field 1 length value.
+			0x01, //   PKT_FIELD_1_LENGTH_7_0 - Unsigned 13-bit Field 1 length value.
+			0x04, //   PKT_FIELD_1_CONFIG - General data processing and packet configuration bits for Field 1.
+			0x00, //   PKT_FIELD_1_CRC_CONFIG - Configuration of CRC control bits across Field 1.
+			0x00, //   PKT_FIELD_2_LENGTH_12_8 - Unsigned 13-bit Field 2 length value.
+			0x3F, //   PKT_FIELD_2_LENGTH_7_0 - Unsigned 13-bit Field 2 length value.
+			0x00, //   PKT_FIELD_2_CONFIG - General data processing and packet configuration bits for Field 2.
+			0x00, //   PKT_FIELD_2_CRC_CONFIG - Configuration of CRC control bits across Field 2.
+			};
 	si4x6x_set_properties(0x12, 0x0d, prop, sizeof(prop));
-
-
 
 	return 0;
 }
 
-
 void si4x6x_send_test(void) {
-	si4x6x_test();
+	si4x6x_init();
 	int cnt = 0;
 	while (true) {
 
-		bshal_delay_ms(1000);
-		rfm69_air_packet_t packet = {};
-		packet.header.size = 4+9;
+		bshal_delay_ms(10000);
+		rfm69_air_packet_t packet = { };
+		packet.header.size = 4 + 9;
 		packet.data[0] = 1;
 		packet.data[1] = 2;
 		packet.data[2] = 4;
 		packet.data[3] = 8;
 
-		packet.data[4] =cnt++;
+		packet.data[4] = cnt++;
 
 		packet.data[5] = 0xAA;
 		packet.data[6] = 0xAA;
@@ -267,13 +260,23 @@ void si4x6x_send_test(void) {
 }
 
 void si4x6x_recv_test(void) {
-	si4x6x_test();
+	si4x6x_init();
 	rfm69_air_packet_t packet;
+	char strbuff[32];
+	int cnt=0;
 	while (true) {
-		memset(&packet,0,sizeof(packet));
+		memset(&packet, 0, sizeof(packet));
 		si4x6x_receive_request(&packet);
 		if (packet.header.size) {
 			puts("Packet Received");
+
+			sprintf(strbuff, "RX %02X", packet.data[4]);
+			print(strbuff, 1);
+			sprintf(strbuff, "CNT %02X", cnt++);
+			print(strbuff, 2);
+			framebuffer_apply();
+			memset(&packet, 0, sizeof(packet));
+			draw_plain_background();
 
 		}
 
@@ -383,24 +386,29 @@ int si4x6x_set_frequency(int kHz) {
 }
 
 int si4x6x_receive_request(rfm69_air_packet_t *p_request) {
-	si4x6x_cmd_start_rx_t start_rx = { .rx_len_7_0 = 64,
-			.rxtimeout_state = 3,
-			.rxvalid_state = 3,
-			.rxinvalid_state = 3,
-	};
+	si4x6x_cmd_start_rx_t start_rx = { .rx_len_7_0 = 64, .rxtimeout_state = 0,
+			.rxvalid_state = 3, .rxinvalid_state = 3, };
 
-	si4x6x_command(SI4X6X_CMD_START_RX, &start_rx, sizeof(start_rx),
-				NULL, 0);
+	si4x6x_command(SI4X6X_CMD_START_RX, &start_rx, sizeof(start_rx), NULL, 0);
 
 	// Quick and dirty get PACKET_RX
-	uint8_t test[9] = {};
-	while (! (test[3] & 0b10000) ) {
+	uint8_t test[9] = { };
+
+	si4x6x_command(SI4X6X_CMD_REQUEST_DEVICE_STATE, NULL, 0, test, 2);
+//	if (test[0] != 8) {
+//		si4x6x_command(SI4X6X_CMD_START_RX, &start_rx, sizeof(start_rx),
+//						NULL, 0);
+//	}
+
+	while (!(test[3] & 0b10000)) {
+
 		si4x6x_command(0x20, NULL, 0, test, 9);
 	}
 
 	//si4x6x_read_fifo(p_packet, sizeof (rfm69_air_packet_t) );
-	uint8_t buffer[64];
-	si4x6x_read_fifo(buffer, sizeof (buffer) );
+	uint8_t buffer[64] = { 0 };
+	uint8_t size = sizeof(buffer);
+	si4x6x_read_fifo(buffer, &size);
 	// quick an ddirty for testing
 	memcpy(p_request, buffer, 64);
 	return 0;
@@ -425,7 +433,6 @@ int si4x6x_send_request(rfm69_air_packet_t *p_request,
 			.tx_complete_state = 3 };
 
 	//si4x6x_cmd_start_tx_t start_tx = { 	.tx_complete_state = 3 };
-
 
 	return si4x6x_command(SI4X6X_CMD_START_TX, &start_tx, sizeof(start_tx),
 			NULL, 0);
