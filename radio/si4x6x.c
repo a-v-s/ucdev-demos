@@ -232,6 +232,14 @@ int si4x6x_init(void) {
 			};
 	si4x6x_set_properties(0x12, 0x0d, prop, sizeof(prop));
 
+
+
+
+		si4x6x_set_bitrate(12500);
+		si4x6x_set_fdev(12500);
+		//si4x6x_set_bandwidth(25000);
+
+
 	return 0;
 }
 
@@ -263,7 +271,7 @@ void si4x6x_recv_test(void) {
 	si4x6x_init();
 	rfm69_air_packet_t packet;
 	char strbuff[32];
-	int cnt=0;
+	int cnt = 0;
 	while (true) {
 		memset(&packet, 0, sizeof(packet));
 		si4x6x_receive_request(&packet);
@@ -436,4 +444,118 @@ int si4x6x_send_request(rfm69_air_packet_t *p_request,
 
 	return si4x6x_command(SI4X6X_CMD_START_TX, &start_tx, sizeof(start_tx),
 			NULL, 0);
+}
+
+int si4x6x_set_bitrate(int bps) {
+	// MODEM_DATA_RATE contains a 24 bit unsiged value
+	// In default configuration, 10 x the data rate
+	// This is because the default value of MODEM_TX_NCO_MODE
+	// is to divide the crystal frequency by 30 MHz, and then have 10x
+	// oversampling. For bitrates above 200 kbps, the documentation
+	// recommends setting the divisor to 3 MHz instead.
+	// For now, we go with the defaults, as we are not using such
+	// high data rates at this point
+
+	int factor = 10;
+
+//	if (200000 < bps) {
+//		factor = 10;
+//	} else {
+//		factor = 1;
+//	}
+//
+//  TODO: to support > 200 kpbs data rates we must set
+//	MODEM_TX_NCO_MODE appropriately.
+
+	uint32_t data_rate = htobe32(bps * factor) >> 8;
+	return si4x6x_set_properties(0x20, 0x03, &data_rate, 3);
+
+}
+int si4x6x_set_fdev(int hz) {
+	si4x6x_prop_modem_clkgen_band_t bandval = { };
+	si4x6x_get_property(0x20, 0x51, &bandval);
+
+	uint64_t outdiv;
+	switch (bandval.band) {
+	case 0:
+		outdiv = 4;
+		break;
+	case 1:
+		outdiv = 6;
+		break;
+	case 2:
+		outdiv = 8;
+		break;
+	case 3:
+		outdiv = 12;
+		break;
+	case 4:
+		outdiv = 16;
+		break;
+	case 5:
+	case 6:
+	case 7:
+		outdiv = 24;
+		break;
+	}
+
+	uint64_t presc = bandval.sy_sel ? 2 : 4;
+
+	uint64_t fxo = 30000000; // 30 MHz crystal
+	uint64_t fdevval = ((uint64_t)hz * (outdiv << 19)) /
+			(presc* fxo);
+
+	// Endiannes and alignment... less efficient but easier this way
+	si4x6x_set_property( 0x20, 0x0a, fdevval >> 16);
+	si4x6x_set_property( 0x20, 0x0b, fdevval >> 8);
+	si4x6x_set_property( 0x20, 0x0c, fdevval >> 0);
+	return 0;
+}
+
+int si4x6x_set_bandwidth(int hz) {
+	return -1;
+
+	/*
+	 * There is no table in the datasheet mentioning
+	 * the values we should use here.
+	 * In the API documentation it says
+	 *
+	 * 		Silicon Labs has pre-calculated 15 different sets
+	 * 		of filter tap coefficients. The WDS Calculator will
+	 * 		recommend one of these filter sets, based upon the
+	 * 		RX filter bandwidth required to receive the desired
+	 * 		signal. The filter bandwidth is a function of both
+	 * 		the selected filter set, as well as the filter clock
+	 * 		decimation ratio (see the MODEM_DECIMATION_CFG1/0 properties).
+	 *
+	 * I guess this means feeding the WDS program various inputs and
+	 * try to find the pattern in the output.
+	 *
+	 * According to
+	 * https://community.silabs.com/s/question/0D58Y00008sknv9SAA/license-for-example-projects-exported-with-wds?language=en_US
+	 * the generated code is under Zlib license, so this generated code
+	 * can legally be used in this project.
+	 *
+	 * Initial tests show output like
+	 *
+	 // # WB filter 1 (BW =   9.54 kHz);  NB-filter 1 (BW = 9.54 kHz)
+	 // # WB filter 2 (BW =  25.77 kHz);  NB-filter 2 (BW = 25.77 kHz)
+	 // # WB filter 2 (BW = 137.42 kHz);  NB-filter 2 (BW = 137.42 kHz)
+	  *
+	  * suggesting there are filters and multiplication factors for them
+	  * similar to the filset and ndec_exp parameters seen on the Si4x3x.
+	  * However, 137.42 / 25.77 does not give a power of 2. So it won't be
+	  * as simple as find a set of filter values, and doubling them.
+	  *
+	  * I will have to take a closer look at the actual values to see what
+	  * is actually going on here.
+	  *
+	  * One other thing. I have noticed the auto-selected bandwidth is rather wide
+	  * eg. selecting a 103.06 kHz bandwidth for a frequency deviation of 12.5 kHz.
+	  * Where I would expect something like 25 kHz. It seems this is due the
+	  * selected crystal accuracy, set to 20 ppm. When selecting a more accurate
+	  * signal the selected bandwidth goes down. I did notice some frequency
+	  * offset of the transmission frequency. I initially attributed this to an
+	  * incorrect load capacitance, but it might as well be the accuracy itself.
+	 */
 }

@@ -167,5 +167,7 @@ typedef union {
 #pragma pack(pop)
 
 int si4x6x_set_frequency(int kHz);
+int si4x6x_set_bitrate(int bps);
+int si4x6x_set_fdev(int hz);
 
 #endif /* SI4X6X_H_ */
