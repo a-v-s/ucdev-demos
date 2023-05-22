@@ -49,20 +49,20 @@ int si4x6x_command(uint8_t cmd, void *request, uint8_t request_size,
 
 int si4x6x_set_properties(uint8_t group, uint8_t first_property, void *data,
 		uint8_t count) {
-
+	if (count > 0x0C) return -1;
 	// TODO: max count is 0xC, adjust to this fact
 
 	// uint8_t request[count + 3] = { group, count, first_property };
 	// error: variable-sized object may not be initialized except with an empty initializer
 	// This should be valid in the upcoming C23 standard, right?
 	// Oh well... let's do it the old fashioned way then.
-	uint8_t request[count + 3] = { };
+	uint8_t request[0x0C + 3] = { };
 	request[0] = group;
 	request[1] = count;
 	request[2] = first_property;
 
 	memcpy(request + 3, data, count);
-	return si4x6x_command(SI4X6X_CMD_SET_PROPERTY, request, sizeof(request),
+	return si4x6x_command(SI4X6X_CMD_SET_PROPERTY, request, count + 3,
 			NULL, 0);
 }
 
