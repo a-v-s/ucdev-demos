@@ -83,8 +83,8 @@ int si4x6x_get_properties(uint8_t group, uint8_t first_property, void *data,
 }
 
 int si4x6x_get_property(uint8_t group, uint8_t property, uint8_t *value) {
-	uint8_t request[] = { group, 1, property, value };
-	return si4x6x_command(SI4X6X_CMD_SET_PROPERTY, request, sizeof(request),
+	uint8_t request[] = { group, 1, property };
+	return si4x6x_command(SI4X6X_CMD_GET_PROPERTY, request, sizeof(request),
 			value, 1);
 }
 
@@ -177,6 +177,14 @@ int si4x6x_init(void) {
 	si4x6x_command(SI4X6X_CMD_PART_INFO, NULL, 0, &part_info,
 			sizeof(part_info));
 
+	uint8_t buff[32];
+	sprintf(buff, "Si%04X", be16toh(part_info.part_be));
+	print(buff, 5);
+	framebuffer_apply();
+
+	//si4x6x_load_magic_values(); // moved as we init our own
+
+
 	si4x6x_command(SI4X6X_CMD_FUNC_INFO, NULL, 0, &func_info,
 			sizeof(func_info));
 
@@ -204,11 +212,13 @@ int si4x6x_init(void) {
 	uint8_t buffer[4];
 //
 
-	si4x6x_set_frequency(867975);	// works now
+	si4x6x_load_magic_values();
 
-//	si4x6x_set_frequency(870000);	// works now
+//	si4x6x_set_frequency(867975);	// works now
+
+	si4x6x_set_frequency(870000);	// works now
 //
-	//si4x6x_set_frequency(434000); 	// works now
+//	si4x6x_set_frequency(434000); 	// works now
 
 	// What did it generate???
 //	si4x6x_set_property(0x12, 0x08, 0x2A); // Configuration bits for reception of a variable length packet.
@@ -218,6 +228,8 @@ int si4x6x_init(void) {
 	si4x6x_set_property(0x12, 0x08, 0x02);
 
 	si4x6x_set_property(0x12, 0x09, 0x01); // Field number containing the received packet length byte(s).
+
+
 
 	si4x6x_set_sync_word(0xdeadbeef);
 
@@ -235,9 +247,13 @@ int si4x6x_init(void) {
 
 
 
-		si4x6x_set_bitrate(12500);
-		si4x6x_set_fdev(12500);
+//		si4x6x_set_bitrate(12500);
+//		si4x6x_set_fdev(12500);
 		//si4x6x_set_bandwidth(25000);
+
+
+	si4x6x_set_bitrate(25000);
+	si4x6x_set_fdev   (25000);
 
 
 	return 0;
@@ -246,9 +262,10 @@ int si4x6x_init(void) {
 void si4x6x_send_test(void) {
 	si4x6x_init();
 	int cnt = 0;
+	char strbuff[32];
 	while (true) {
 
-		bshal_delay_ms(10000);
+		bshal_delay_ms(2500);
 		rfm69_air_packet_t packet = { };
 		packet.header.size = 4 + 9;
 		packet.data[0] = 1;
@@ -264,11 +281,17 @@ void si4x6x_send_test(void) {
 		packet.data[8] = 0x55;
 		si4x6x_send_request(&packet, &packet);
 
+		sprintf(strbuff, "TX %02X", packet.data[4]);
+		print(strbuff, 1);
+		framebuffer_apply();
+		draw_plain_background();
+
 	}
 }
 
 void si4x6x_recv_test(void) {
 	si4x6x_init();
+
 	rfm69_air_packet_t packet;
 	char strbuff[32];
 	int cnt = 0;
@@ -468,7 +491,40 @@ int si4x6x_set_bitrate(int bps) {
 //	MODEM_TX_NCO_MODE appropriately.
 
 	uint32_t data_rate = htobe32(bps * factor) >> 8;
-	return si4x6x_set_properties(0x20, 0x03, &data_rate, 3);
+	int result =  si4x6x_set_properties(0x20, 0x03, &data_rate, 3);
+	if (result) return result;
+
+
+	uint8_t pre[5], post[5];
+	si4x6x_get_properties(0x20, 0x24, pre, 5);
+	{
+		// MODEM_BCR_NCO_OFFSET
+	// tryint to derive a formula, excuse me for the float
+	float try_me_f = 6.71088f * (float)bps;
+	try_me_f *= 1.3333f; //?? why did the ratio change?
+	// What is the formula for calculating this value
+	// Other then having WDS generate magic values
+	// for fixed parameters
+
+	uint32_t try_i= try_me_f;
+	si4x6x_set_property(0x20,0x26, try_i);
+	si4x6x_set_property(0x20,0x25, try_i>>8);
+	si4x6x_set_property(0x20,0x24, try_i>>16);
+	//
+	}
+
+
+	{
+		// MODEM_BCR_GAIN
+		// tryint to derive a formula, excuse me for the float
+		float try_me_f = 0.01312f * (float)bps;
+		uint32_t try_i= try_me_f;
+		si4x6x_set_property(0x20,0x28, try_i);
+		si4x6x_set_property(0x20,0x27, try_i>>8);
+	}
+	si4x6x_get_properties(0x20, 0x24, post, 5);
+	return result;
+
 
 }
 int si4x6x_set_fdev(int hz) {
@@ -505,10 +561,16 @@ int si4x6x_set_fdev(int hz) {
 	uint64_t fdevval = ((uint64_t)hz * (outdiv << 19)) /
 			(presc* fxo);
 
+	uint8_t pre[3], post[3];
+	si4x6x_get_properties(0x20, 0x0A, pre, 3);
+
 	// Endiannes and alignment... less efficient but easier this way
 	si4x6x_set_property( 0x20, 0x0a, fdevval >> 16);
 	si4x6x_set_property( 0x20, 0x0b, fdevval >> 8);
 	si4x6x_set_property( 0x20, 0x0c, fdevval >> 0);
+
+	si4x6x_get_properties(0x20, 0x0A, post, 3);
+
 	return 0;
 }
 
@@ -558,4 +620,62 @@ int si4x6x_set_bandwidth(int hz) {
 	  * offset of the transmission frequency. I initially attributed this to an
 	  * incorrect load capacitance, but it might as well be the accuracy itself.
 	 */
+}
+
+
+void ugly(void) {
+	/*
+	// Set properties:           RF_MODEM_BCR_NCO_OFFSET_2_12
+	// Number of properties:     12
+	// Group ID:                 0x20
+	// Start ID:                 0x24
+	// Default values:           0x06, 0xD3, 0xA0, 0x06, 0xD3, 0x02, 0xC0, 0x00, 0x00, 0x23, 0x83, 0x69,
+	// Descriptions:
+	//   MODEM_BCR_NCO_OFFSET_2 - RX BCR NCO offset value (an unsigned 22-bit number).
+	//   MODEM_BCR_NCO_OFFSET_1 - RX BCR NCO offset value (an unsigned 22-bit number).
+	//   MODEM_BCR_NCO_OFFSET_0 - RX BCR NCO offset value (an unsigned 22-bit number).
+	//   MODEM_BCR_GAIN_1 - The unsigned 11-bit RX BCR loop gain value.
+	//   MODEM_BCR_GAIN_0 - The unsigned 11-bit RX BCR loop gain value.
+	//   MODEM_BCR_GEAR - RX BCR loop gear control.
+	//   MODEM_BCR_MISC1 - Miscellaneous control bits for the RX BCR loop.
+	//   MODEM_BCR_MISC0 - Miscellaneous RX BCR loop controls.
+	//   MODEM_AFC_GEAR - RX AFC loop gear control.
+	//   MODEM_AFC_WAIT - RX AFC loop wait time control.
+	//   MODEM_AFC_GAIN_1 - Sets the gain of the PLL-based AFC acquisition loop, and provides miscellaneous control bits for AFC functionality.
+	//   MODEM_AFC_GAIN_0 - Sets the gain of the PLL-based AFC acquisition loop, and provides miscellaneous control bits for AFC functionality.
+	*/
+	//#define RF_MODEM_BCR_NCO_OFFSET_2_12 0x11, 0x20, 0x0C, 0x24, 0x01, 0xB4, 0xE8, 0x00, 0xDA, 0x00, 0xD2, 0x00, 0x04, 0x23, 0x80, 0x12
+	{
+
+		uint8_t prop[]={0x01, 0xB4, 0xE8, 0x00, 0xDA, 0x00, 0xD2, 0x00, 0x04, 0x23, 0x80, 0x12};
+		si4x6x_set_properties(0x20, 0x24, prop, sizeof(prop));
+
+	}
+	// Set properties:           RF_MODEM_TX_RAMP_DELAY_12
+	// Number of properties:     12
+	// Group ID:                 0x20
+	// Start ID:                 0x18
+	// Default values:           0x01, 0x00, 0x08, 0x03, 0xC0, 0x00, 0x10, 0x20, 0x00, 0x00, 0x00, 0x4B,
+	// Descriptions:
+	//   MODEM_TX_RAMP_DELAY - TX ramp-down delay setting.
+	//   MODEM_MDM_CTRL - MDM control.
+	//   MODEM_IF_CONTROL - Selects Fixed-IF, Scaled-IF, or Zero-IF mode of RX Modem operation.
+	//   MODEM_IF_FREQ_2 - the IF frequency setting (an 18-bit signed number).
+	//   MODEM_IF_FREQ_1 - the IF frequency setting (an 18-bit signed number).
+	//   MODEM_IF_FREQ_0 - the IF frequency setting (an 18-bit signed number).
+	//   MODEM_DECIMATION_CFG1 - Specifies three decimator ratios for the Cascaded Integrator Comb (CIC) filter.
+	//   MODEM_DECIMATION_CFG0 - Specifies miscellaneous parameters and decimator ratios for the Cascaded Integrator Comb (CIC) filter.
+	//   MODEM_DECIMATION_CFG2 - Specifies miscellaneous decimator filter selections.
+	//   MODEM_IFPKD_THRESHOLDS -
+	//   MODEM_BCR_OSR_1 - RX BCR/Slicer oversampling rate (12-bit unsigned number).
+	//   MODEM_BCR_OSR_0 - RX BCR/Slicer oversampling rate (12-bit unsigned number).
+	//*/
+	//#define RF_MODEM_TX_RAMP_DELAY_12 0x11, 0x20, 0x0C, 0x18, 0x01, 0x80, 0x08, 0x03, 0xC0, 0x00, 0x20, 0x20, 0x00, 0xE8, 0x01, 0x2C
+
+	{
+
+		uint8_t prop[]={0x01, 0x80, 0x08, 0x03, 0xC0, 0x00, 0x20, 0x20, 0x00, 0xE8, 0x01, 0x2C};
+		si4x6x_set_properties(0x20, 0x18, prop, sizeof(prop));
+
+	}
 }

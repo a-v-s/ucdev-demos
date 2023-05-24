@@ -371,9 +371,9 @@ int main() {
 //	while (1);
 
 	if (0x87141031 == SERIALNUMBER) {
-//		si4x6x_recv_test();
+		si4x6x_recv_test();
 		//si4x3x_send_test();
-		si4x3x_recv_test();
+//		si4x3x_recv_test();
 //		rfm69_recv_test();
 		//rfm69_send_test();
 
