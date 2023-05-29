@@ -90,18 +90,150 @@ int spi_flash_cmd(bshal_spim_instance_t *spim, uint8_t cmd, void *request,
 	// TODO deselct
 	return result;
 }
+bool spi_flash_busy(bshal_spim_instance_t *spim) {
+	spi_flash_sr1_t sr1;
+	spi_flash_cmd(spim, SPI_FLASH_CMD_RDSR1, NULL, 0, SPI_FLASH_DMY_RDSR1, &sr1, sizeof(sr1));
+	return sr1.busy;
+}
+
+bool spi_flash_wel(bshal_spim_instance_t *spim) {
+	spi_flash_sr1_t sr1;
+	spi_flash_cmd(spim, SPI_FLASH_CMD_RDSR1, NULL, 0, SPI_FLASH_DMY_RDSR1, &sr1, sizeof(sr1));
+	return sr1.wel;
+}
+
+
+int spi_flash_write_enable(bshal_spim_instance_t *spim){
+	puts("Sending Write Enable Command");
+	spi_flash_cmd(spim, SPI_FLASH_CMD_WREN, NULL, 0, SPI_FLASH_DMY_WREN, NULL, 0);
+	if (!spi_flash_wel(spim)) {
+		puts("Failed to enable write. Is the Write Protect enabled?");
+		return -1;
+	}
+	return 0;
+}
+
+int spi_flash_erase_page_256(bshal_spim_instance_t *spim, uint32_t address){
+	// Note: Not all flash chips implement page erase
+	// So far I've only seen this on PUYA flash
+	size_t page_size = 256;
+	if (spi_flash_write_enable(spim)) return -1;
+	uint8_t addr[3] = {};
+	addr[2] = address;
+	addr[1] = address>> 8;
+	addr[0] = address>> 16;
+	spi_flash_cmd(spim, SPI_FLASH_CMD_PE, addr, sizeof(addr), SPI_FLASH_DMY_PE, NULL, 0);
+	while (spi_flash_busy(spim));
+	return 0;
+}
+
+int spi_flash_erase_sector_4k(bshal_spim_instance_t *spim, uint32_t address){
+	size_t sector_size = 4096;
+	if (spi_flash_write_enable(spim)) return -1;
+	uint8_t addr[3] = {};
+	addr[2] = address;
+	addr[1] = address>> 8;
+	addr[0] = address>> 16;
+	spi_flash_cmd(spim, SPI_FLASH_CMD_SE, addr, sizeof(addr), SPI_FLASH_DMY_SE, NULL, 0);
+	while (spi_flash_busy(spim));
+	return 0;
+}
+
+
+int spi_flash_erase_block_32k(bshal_spim_instance_t *spim, uint32_t address){
+	size_t block_size = 32768;
+	if (spi_flash_write_enable(spim)) return -1;
+	uint8_t addr[3] = {};
+	addr[2] = address;
+	addr[1] = address>> 8;
+	addr[0] = address>> 16;
+	spi_flash_cmd(spim, SPI_FLASH_CMD_BE32, addr, sizeof(addr), SPI_FLASH_DMY_BE32, NULL, 0);
+	while (spi_flash_busy(spim));
+	return 0;
+}
+
+int spi_flash_erase_block_64k(bshal_spim_instance_t *spim, uint32_t address){
+	size_t block_size = 65536;
+	if (spi_flash_write_enable(spim)) return -1;
+	uint8_t addr[3] = {};
+	addr[2] = address;
+	addr[1] = address>> 8;
+	addr[0] = address>> 16;
+	spi_flash_cmd(spim, SPI_FLASH_CMD_BE64, addr, sizeof(addr), SPI_FLASH_DMY_BE64, NULL, 0);
+	while (spi_flash_busy(spim));
+	return 0;
+}
+
+int spi_flash_erase_chip(bshal_spim_instance_t *spim){
+	size_t block_size = 65536;
+	if (spi_flash_write_enable(spim)) return -1;
+	spi_flash_cmd(spim, SPI_FLASH_CMD_CE, NULL, 0, SPI_FLASH_DMY_CE, NULL, 0);
+	while (spi_flash_busy(spim));
+	return 0;
+}
+
+
+void spi_flash_program(bshal_spim_instance_t *spim, uint32_t address, void* data, size_t size) {
+	size_t page_size = 256;
+	uint8_t addr[3] = {};
+	size_t write_size = page_size - (address % page_size);
+	if (write_size > size) write_size = size;
+	int data_offset = 0;
+
+	while (size) {
+		const uint8_t cmd[] = {SPI_FLASH_CMD_PP};
+
+		// Write Enable iIs reset after every write
+		spi_flash_write_enable(spim);
+
+		addr[2] = (address+data_offset);
+		addr[1] = (address+data_offset)>> 8;
+		addr[0] = (address+data_offset)>> 16;
+
+		printf("Writing %3d bytes to address %02X%02X%02X\n",
+				write_size, addr[0], addr[1], addr[1]);
+
+
+		bshal_spim_transmit(spim, cmd, sizeof(cmd), true);
+		bshal_spim_transmit(spim, addr, sizeof(addr), true);
+		bshal_spim_transmit(spim,  data + data_offset, write_size, false);
+
+		puts("Waiting while flash is busy");
+		while (spi_flash_busy(spim));
+		puts("Write finished");
+
+		data_offset += write_size;
+		size -= write_size;
+		write_size = (size < page_size) ? size : page_size;
+	}
+
+	// Write Disable
+	puts("Sending Write Disable Command");
+	spi_flash_cmd(spim, SPI_FLASH_CMD_WRDI, NULL, 0, SPI_FLASH_DMY_WRDI, NULL, 0);
+}
+
+int spi_flash_read(bshal_spim_instance_t *spim, uint32_t address, void* data, size_t size) {
+	uint8_t addr[3] = {};
+	addr[2] = address;
+	addr[1] = address>> 8;
+	addr[0] = address>> 16;
+	return spi_flash_cmd(spim, SPI_FLASH_CMD_READ, NULL, 0, SPI_FLASH_DMY_READ, data, size);
+}
 
 int main() {
 	SEGGER_RTT_Init();
-	bshal_spim_instance_t *spi = spi_init();
+	bshal_spim_instance_t *spim = spi_init();
+
+
+	spi_flash_cmd(spim, SPI_FLASH_CMD_NOP, NULL, 0, 0, NULL, 0);
 
 	spi_flash_rdid_t rdid;
 	spi_flash_rems_t rems;
 	spi_flash_res_t res;
 
-	spi_flash_cmd(spi, SPI_FLASH_CMD_RDID, NULL, 0, 0, &rdid, sizeof(rdid));
-	spi_flash_cmd(spi, SPI_FLASH_CMD_REMS, NULL, 0, 3, &rems, sizeof(rems));
-	spi_flash_cmd(spi, SPI_FLASH_CMD_RES, NULL, 0, 3, &res, sizeof(res));
+	spi_flash_cmd(spim, SPI_FLASH_CMD_RDID, NULL, 0, SPI_FLASH_DMY_RDID, &rdid, sizeof(rdid));
+	spi_flash_cmd(spim, SPI_FLASH_CMD_REMS, NULL, 0, SPI_FLASH_DMY_REMS, &rems, sizeof(rems));
+	spi_flash_cmd(spim, SPI_FLASH_CMD_RES, NULL, 0, SPI_FLASH_DMY_RES, &res, sizeof(res));
 
 	printf("RDID %02X %02X %02X\n", rdid.manufacturer_id, rdid.memory_type,
 			rdid.memory_density);
@@ -114,14 +246,19 @@ int main() {
 	// https://community.infineon.com/t5/Nor-Flash/Device-ID-definition-of-S25FL064L-and-S25FL064P/td-p/229905
 
 	puts("Flash size:");
-	printf("Detected size is %8d bit      \n", (8 << rdid.memory_density));
-	printf("                 %8d kib  \n", (8 << rdid.memory_density) >> 10);
-	printf("                 %8d KiB \n", (8 << rdid.memory_density) >> 13);
-	printf("                 %8d MiB \n", (8 << rdid.memory_density) >> 23);
+//	printf("Detected size is %8d bit \n", (8 << rdid.memory_density));
+//	printf("                 %8d kib \n", (8 << rdid.memory_density) >> 10);
+//	printf("                 %8d KiB \n", (8 << rdid.memory_density) >> 13);
+//	printf("                 %8d MiB \n", (8 << rdid.memory_density) >> 23);
+
+	printf("Detected size is %8d Byte\n", (1 << rdid.memory_density));
+	printf("                 %8d KiB \n", (1 << rdid.memory_density) >> 10);
+	printf("                 %8d MiB \n", (1 << rdid.memory_density) >> 20);
+
 
 	sfdp_header_t sfdp_header = { };
 	uint8_t address[3] = { 0x00, 0x00, 0x00 };
-	spi_flash_cmd(spi, SPI_FLASH_CMD_RDSFDP, address, sizeof(address), 1,
+	spi_flash_cmd(spim, SPI_FLASH_CMD_RDSFDP, address, sizeof(address), SPI_FLASH_DMY_RDSFDP,
 			&sfdp_header, sizeof(sfdp_header));
 	static const uint8_t magic[] = { 'S', 'F', 'D', 'P' };
 	if (!memcmp(magic, sfdp_header.signature, 4)) {
@@ -133,7 +270,7 @@ int main() {
 
 		sfdp_parameter_header_t parameter_headers[sfdp_header.nph + 1];
 		address[2] = sizeof(sfdp_header); // Big Endian!!
-		spi_flash_cmd(spi, SPI_FLASH_CMD_RDSFDP, address, sizeof(address), 1,
+		spi_flash_cmd(spim, SPI_FLASH_CMD_RDSFDP, address, sizeof(address), SPI_FLASH_DMY_RDSFDP,
 				parameter_headers, sizeof(parameter_headers));
 		for (int i = 0; i <= sfdp_header.nph; i++) {
 			printf("Parameter Header %d\n", i);
@@ -154,8 +291,8 @@ int main() {
 				address[2] = parameter_headers[i].ptp_as_uint8[0];
 
 				// So, the values we read are little endian.
-				spi_flash_cmd(spi, SPI_FLASH_CMD_RDSFDP, address,
-						sizeof(address), 1, &basic_flash_parameters,
+				spi_flash_cmd(spim, SPI_FLASH_CMD_RDSFDP, address,
+						sizeof(address), SPI_FLASH_DMY_RDSFDP, &basic_flash_parameters,
 						sizeof(basic_flash_parameters));
 //				for (int j = 0; j < parameter_headers[i].length; j++) {
 //					printf("%d: %08X\n", j, basic_flash_parameters.words[j]);
@@ -188,7 +325,6 @@ int main() {
 					uint64_t TiB_size = 1
 							<< ((basic_flash_parameters.flash_memory_density_le
 									& ~0x8000000) - 43);
-
 				} else {
 					puts("Flash size:");
 					printf("Detected size is %8d bit      \n",
@@ -204,10 +340,9 @@ int main() {
 									>> 23);
 				}
 			}
-
 		}
 
-		while (1)
+
 			;
 	} else {
 		puts("SFDP not supported");
@@ -219,6 +354,25 @@ int main() {
 				sfdp_header.signature[3]);
 
 	}
+
+	spi_flash_erase_chip(spim);
+
+	uint8_t test [32];
+	for (int i = 0 ; i < sizeof(test) ; i++) {
+		test[i] = (i % 26) + 'a';
+	}
+
+	spi_flash_program(spim, 15, test, sizeof(test));
+
+	spi_flash_program(spim, 5, "Blaat",5);
+
+	spi_flash_program(spim, 115, "Schaap",6);
+
+	uint8_t buffert[256];
+
+	spi_flash_read(spim, 0, buffert, 256);
+
+
 	while (1)
 		;
 }
