@@ -44,7 +44,8 @@
 
 bshal_spim_instance_t* spi_init() {
 	static bshal_spim_instance_t flash_spi_config;
-	flash_spi_config.frequency = 1000000;
+	//flash_spi_config.frequency = 1000000;
+	flash_spi_config.frequency = 8000000;
 	flash_spi_config.bit_order = 0; //MSB
 	flash_spi_config.mode = 0;
 
@@ -191,7 +192,7 @@ void spi_flash_program(bshal_spim_instance_t *spim, uint32_t address, void* data
 		addr[0] = (address+data_offset)>> 16;
 
 		printf("Writing %3d bytes to address %02X%02X%02X\n",
-				write_size, addr[0], addr[1], addr[1]);
+				write_size, addr[0], addr[1], addr[2]);
 
 
 		bshal_spim_transmit(spim, cmd, sizeof(cmd), true);
@@ -217,7 +218,14 @@ int spi_flash_read(bshal_spim_instance_t *spim, uint32_t address, void* data, si
 	addr[2] = address;
 	addr[1] = address>> 8;
 	addr[0] = address>> 16;
-	return spi_flash_cmd(spim, SPI_FLASH_CMD_READ, NULL, 0, SPI_FLASH_DMY_READ, data, size);
+	return spi_flash_cmd(spim, SPI_FLASH_CMD_READ, addr, sizeof(addr), SPI_FLASH_DMY_READ, data, size);
+}
+
+char* printable(char* raw) {
+	static char printable_data[16];
+	for (int i = 0 ; i < 16 ; i++)
+		printable_data[i] = (raw[i] >= 32 && raw[i] <=127) ? raw[i] : '.';
+	return printable_data;
 }
 
 int main() {
@@ -355,7 +363,9 @@ int main() {
 
 	}
 
+	puts("Begin chip erase");
 	spi_flash_erase_chip(spim);
+	puts("Chip erased");
 
 	uint8_t test [32];
 	for (int i = 0 ; i < sizeof(test) ; i++) {
@@ -368,10 +378,27 @@ int main() {
 
 	spi_flash_program(spim, 115, "Schaap",6);
 
-	uint8_t buffert[256];
+	spi_flash_program(spim, 254, "Miauw",5);
 
-	spi_flash_read(spim, 0, buffert, 256);
+	spi_flash_program(spim, 0, "", 1);
 
+	uint8_t buffert[512] = {};
+
+	spi_flash_read(spim, 0, buffert, sizeof(buffert));
+
+
+	for (int i = 0 ; i < sizeof(buffert); i++ ) {
+		if (0 == (i%4)) putchar(0x20);
+		if (0 == (i%16)) {
+			if (i >= 16) { printf("   %s",printable(buffert+i-16)); }
+			bshal_delay_ms(10);
+			putchar(0xA);
+		}
+
+		printf("%02X ", buffert[i]);
+	}
+	printf("    %s",printable(buffert+sizeof(buffert)-(16-(sizeof(buffert)%16))));
+	putchar(0x0A);
 
 	while (1)
 		;
