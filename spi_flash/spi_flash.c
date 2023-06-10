@@ -50,7 +50,7 @@ bshal_spim_instance_t* spi_init() {
 	flash_spi_config.mode = 0;
 
 	flash_spi_config.hw_nr = 1; // SPI2
-	flash_spi_config.cs_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_4);
+	flash_spi_config.cs_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_1);
 	flash_spi_config.mosi_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_7);
 	flash_spi_config.miso_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_6);
 	flash_spi_config.sck_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_5);

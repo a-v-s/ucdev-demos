@@ -47,10 +47,6 @@ int si443x_set_frequency(uint32_t kHz) {
 		hbsel = 1;
 	}
 
-	// fcarrier = (fb+24+(fc+fo)/64000) x 10000 x (hbsel+1) + (fhch x fhs x 10) [kHz],
-	//float calc_freq = (((fb + 24.0f) + (fc / 64000.0f)) * 10000.0f ) * (hbsel + 1.0f);
-	//printf("Requested frequency: %9d KHz Band %04X fc %02X High %d Actual Freq %9f KHz\n", kHz, fb, fc, hbsel, calc_freq);
-
 	si443x_reg_75_t r75 = { 0 };
 	r75.fb = fb;
 	r75.hbsel = hbsel;
