@@ -168,11 +168,11 @@ int sxv1_set_sync_word32(bsradio_instance_t *bsradio,uint32_t sync_word) {
 	config.sync_on = 1;
 	config.sync_size = 3; // size = sync_size + 1, thus 4
 	config.sync_tol = 0;
-	sxv1_write_reg(bsradio,SXV1_REG_SYNCCONFIG, config.as_uint8);
-//	sxv1_write_reg(SXV1_REG_SYNCVALUE1, sync_word >> 24);
-//	sxv1_write_reg(SXV1_REG_SYNCVALUE2, sync_word >> 16);
-//	sxv1_write_reg(SXV1_REG_SYNCVALUE3, sync_word >> 8);
-//	sxv1_write_reg(SXV1_REG_SYNCVALUE4, sync_word );
+//	sxv1_write_reg(bsradio,SXV1_REG_SYNCCONFIG, config.as_uint8);
+//	sxv1_write_reg(bsradio,SXV1_REG_SYNCVALUE1, sync_word >> 24);
+//	sxv1_write_reg(bsradio,SXV1_REG_SYNCVALUE2, sync_word >> 16);
+//	sxv1_write_reg(bsradio,SXV1_REG_SYNCVALUE3, sync_word >> 8);
+//	sxv1_write_reg(bsradio,SXV1_REG_SYNCVALUE4, sync_word );
 
 	sxv1_write_reg(bsradio,SXV1_REG_SYNCVALUE1, sync_word & 0xFF);
 	sxv1_write_reg(bsradio,SXV1_REG_SYNCVALUE2, (sync_word & 0xFF00) >> 8);
@@ -210,6 +210,17 @@ int sxv1_set_sync_word_16(bsradio_instance_t *bsradio,uint16_t sync_word) {
 	sxv1_write_reg(bsradio,SXV1_REG_SYNCCONFIG, config.as_uint8);
 	sxv1_write_reg(bsradio,SXV1_REG_SYNCVALUE1, sync_word & 0xFF);
 	sxv1_write_reg(bsradio,SXV1_REG_SYNCVALUE2, (sync_word & 0xFF00) >> 8);
+	return 0;
+}
+
+int sxv1_set_sync_word_8(bsradio_instance_t *bsradio,uint8_t sync_word) {
+	sxv1_sync_config_t config;
+	config.fifo_fill_condition = 0;
+	config.sync_on = 1;
+	config.sync_size = 0; // size = sync_size + 1, thus 1
+	config.sync_tol = 0;
+	sxv1_write_reg(bsradio,SXV1_REG_SYNCCONFIG, config.as_uint8);
+	sxv1_write_reg(bsradio,SXV1_REG_SYNCVALUE1, sync_word & 0xFF);
 	return 0;
 }
 

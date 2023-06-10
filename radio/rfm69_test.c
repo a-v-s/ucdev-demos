@@ -108,9 +108,22 @@ int sxv1_init(bsradio_instance_t *bsradio) {
 
 	printf("Verification partno %02X\n", partno);
 
-	//  sxv1_set_frequency(915000);
-	//sxv1_set_frequency(868000);
-	sxv1_set_frequency(bsradio, 434000);
+	switch (bsradio->config.frequency_band) {
+	case 434:
+		sxv1_set_frequency(bsradio, 434000);
+		sxv1_set_tx_power(bsradio, 0);
+		break;
+	case 868:
+		sxv1_set_frequency(bsradio, 869850);
+//		sxv1_set_frequency(bsradio, 868000);
+//		sxv1_set_tx_power(bsradio, 7);
+		sxv1_set_tx_power(bsradio, 0);
+		break;
+	case 915:
+		sxv1_set_frequency(bsradio, 915000);
+		sxv1_set_tx_power(bsradio, -3);
+		break;
+	}
 
 	/*
 	 * Europe: 433 MHz Band:
@@ -149,28 +162,14 @@ int sxv1_init(bsradio_instance_t *bsradio) {
 	 */
 
 	sxv1_calibarte_rc(bsradio);
-
+	sxv1_write_reg(bsradio, SXV1_REG_RSSITHRESH, 0xC4);
 	sxv1_configure_packet(bsradio);
-//
+
+	sxv1_set_sync_word32(bsradio, 0xdeadbeef);
+
 	sxv1_set_bitrate(bsradio, 12500);
 	sxv1_set_fdev(bsradio, 12500);
 	sxv1_set_bandwidth(bsradio, 25000);
-
-// THese appear to be the Si4463 defaults
-	//sxv1_set_bitrate(100000);
-//	sxv1_set_bitrate(100000);
-//	sxv1_set_fdev(50000);
-//	sxv1_set_bandwidth(100000);
-
-	//sxv1_set_tx_power(17);
-	//sxv1_set_tx_power(10);
-	sxv1_set_tx_power(bsradio, 0);
-	//sxv1_set_tx_power(-4);
-
-	//sxv1_write_reg(SXV1_REG_RSSITHRESH, 0xE4);
-	sxv1_write_reg(bsradio, SXV1_REG_RSSITHRESH, 0xC4);
-
-	sxv1_set_sync_word32(bsradio, 0xdeadbeef);
 
 	/*
 	 The DAGC is enabled by setting RegTestDagc to 0x20 for low modulation index systems
@@ -183,23 +182,23 @@ int sxv1_init(bsradio_instance_t *bsradio) {
 	return 0;
 }
 
-int si4x3x_init() {
+int si4x3x_init(bsradio_instance_t *bsradio) {
 
-//	TODO
-//	bshal_gpio_write_pin(spi_radio_config.rs_pin, 1);
-//	bshal_delay_ms(5);
-//	bshal_gpio_write_pin(spi_radio_config.rs_pin, 0);
-//	bshal_delay_ms(50);
+	// reset is active high!!!!
+	bshal_gpio_write_pin(bsradio->spim.rs_pin, 1);
+	bshal_delay_ms(5);
+	bshal_gpio_write_pin(bsradio->spim.rs_pin, 0);
+	bshal_delay_ms(50);
 
 	uint8_t dt = 0;
-	si4x3x_read_reg8(0x00, &dt);
+	si4x3x_read_reg8(bsradio, 0x00, &dt);
 	if (0b00001000 != dt) {
 		print("BAD DEVICE", 5);
 		framebuffer_apply();
 		while (1)
 			;
 	}
-	print("Si4432", 5);
+	print("Si4x3x", 6);
 	framebuffer_apply();
 
 	// The frequency that was tuned to was 11 kHz too low for
@@ -209,48 +208,49 @@ int si4x3x_init() {
 	// So I have to trial and error to find the correct value,
 	// Tested various values, found 0x69 to give the correct frequency
 	// on the 868 MHz module. Need to repeat the test on 434 MHz modules
-	si4x3x_write_reg8(0x09, 0x69);
+	si4x3x_write_reg8(bsradio, 0x09, bsradio->config.xtal_tune);
 
-	//  915 MHz band for the Americas
-	//  si4x3x_set_frequency(915000);
+	switch (bsradio->config.frequency_band) {
+	case 434:
+		si4x3x_set_frequency(bsradio, 434000);
+		si4x3x_set_tx_power(bsradio, 0);
+		break;
+	case 868:
+		si4x3x_set_frequency(bsradio, 869850);
+//		si4x3x_set_frequency(bsradio, 868000);
+//		si4x3x_set_tx_power(bsradio, 7);
+		si4x3x_set_tx_power(bsradio, 0);
+		break;
+	case 915:
+		si4x3x_set_frequency(bsradio, 915000);
+		si4x3x_set_tx_power(bsradio, -3);
+		break;
+	}
 
-	// Europe
-	si4x3x_set_frequency(868000);
-	////si4x3x_set_frequency(868022);
+	si4x3x_configure_packet(bsradio);
 
-	// Europe
-	//si4x3x_set_frequency(434000);
-	//si4x3x_set_frequency(434011); // According to SDR I am 12 kHz too low
+	si4x3x_set_bitrate(bsradio, 12500);
+	si4x3x_set_fdev(bsradio, 12500);
+	si4x3x_set_bandwidth(bsradio, 25000);
+	si4x3x_update_clock_recovery(bsradio);
 
-	si4x3x_configure_packet();
-
-	si4x3x_set_bitrate(12500);
-	si4x3x_set_fdev(12500);
-	si4x3x_set_bandwidth(25000);
-	si4x3x_update_clock_recovery();
-
-	//si4x3x_set_tx_power(17);
-	si4x3x_set_tx_power(10);
-	//si4x3x_set_tx_power(0);
-	//si4x3x_set_tx_power(-4);
-
-	//si4x3x_set_sync_word(0xefbeadde);
+	si4x3x_set_sync_word32(bsradio, 0xdeadbeef);
 
 	return 0;
 }
 
-void si4x3x_recv_test() {
+void si4x3x_recv_test(bsradio_instance_t *bsradio) {
 	sxv1_air_packet_t packet = { 0 };
 	char strbuff[32];
 
-	si4x3x_init();
+	si4x3x_init(bsradio);
 	print("RX Si4x3x", 5);
 	framebuffer_apply();
-	si4x3x_configure_packet();
+	si4x3x_configure_packet(bsradio);
 
 	while (1) {
 
-		if (!si4x3x_receive_request(&packet)) {
+		if (!si4x3x_receive_request(bsradio, &packet)) {
 			printf("Packet Received\n");
 			if (packet.header.size < 16)
 				for (int i = 0; i < packet.header.size - sizeof(packet.header);
@@ -266,13 +266,13 @@ void si4x3x_recv_test() {
 		}
 	}
 }
-void si4x3x_send_test() {
+void si4x3x_send_test(bsradio_instance_t *bsradio) {
 	sxv1_air_packet_t packet = { 0 };
 	char strbuff[32];
 
 	//		// Si4x3x test
-	si4x3x_init();
-	print("TX Si4432", 5);
+	si4x3x_init(bsradio);
+	print("TX Si4x3x", 5);
 
 	//		sxv1_init();
 	framebuffer_apply();
@@ -285,7 +285,7 @@ void si4x3x_send_test() {
 		packet.data[2] = 0xBE;
 		packet.data[3] = 0xEF;
 		packet.data[4]++;
-		si4x3x_send_request(&packet, &packet);
+		si4x3x_send_request(bsradio, &packet, &packet);
 		//sxv1_send_request(&packet, &packet);
 		sprintf(strbuff, "TX %02X", packet.data[4]);
 		draw_plain_background();
@@ -298,15 +298,15 @@ void sxv1_recv_test(bsradio_instance_t *bsradio) {
 	char strbuff[32];
 
 	sxv1_init(bsradio);
-	print("RX ", 5);
+	print("RX SX123x", 5);
 	framebuffer_apply();
-	sxv1_set_mode(bsradio,sxv1_mode_rx);
+	sxv1_set_mode(bsradio, sxv1_mode_rx);
 	sxv1_rx_restart(bsradio);
 
 	int cnt = 0;
 	while (1) {
 
-		if (!sxv1_receive_request(bsradio,&packet)) {
+		if (!sxv1_receive_request(bsradio, &packet)) {
 			printf("Packet Received\n");
 			// if (packet.header.size < 16)
 			//				for (int i = 0; i < packet.header.size-sizeof(packet.header); i++)
@@ -347,7 +347,7 @@ void sxv1_send_test(bsradio_instance_t *bsradio) {
 		packet.data[2] = 0xBE;
 		packet.data[3] = 0xEF;
 		packet.data[4]++;
-		sxv1_send_request(bsradio,&packet, &packet);
+		sxv1_send_request(bsradio, &packet, &packet);
 		sprintf(strbuff, "TX %02X", packet.data[4]);
 		draw_plain_background();
 		print(strbuff, 1);
@@ -401,9 +401,11 @@ int main() {
 	}
 
 	if ((header->size == 0xFF) || (header->size == 0x00)) {
-		bsradio.config.chip_brand = chip_brand_semtech;
+		bsradio.config.chip_brand = chip_brand_silabs;
 		bsradio.config.chip_type = 1;
-		bsradio.config.frequency_band = 433;
+		bsradio.config.frequency_band = 868;
+		bsradio.config.xtal_tune = 0x69;
+		0x69;
 	} else {
 		bsradio.config = *config;
 	}

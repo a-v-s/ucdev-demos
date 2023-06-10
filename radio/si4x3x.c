@@ -65,87 +65,87 @@ const static si4x3x_rxbw_entry_t m_rxbw_entries[] = { { 2600, { .ndec_exp = 5,
 
 #include "bshal_spim.h"
 
-bshal_spim_instance_t spi_radio_config;
+//bshal_spim_instance_t spi_radio_config;
 
 #define SI4X3X_WRITE 0x80
 #define SI4X3X_READ  0x00
 
-int si4x3x_write_reg8(uint8_t reg, uint8_t val) {
+int si4x3x_write_reg8(bsradio_instance_t *bsradio, uint8_t reg, uint8_t val) {
 	uint8_t buff[2] = { reg | SI4X3X_WRITE, val };
-	return bshal_spim_transmit(&spi_radio_config, buff, sizeof(buff), false);
+	return bshal_spim_transmit(&bsradio->spim, buff, sizeof(buff), false);
 }
 
-int si4x3x_read_reg8(uint8_t reg, uint8_t *val) {
+int si4x3x_read_reg8(bsradio_instance_t *bsradio, uint8_t reg, uint8_t *val) {
 	uint8_t buff[2] = { reg | SI4X3X_READ, 0xFF };
-	int result = bshal_spim_transceive(&spi_radio_config, buff, sizeof(buff),
+	int result = bshal_spim_transceive(&bsradio->spim, buff, sizeof(buff),
 			false);
 	*val = buff[1];
 	return result;
 }
 
-int si4x3x_write_reg16(uint16_t reg, uint16_t val) {
+int si4x3x_write_reg16(bsradio_instance_t *bsradio, uint16_t reg, uint16_t val) {
 	si4x3x_spi_16bit_t buff;
 	buff.reg = reg | SI4X3X_WRITE;
 	buff.value = htobe16(val);
-	return bshal_spim_transmit(&spi_radio_config, &buff, sizeof(buff), false);
+	return bshal_spim_transmit(&bsradio->spim, &buff, sizeof(buff), false);
 }
 
-int si4x3x_read_reg16(uint16_t reg, uint16_t *val) {
+int si4x3x_read_reg16(bsradio_instance_t *bsradio, uint16_t reg, uint16_t *val) {
 	si4x3x_spi_16bit_t buff;
 	buff.reg = reg | SI4X3X_READ;
-	int result = bshal_spim_transceive(&spi_radio_config, &buff, sizeof(buff),
+	int result = bshal_spim_transceive(&bsradio->spim, &buff, sizeof(buff),
 			false);
 	*val = be16toh(buff.value);
 	return result;
 }
 
-int si4x3x_clear_tx_fifo() {
+int si4x3x_clear_tx_fifo(bsradio_instance_t *bsradio) {
 	si4x3x_reg_08_t r08;
-	si4x3x_read_reg8(0x08, &r08);
+	si4x3x_read_reg8(bsradio, 0x08, &r08);
 	r08.ffclrtx = 1;
-	si4x3x_write_reg8(0x08, r08.as_uint8);
+	si4x3x_write_reg8(bsradio, 0x08, r08.as_uint8);
 	r08.ffclrtx = 0;
-	si4x3x_write_reg8(0x08, r08.as_uint8);
+	si4x3x_write_reg8(bsradio, 0x08, r08.as_uint8);
 	return 0;
 }
 
-int si4x3x_clear_rx_fifo() {
+int si4x3x_clear_rx_fifo(bsradio_instance_t *bsradio) {
 	si4x3x_reg_08_t r08;
-	si4x3x_read_reg8(0x08, &r08);
+	si4x3x_read_reg8(bsradio, 0x08, &r08);
 	r08.ffclrrx = 1;
-	si4x3x_write_reg8(0x08, r08.as_uint8);
+	si4x3x_write_reg8(bsradio, 0x08, r08.as_uint8);
 	r08.ffclrrx = 0;
-	si4x3x_write_reg8(0x08, r08.as_uint8);
+	si4x3x_write_reg8(bsradio, 0x08, r08.as_uint8);
 	return 0;
 }
 
-int si4x3x_write_fifo(void *data, uint8_t size) {
+int si4x3x_write_fifo(bsradio_instance_t *bsradio, void *data, uint8_t size) {
 	si4x3x_reg_3e_t r3e = { };
 	r3e.pklen = size;
-	si4x3x_clear_tx_fifo();
-	si4x3x_write_reg8(0x3e, r3e.as_uint8);
+	si4x3x_clear_tx_fifo(bsradio);
+	si4x3x_write_reg8(bsradio, 0x3e, r3e.as_uint8);
 	uint8_t fifo_access = 0x7F | SI4X3X_WRITE;
-	bshal_spim_transmit(&spi_radio_config, &fifo_access, 1, true);
-	bshal_spim_transmit(&spi_radio_config, data, size, false);
+	bshal_spim_transmit(&bsradio->spim, &fifo_access, 1, true);
+	bshal_spim_transmit(&bsradio->spim, data, size, false);
 	return 0;
 }
 
-int si4x3x_read_fifo(void *data, uint8_t *size) {
+int si4x3x_read_fifo(bsradio_instance_t *bsradio, void *data, uint8_t *size) {
 	si4x3x_reg_4b_t r4b;
 	int result = 0;
-	si4x3x_read_reg8(0x4B, &r4b);
+	si4x3x_read_reg8(bsradio, 0x4B, &r4b);
 	if (*size < r4b.rxplen) {
 		result = -1;
 	} else {
 		*size = r4b.rxplen;
 	}
 	uint8_t fifo_access = 0x7F | SI4X3X_READ;
-	bshal_spim_transmit(&spi_radio_config, &fifo_access, 1, true);
-	bshal_spim_receive(&spi_radio_config, data, *size, false);
-	si4x3x_clear_rx_fifo();
+	bshal_spim_transmit(&bsradio->spim, &fifo_access, 1, true);
+	bshal_spim_receive( &bsradio->spim, data, *size, false);
+	si4x3x_clear_rx_fifo(bsradio);
 	return 0;
 }
-int si4x3x_set_frequency(int kHz) {
+int si4x3x_set_frequency(bsradio_instance_t *bsradio, int kHz) {
 	int fb, fc, hbsel;
 
 	if (kHz < 240000) {
@@ -180,25 +180,25 @@ int si4x3x_set_frequency(int kHz) {
 	r75.hbsel = hbsel;
 	r75.sbsel = 1; // AN440 says sbsel = 1 is recommended.
 	//r75.sbsel = 0;
-	si4x3x_write_reg8(0x75, r75.as_uint8);
+	si4x3x_write_reg8(bsradio, 0x75, r75.as_uint8);
 
-	si4x3x_write_reg16(0x76, fc);
+	si4x3x_write_reg16(bsradio, 0x76, fc);
 
 	return 0;
 }
 
-int si4x3x_set_sync_word(uint32_t sync_word) {
+int si4x3x_set_sync_word32(bsradio_instance_t *bsradio, uint32_t sync_word) {
 	uint8_t buffer[5] = { SI4X3X_WRITE | 0x36, sync_word, sync_word >> 8,
 			sync_word >> 16, sync_word >> 24 };
-	bshal_spim_transmit(&spi_radio_config, buffer, sizeof(buffer), false);
+	bshal_spim_transmit(&bsradio->spim, buffer, sizeof(buffer), false);
 	si4x3x_reg_33_t r33;
-	si4x3x_read_reg8(0x33, &r33.as_uint8);
+	si4x3x_read_reg8(bsradio, 0x33, &r33.as_uint8);
 	r33.synclen = 0b11;
-	si4x3x_write_reg8(0x33, r33.as_uint8);
+	si4x3x_write_reg8(bsradio, 0x33, r33.as_uint8);
 	return 0;
 }
 
-int si4x3x_set_bitrate(int bps) {
+int si4x3x_set_bitrate(bsradio_instance_t *bsradio, int bps) {
 
 	/*
 	 The data rate can be calculated as:
@@ -207,7 +207,7 @@ int si4x3x_set_bitrate(int bps) {
 	 */
 
 	si4x3x_reg_70_t r70;
-	si4x3x_read_reg8(0x70, &r70);
+	si4x3x_read_reg8(bsradio, 0x70, &r70);
 
 	uint16_t txdr;
 	if (bps < 30000) {
@@ -217,30 +217,30 @@ int si4x3x_set_bitrate(int bps) {
 		r70.txdtrtscale = 0;
 		txdr = ((uint64_t)(bps) << 16) / 1000000;
 	}
-	si4x3x_write_reg8(0x70, r70.as_uint8);
+	si4x3x_write_reg8(bsradio, 0x70, r70.as_uint8);
 
-	si4x3x_write_reg16(0x6e, txdr);
+	si4x3x_write_reg16(bsradio, 0x6e, txdr);
 
 	return 0;
 
 }
 
-int si4x3x_set_fdev(int hz) {
+int si4x3x_set_fdev(bsradio_instance_t *bsradio, int hz) {
 	// 	Fd = 625 Hz x fd[8:0].
 
 	int fd = hz / 625;
 
 	si4x3x_reg_71_t r71;
-	si4x3x_read_reg8(0x71, &r71);
+	si4x3x_read_reg8(bsradio, 0x71, &r71);
 	r71.fd8 = fd >> 8;
-	si4x3x_write_reg8(0x71, r71.as_uint8);
-	si4x3x_write_reg8(0x72, fd);
+	si4x3x_write_reg8(bsradio, 0x71, r71.as_uint8);
+	si4x3x_write_reg8(bsradio, 0x72, fd);
 
 	return 0;
 
 }
 
-int si4x3x_set_bandwidth(int hz) {
+int si4x3x_set_bandwidth(bsradio_instance_t *bsradio, int hz) {
 	si4x3x_reg_1c_t r1c;
 	int i;
 	for (i = 0; m_rxbw_entries[i].bandwidth; i++)
@@ -248,31 +248,31 @@ int si4x3x_set_bandwidth(int hz) {
 			break;
 	if (m_rxbw_entries[i].bandwidth) {
 		r1c = m_rxbw_entries[i].rxbw;
-		si4x3x_write_reg8(0x1c, r1c.as_uint8);
+		si4x3x_write_reg8(bsradio, 0x1c, r1c.as_uint8);
 		return 0;
 	}
 	return -1;
 }
 
-int si4x3x_update_clock_recovery(void) {
+int si4x3x_update_clock_recovery(bsradio_instance_t *bsradio) {
 	// Clock Recovery registers 20 t/m 25 need to be
 	// updated when the bandwidth filter, frequency deviation
 	// or bitrate change to make reception work.
 
 	si4x3x_reg_70_t r70;
-	si4x3x_read_reg8(0x70, &r70);
+	si4x3x_read_reg8(bsradio, 0x70, &r70);
 	uint16_t r6e;
-	si4x3x_read_reg16(0x6e, &r6e);
+	si4x3x_read_reg16(bsradio, 0x6e, &r6e);
 
 	uint64_t Rb = ((uint64_t)(1000000 * (uint64_t) r6e))
 			>> (uint64_t)(r70.txdtrtscale ? 21 : 16);
 
 	si4x3x_reg_72_t r72;
-	si4x3x_read_reg8(0x72, &r72);
+	si4x3x_read_reg8(bsradio, 0x72, &r72);
 	int Fd = 625 * r72.fd;
 
 	si4x3x_reg_1c_t r1c;
-	si4x3x_read_reg8(0x1c, &r1c);
+	si4x3x_read_reg8(bsradio, 0x1c, &r1c);
 
 	uint64_t rxosr_val;
 	if (r1c.ndec_exp < 3) {
@@ -295,27 +295,27 @@ int si4x3x_update_clock_recovery(void) {
 
 	si4x3x_reg_20_t r20 = { };
 	si4x3x_reg_21_t r21;
-	si4x3x_read_reg8(0x21, &r21);
+	si4x3x_read_reg8(bsradio, 0x21, &r21);
 	r20.rxosr_7_0 = rxosr_val;
 	r21.rxosr_10_8 = rxosr_val >> 8;
-	si4x3x_write_reg8(0x20, r20.as_uint8);
-	si4x3x_write_reg8(0x21, r21.as_uint8);
+	si4x3x_write_reg8(bsradio, 0x20, r20.as_uint8);
+	si4x3x_write_reg8(bsradio, 0x21, r21.as_uint8);
 
-	si4x3x_write_reg16(0x22, ncoff_val);
+	si4x3x_write_reg16(bsradio, 0x22, ncoff_val);
 
 	si4x3x_reg_24_t r24 = { };
 	si4x3x_reg_25_t r25 = { };
 
 	r24.crgain_10_8 = crgain_val >> 8;
 	r25.crgain_7_0 = crgain_val;
-	si4x3x_write_reg8(0x24, r24.as_uint8);
-	si4x3x_write_reg8(0x25, r25.as_uint8);
+	si4x3x_write_reg8(bsradio, 0x24, r24.as_uint8);
+	si4x3x_write_reg8(bsradio, 0x25, r25.as_uint8);
 
 	return 0;
 
 }
 
-int si4x3x_set_tx_power(int tx_power) {
+int si4x3x_set_tx_power(bsradio_instance_t *bsradio, int tx_power) {
 	/*
 	 The output power is configurable
 	 from +13 dBm to –8 dBm (Si4430/31), and
@@ -335,69 +335,75 @@ int si4x3x_set_tx_power(int tx_power) {
 		return -1;
 
 	si4x3x_reg_6d_t r6d;
-	si4x3x_read_reg8(0x6D, &r6d);
-	r6d.txpow = (tx_power + 1) / 3;
-	return si4x3x_write_reg8(0x6D, r6d.as_uint8);
+	si4x3x_read_reg8(bsradio, 0x6D, &r6d);
+
+	if (bsradio->config.chip_variant == 32)
+		r6d.txpow = (tx_power + 1) / 3;
+	else
+		r6d.txpow = (tx_power + 8) / 3;
+
+	r6d.lna_sw = 1; // try
+	return si4x3x_write_reg8(bsradio, 0x6D, r6d.as_uint8);
 }
 
-void si4x3x_configure_packet(void) {
+void si4x3x_configure_packet(bsradio_instance_t *bsradio) {
 	// Now.... let's configure packet mode and such
-	si4x3x_write_reg8(0x71, 0b00100011); //GFSK, FIFO
-	si4x3x_write_reg8(0x05, 0xFF); //Enable Interrupts
-	si4x3x_write_reg8(0x06, 0xFF); //Enable Interrupts
+	si4x3x_write_reg8(bsradio, 0x71, 0b00100011); //GFSK, FIFO
+	si4x3x_write_reg8(bsradio, 0x05, 0xFF); //Enable Interrupts
+	si4x3x_write_reg8(bsradio, 0x06, 0xFF); //Enable Interrupts
 
-	si4x3x_write_reg8(0x30, 0b10001001); // disable crc for first tst
+	si4x3x_write_reg8(bsradio, 0x30, 0b10001001); // disable crc for first tst
 
 	// Set CRC to CCIT, as this is what SX123x uses. still nothing
 	//si4x3x_write_reg8(0x30, 0b10001100);
 
-	si4x3x_write_reg8(0x32, 0x00); // No Header
-	si4x3x_write_reg8(0x33, 0x00); // No Header
+	si4x3x_write_reg8(bsradio, 0x32, 0x00); // No Header
+	si4x3x_write_reg8(bsradio, 0x33, 0x00); // No Header
 
-	si4x3x_write_reg8(0x35, 0b00010010); // Preamble detection
+	si4x3x_write_reg8(bsradio, 0x35, 0b00010010); // Preamble detection
 
-	si4x3x_set_sync_word(0xdeadbeef);
+	si4x3x_set_sync_word32(bsradio, 0xdeadbeef);
 
 }
 
-int si4x3x_receive_request(sxv1_air_packet_t *p_request) {
+int si4x3x_receive_request(bsradio_instance_t *bsradio, sxv1_air_packet_t *p_request) {
 	uint8_t reg, val;
 	si4x3x_reg_03_t r03 = { };
 	si4x3x_reg_04_t r04 = { };
 
-	si4x3x_clear_rx_fifo();
-	si4x3x_write_reg8(0x07, 0x04);
+	si4x3x_clear_rx_fifo(bsradio);
+	si4x3x_write_reg8(bsradio, 0x07, 0x04);
 
 	while (!r03.ipkvalid) {
 		bshal_delay_ms(1);
-		si4x3x_read_reg8(0x03, &r03);
-		si4x3x_read_reg8(0x04, &r04);
+		si4x3x_read_reg8(bsradio, 0x03, &r03);
+		si4x3x_read_reg8(bsradio, 0x04, &r04);
 	}
 
 	uint8_t size = sizeof(sxv1_air_packet_t);
-	si4x3x_read_fifo(p_request, &size);
+	si4x3x_read_fifo(bsradio, p_request, &size);
 
 	return 0;
 
 }
 
-int si4x3x_send_request(sxv1_air_packet_t *p_request,
+int si4x3x_send_request(bsradio_instance_t *bsradio, sxv1_air_packet_t *p_request,
 		sxv1_air_packet_t *p_response) {
 	uint8_t reg;
 	uint8_t val;
 
 //	// Clear fifo
-	si4x3x_clear_tx_fifo();
+	si4x3x_clear_tx_fifo(bsradio);
 
-	si4x3x_write_fifo(p_request, p_request->header.size);
+	si4x3x_write_fifo(bsradio, p_request, p_request->header.size);
 
-	si4x3x_write_reg8(0x07, 0x08);
+	si4x3x_write_reg8(bsradio, 0x07, 0x08);
 
 	si4x3x_reg_03_t r03 = { };
 	si4x3x_reg_03_t r04 = { };
 	while (!r03.ipksent) {
-		si4x3x_read_reg8(0x03, &r03);
-		si4x3x_read_reg8(0x04, &r04);
+		si4x3x_read_reg8(bsradio, 0x03, &r03);
+		si4x3x_read_reg8(bsradio, 0x04, &r04);
 	}
 	bshal_delay_ms(1);
 	return 0;

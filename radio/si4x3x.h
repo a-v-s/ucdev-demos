@@ -30,6 +30,9 @@
  */
 
 #include <stdint.h>
+
+#include "radio.h"
+
 #pragma pack(push,1)
 
 typedef struct {
@@ -649,11 +652,12 @@ typedef struct {
 
 #pragma pack(pop)
 
-int si4x3x_set_frequency(int frequency);
-int si4x3x_set_sync_word(uint32_t sync_word);
-int si4x3x_set_bitrate(int bps);
-int si4x3x_set_fdev(int hz);
-int si4x3x_set_bandwidth(int hz);
-int si4x3x_set_tx_power(int tx_power);
-void si4x3x_configure_packet(void);
+
+int si4x3x_set_frequency(bsradio_instance_t *bsradio, int frequency);
+int si4x3x_set_sync_word32(bsradio_instance_t *bsradio,uint32_t sync_word);
+int si4x3x_set_bitrate(bsradio_instance_t *bsradio,int bps);
+int si4x3x_set_fdev(bsradio_instance_t *bsradio,int hz);
+int si4x3x_set_bandwidth(bsradio_instance_t *bsradio,int hz);
+int si4x3x_set_tx_power(bsradio_instance_t *bsradio,int tx_power);
+void si4x3x_configure_packet(bsradio_instance_t *bsradio);
 
