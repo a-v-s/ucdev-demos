@@ -10,7 +10,7 @@
 #include <bshal_spim.h>
 #include <stdbool.h>
 
-extern bshal_spim_instance_t radio_spi_config;
+extern bshal_spim_instance_t spi_radio_config;
 
 void si4x6x_load_magic_values(void) {
 
@@ -138,7 +138,7 @@ RF_MODEM_TX_RAMP_DELAY_12 0x11, 0x20, 0x0C, 0x18, 0x01, 0x80, 0x08, 0x03, 0xC0, 
 
 	uint8_t * magic_pointer = magic_values;
 	while ( *magic_pointer) {
-		bshal_spim_transmit(&radio_spi_config, magic_pointer+1, *magic_pointer, false);
+		bshal_spim_transmit(&spi_radio_config, magic_pointer+1, *magic_pointer, false);
 		magic_pointer += 1+(*magic_pointer);
 		bshal_delay_ms(10);
 	}

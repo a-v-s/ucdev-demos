@@ -2,7 +2,9 @@
 
 #include <endian.h>
 
-#include "rfm69.h"
+#include "sxv1.h"
+
+
 
 const static si4x3x_rxbw_entry_t m_rxbw_entries[] = { { 2600, { .ndec_exp = 5,
 		.dwn3_bypass = 0, .filset = 1 } }, { 2800, { .ndec_exp = 5,
@@ -62,19 +64,20 @@ const static si4x3x_rxbw_entry_t m_rxbw_entries[] = { { 2600, { .ndec_exp = 5,
 		{ 0, { 0, 0, 0 } }, };
 
 #include "bshal_spim.h"
-extern bshal_spim_instance_t radio_spi_config;
+
+bshal_spim_instance_t spi_radio_config;
 
 #define SI4X3X_WRITE 0x80
 #define SI4X3X_READ  0x00
 
 int si4x3x_write_reg8(uint8_t reg, uint8_t val) {
 	uint8_t buff[2] = { reg | SI4X3X_WRITE, val };
-	return bshal_spim_transmit(&radio_spi_config, buff, sizeof(buff), false);
+	return bshal_spim_transmit(&spi_radio_config, buff, sizeof(buff), false);
 }
 
 int si4x3x_read_reg8(uint8_t reg, uint8_t *val) {
 	uint8_t buff[2] = { reg | SI4X3X_READ, 0xFF };
-	int result = bshal_spim_transceive(&radio_spi_config, buff, sizeof(buff),
+	int result = bshal_spim_transceive(&spi_radio_config, buff, sizeof(buff),
 			false);
 	*val = buff[1];
 	return result;
@@ -84,13 +87,13 @@ int si4x3x_write_reg16(uint16_t reg, uint16_t val) {
 	si4x3x_spi_16bit_t buff;
 	buff.reg = reg | SI4X3X_WRITE;
 	buff.value = htobe16(val);
-	return bshal_spim_transmit(&radio_spi_config, &buff, sizeof(buff), false);
+	return bshal_spim_transmit(&spi_radio_config, &buff, sizeof(buff), false);
 }
 
 int si4x3x_read_reg16(uint16_t reg, uint16_t *val) {
 	si4x3x_spi_16bit_t buff;
 	buff.reg = reg | SI4X3X_READ;
-	int result = bshal_spim_transceive(&radio_spi_config, &buff, sizeof(buff),
+	int result = bshal_spim_transceive(&spi_radio_config, &buff, sizeof(buff),
 			false);
 	*val = be16toh(buff.value);
 	return result;
@@ -122,8 +125,8 @@ int si4x3x_write_fifo(void *data, uint8_t size) {
 	si4x3x_clear_tx_fifo();
 	si4x3x_write_reg8(0x3e, r3e.as_uint8);
 	uint8_t fifo_access = 0x7F | SI4X3X_WRITE;
-	bshal_spim_transmit(&radio_spi_config, &fifo_access, 1, true);
-	bshal_spim_transmit(&radio_spi_config, data, size, false);
+	bshal_spim_transmit(&spi_radio_config, &fifo_access, 1, true);
+	bshal_spim_transmit(&spi_radio_config, data, size, false);
 	return 0;
 }
 
@@ -137,8 +140,8 @@ int si4x3x_read_fifo(void *data, uint8_t *size) {
 		*size = r4b.rxplen;
 	}
 	uint8_t fifo_access = 0x7F | SI4X3X_READ;
-	bshal_spim_transmit(&radio_spi_config, &fifo_access, 1, true);
-	bshal_spim_receive(&radio_spi_config, data, *size, false);
+	bshal_spim_transmit(&spi_radio_config, &fifo_access, 1, true);
+	bshal_spim_receive(&spi_radio_config, data, *size, false);
 	si4x3x_clear_rx_fifo();
 	return 0;
 }
@@ -187,7 +190,7 @@ int si4x3x_set_frequency(int kHz) {
 int si4x3x_set_sync_word(uint32_t sync_word) {
 	uint8_t buffer[5] = { SI4X3X_WRITE | 0x36, sync_word, sync_word >> 8,
 			sync_word >> 16, sync_word >> 24 };
-	bshal_spim_transmit(&radio_spi_config, buffer, sizeof(buffer), false);
+	bshal_spim_transmit(&spi_radio_config, buffer, sizeof(buffer), false);
 	si4x3x_reg_33_t r33;
 	si4x3x_read_reg8(0x33, &r33.as_uint8);
 	r33.synclen = 0b11;
@@ -357,7 +360,7 @@ void si4x3x_configure_packet(void) {
 
 }
 
-int si4x3x_receive_request(rfm69_air_packet_t *p_request) {
+int si4x3x_receive_request(sxv1_air_packet_t *p_request) {
 	uint8_t reg, val;
 	si4x3x_reg_03_t r03 = { };
 	si4x3x_reg_04_t r04 = { };
@@ -371,15 +374,15 @@ int si4x3x_receive_request(rfm69_air_packet_t *p_request) {
 		si4x3x_read_reg8(0x04, &r04);
 	}
 
-	uint8_t size = sizeof(rfm69_air_packet_t);
+	uint8_t size = sizeof(sxv1_air_packet_t);
 	si4x3x_read_fifo(p_request, &size);
 
 	return 0;
 
 }
 
-int si4x3x_send_request(rfm69_air_packet_t *p_request,
-		rfm69_air_packet_t *p_response) {
+int si4x3x_send_request(sxv1_air_packet_t *p_request,
+		sxv1_air_packet_t *p_response) {
 	uint8_t reg;
 	uint8_t val;
 

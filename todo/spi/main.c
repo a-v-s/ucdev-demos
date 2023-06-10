@@ -364,147 +364,204 @@ void SystemClock_Config(void) {
 //
 //	return 0;
 //}
-//
-//uint32_t test_flash_spi_read_id() {
-//
-//	static bshal_spim_t flash_spi_config;
-//	flash_spi_config.frequency = 1000000;
-//	flash_spi_config.bit_order = 0; //MSB
-//	flash_spi_config.mode = 0;
-//
-//	flash_spi_config.hw_nr = 2; // SPI2
-//	flash_spi_config.miso_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_14);
-//	flash_spi_config.mosi_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_15);
-//	flash_spi_config.sck_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_13);
-//
-//	flash_spi_config.nss_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_12);
-//	flash_spi_config.nrs_pin = -1;
-//	flash_spi_config.ncd_pin = -1;
-//	flash_spi_config.irq_pin = -1;
-//
-//	bshal_spim_init(&flash_spi_config);
-//
-//	uint8_t result = -1;
-//
-//	//uint32_t device_id = 0;
-//
-//	// So we are getting values from the flash chip, but not the expected values
-//	// The values we are getting are consistent, also, they are coming from the
-//	// flash chip, as when we move the chip select to a different pin we get 0.
-//	// So, this means, the data comes from the chip... but something else is off...
-//	// The same results by another flash chip so it wasn't a bad chip.
-//
-//	// I have identified the problem: I need to transmit 0xFF while receiving.
-//
-///*
-//	{
-//		uint8_t get_id = 0x9F;
-//		bshal_spim_transmit(&flash_spi_config, &get_id, 1, true);
-//		device_id = -1;
-//		bshal_spim_transceive(&flash_spi_config, &device_id, 4, false);
-//		//W25Q32JV: 0xEE  expect 4016
-//		//GD25Q32C:
-//	}
-//	{
-//		uint8_t get_id[4] = { 0xAB, 0x00, 0x00, 0x00 };
-//		bshal_spim_transmit(&flash_spi_config, get_id, 4, true);
-//		device_id = -1;
-//		bshal_spim_transceive(&flash_spi_config, &device_id, 1, false);
-//		//W25Q32JV: got 0x00  expect 15
-//		//GD25Q32C: got 0x15  expect 0x15 : OK
-//	}
-//	{
-//		uint8_t get_id[4] = { 0x90, 0x00, 0x00, 0x00 };
-//		bshal_spim_transmit(&flash_spi_config, get_id, 4, true);
-//		device_id = -1;
-//		bshal_spim_transceive(&flash_spi_config, &device_id, 2, false);
-//		//W25Q32JV: got 0x0eee // expect ef
-//		//GD25Q32C: got 0xcc0 // expect 15 c8
-//	}
-//*/
-//
-//
-//	uint32_t device_id = -1;
-//	uint8_t* bytes = (uint8_t*)&device_id;
-//
-//
-//
-//	uint8_t rdid[1] = { 0x9F };
-//	bshal_spim_transmit(&flash_spi_config, rdid, sizeof(rdid), true);
-//	bshal_spim_transceive(&flash_spi_config, bytes, 3, false);
-//
-//	uint8_t rdi[4] = { 0xAB, 0x00, 0x00, 0x00 };
-//	bshal_spim_transmit(&flash_spi_config, rdi, sizeof(rdi), true);
-//	bshal_spim_transceive(&flash_spi_config, bytes + 3, 1, false);
-//
-//
-//
-//
-//
-//
-//	// Expected values for W25Q32JV :
-//
-//	// ID7 - ID0 = 15h			// answer to ABh, 90h, 92h, 94h
-//	// answer to 90		//							MF7 - MF0 = EFh
-//	// answer to 9F 	//	ID15 - ID0 = 4016h
-//
-//
-//	// Values for GD25Q32C (page 15)
-//	// ANSWER to 90		//					ID7-ID0:	15	MID = 0xc8
-//	// ANSWER to 9F		//	MID7-MID0: 0xC8 ID15-ID8: 0x 40	ID7-ID0: 	0x 16
-//	// ANSWER TO AB		//					ID7-ID0:	15
-//
-//
-//	// Verified in test:
-//	// GD25Q32C:  	0x151640c8
-//	// W25Q32JV:  	0x151640ef
-//	// XM25QH32B: 	0x15164020
-//
-//	// From the datasheet, we expect
-//	// HG25Q32:		0x151640E0
-//	// BY25Q32BS:	0x15164068
-//
-//	// According to the XM25QH32B datasheet
-//	// Manufacturer = 0x20
-//	// Memory Type  = 0x40 for SPI / 0x60 got QSPI
-//	// Capacity     = 0x16		// Thus 0x16 means 32 Mbit?
-//	// Numbers seem consequent between 32 Mbit chips from different manufacturers
-//	// Only the manufacturer byte changes. Thus... are these (semi-)standardised or not?
-//	// Look at
-//	// https://github.com/espressif/esp-idf/blob/master/components/spi_flash/spi_flash_chip_generic.c  line 107
-//	// https://github.com/espressif/esptool/issues/105
-//
-//
-//	return device_id;
-//}
-//
-void screen_init() {
-	static bshal_spim_instance_t screen_spi_config;
-	screen_spi_config.frequency = 6666666; // SPI speed for SSD1331 = 6.66 MHz (150 ns clock cycle time)
-	screen_spi_config.bit_order = 0; //MSB
-	screen_spi_config.mode = 0;
 
-	screen_spi_config.hw_nr = 1; // SPI1
-	screen_spi_config.miso_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_6);
-	screen_spi_config.mosi_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_7);
-	screen_spi_config.sck_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_5);
 
-	//screen_spi_config.cd_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_1);
-	screen_spi_config.rs_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_10);
-	screen_spi_config.cs_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_4);
 
-	//screen_spi_config.irq_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_11);
+uint32_t test_flash_spi_read_id() {
 
-	bshal_spim_init(&screen_spi_config);
+	static bshal_spim_instance_t flash_spi_config;
+	flash_spi_config.frequency = 1000000;
+	flash_spi_config.bit_order = 0; //MSB
+	flash_spi_config.mode = 0;
 
-//	bshal_gpio_write_pin(screen_spi_config.nrs_pin, 0);
-//	bshal_delay_ms(1);
-//	bshal_gpio_write_pin(screen_spi_config.nrs_pin, 1);
+	flash_spi_config.hw_nr = 1; // SPI2
+	flash_spi_config.cs_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_4);
+	flash_spi_config.mosi_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_7);
+	flash_spi_config.miso_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_6);
+	flash_spi_config.sck_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_5);
 
-	display_init(&screen_spi_config);
+	bshal_spim_init(&flash_spi_config);
 
-	// Thinking about we would need some SPI manager
+	uint8_t result = -1;
+
+	//uint32_t device_id = 0;
+
+	// So we are getting values from the flash chip, but not the expected values
+	// The values we are getting are consistent, also, they are coming from the
+	// flash chip, as when we move the chip select to a different pin we get 0.
+	// So, this means, the data comes from the chip... but something else is off...
+	// The same results by another flash chip so it wasn't a bad chip.
+
+	// I have identified the problem: I need to transmit 0xFF while receiving.
+
+		uint32_t test_9f = -1;
+		uint8_t test_ab = -1;
+		uint16_t test_90 = -1;
+		uint8_t sfdp[256];
+
+		uint8_t serialno[16];
+		{
+			memset (serialno, 0xFF, sizeof(serialno));
+			// Winbond, xmc,  4 dummy bytes, 8 byte serial
+			// Puyo, 3 dummy bytes, 16 byte serial
+			uint8_t get_id[4] = { 0x4B, 0x00, 0x00, 0x00 };
+			bshal_spim_transmit(&flash_spi_config, get_id, 4, true);
+			bshal_spim_transceive(&flash_spi_config, serialno, sizeof(serialno), false);
+		}
+
+
+#pragma pack (push,1)
+		typedef struct {
+			uint8_t signature[4];
+			struct {
+				uint8_t minor;
+				uint8_t major;
+			} revision;
+			uint8_t nph;
+			uint8_t ap;
+		} sfdp_header_t;
+
+		typedef struct {
+			uint8_t lsb;
+			struct {
+				uint8_t minor;
+				uint8_t major;
+			} revision;
+			uint8_t length; // in double words, their word size is 16, thus 32 bit
+			unsigned int ptp_be : 24; // parameter table pointer, 24 bit big endian
+			uint8_t msb;
+		} parameter_header_t;
+
+#pragma pack (pop)
+
+		{
+			 // Gigadevide, Winbond, XMC SPI Flash should support this
+
+			// XMC is returning garbage though.
+			memset (sfdp, 0xFF, sizeof(sfdp));
+			uint8_t get_sfdp []= {
+					0x5A, // Read SFDP
+					0x00, 0x00, 0x00, // 24 bit address 0x000000
+					0x00// Dummy byte
+			};
+			bshal_spim_transmit(&flash_spi_config, get_sfdp, sizeof(get_sfdp), true);
+			bshal_spim_transceive(&flash_spi_config, sfdp, sizeof(sfdp), false);
+			sfdp_header_t * head = sfdp;
+			parameter_header_t * param = sfdp + sizeof (sfdp_header_t);
+
+			static const uint8_t magic[] = {'S', 'F', 'D', 'P'};
+			if (! memcmp (magic, head->signature, 4)) {
+
+			}
+
+		}
+
+		{
+			uint8_t get_id = 0x9F;
+			bshal_spim_transmit(&flash_spi_config, &get_id, 1, true);
+			bshal_spim_transceive(&flash_spi_config, &test_9f, 4, false);
+			//W25Q32JV: 0xEE  expect 4016
+			//GD25Q32C:
+		}
+		{
+			uint8_t get_id[4] = { 0xAB, 0x00, 0x00, 0x00 };
+			bshal_spim_transmit(&flash_spi_config, get_id, 4, true);
+			bshal_spim_transceive(&flash_spi_config, &test_ab, 1, false);
+			//W25Q32JV: got 0x00  expect 15
+			//GD25Q32C: got 0x15  expect 0x15 : OK
+		}
+		{
+			uint8_t get_id[4] = { 0x90, 0x00, 0x00, 0x00 };
+			bshal_spim_transmit(&flash_spi_config, get_id, 4, true);
+			bshal_spim_transceive(&flash_spi_config, &test_90, 2, false);
+			//W25Q32JV: got 0x0eee // expect ef
+			//GD25Q32C: got 0xcc0 // expect 15 c8
+		}
+
+
+
+	uint32_t device_id = -1;
+	uint8_t* bytes = (uint8_t*)&device_id;
+
+
+
+	uint8_t rdid[1] = { 0x9F };
+	bshal_spim_transmit(&flash_spi_config, rdid, sizeof(rdid), true);
+	bshal_spim_transceive(&flash_spi_config, bytes, 3, false);
+
+	uint8_t rdi[4] = { 0xAB, 0x00, 0x00, 0x00 };
+	bshal_spim_transmit(&flash_spi_config, rdi, sizeof(rdi), true);
+	bshal_spim_transceive(&flash_spi_config, bytes + 3, 1, false);
+
+
+
+
+
+
+	// Expected values for W25Q32JV :
+
+	// ID7 - ID0 = 15h			// answer to ABh, 90h, 92h, 94h
+	// answer to 90		//							MF7 - MF0 = EFh
+	// answer to 9F 	//	ID15 - ID0 = 4016h
+
+
+	// Values for GD25Q32C (page 15)
+	// ANSWER to 90		//					ID7-ID0:	15	MID = 0xc8
+	// ANSWER to 9F		//	MID7-MID0: 0xC8 ID15-ID8: 0x 40	ID7-ID0: 	0x 16
+	// ANSWER TO AB		//					ID7-ID0:	15
+
+
+	// Verified in test:
+	// GD25Q32C:  	0x151640c8
+	// W25Q32JV:  	0x151640ef
+	// XM25QH32B: 	0x15164020
+
+	// From the datasheet, we expect
+	// HG25Q32:		0x151640E0
+	// BY25Q32BS:	0x15164068
+
+	// According to the XM25QH32B datasheet
+	// Manufacturer = 0x20
+	// Memory Type  = 0x40 for SPI / 0x60 got QSPI
+	// Capacity     = 0x16		// Thus 0x16 means 32 Mbit?
+	// Numbers seem consequent between 32 Mbit chips from different manufacturers
+	// Only the manufacturer byte changes. Thus... are these (semi-)standardised or not?
+	// Look at
+	// https://github.com/espressif/esp-idf/blob/master/components/spi_flash/spi_flash_chip_generic.c  line 107
+	// https://github.com/espressif/esptool/issues/105
+
+
+	return device_id;
 }
+
+
+//void screen_init() {
+//	static bshal_spim_instance_t screen_spi_config;
+//	screen_spi_config.frequency = 6666666; // SPI speed for SSD1331 = 6.66 MHz (150 ns clock cycle time)
+//	screen_spi_config.bit_order = 0; //MSB
+//	screen_spi_config.mode = 0;
+//
+//	screen_spi_config.hw_nr = 1; // SPI1
+//	screen_spi_config.miso_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_6);
+//	screen_spi_config.mosi_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_7);
+//	screen_spi_config.sck_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_5);
+//
+//	//screen_spi_config.cd_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_1);
+//	screen_spi_config.rs_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_10);
+//	screen_spi_config.cs_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_4);
+//
+//	//screen_spi_config.irq_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_11);
+//
+//	bshal_spim_init(&screen_spi_config);
+//
+////	bshal_gpio_write_pin(screen_spi_config.nrs_pin, 0);
+////	bshal_delay_ms(1);
+////	bshal_gpio_write_pin(screen_spi_config.nrs_pin, 1);
+//
+//	display_init(&screen_spi_config);
+//
+//	// Thinking about we would need some SPI manager
+//}
 //
 //void rfid5_init(rc52x_t *rc52x) {
 //	static bshal_spim_t rfid_spi_config;
@@ -578,39 +635,13 @@ int main() {
 	bshal_delay_us(10);
 
 
-
-	//test();
-
-	//u8g2_test();
-
-	//radio_init();
-
-
-	screen_init();
-
-	print("Hello World!", 1);
-
-//	rfid5_init(&g_rc52x);
+	char str[32];
 //
-//	char str[32];
-//	uint8_t version = -1;
-//	rc52x_get_chip_version(&g_rc52x, &version);
-//	sprintf(str, "MFRC522 %02X", version);
-//	print(str, 2);
-//
-//	version = test_adxl_spi_read_id();
-//	sprintf(str, "ADXL ID  %03o", version);
-//	print(str, 3);
-//
-//	uint32_t flash_id = test_flash_spi_read_id();
-//	sprintf(str, "FLASH  %08X", flash_id);
+	uint32_t flash_id = test_flash_spi_read_id();
+	sprintf(str, "FLASH  %08X", flash_id);
 //	print(str, 4);
 //
-//	char sdcard_name[6];
-//	test_sdmmc_spi_read_id(&sdcard_name);
-//	sdcard_name[5]=0;
-//	sprintf(str, "SD: %s", sdcard_name);
-//	print(str, 5);
+
 //
 	while (1) {
 

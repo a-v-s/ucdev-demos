@@ -3,8 +3,12 @@
 #include "bshal_gpio.h"
 #include "stm32/bshal_gpio_stm32.h"
 #include <stdio.h>
-#include "rfm69.h"
+#include "sxv1.h"
 #include "si4x3x.h"
+
+#include "radio.h"
+
+#include "spi_flash.h"
 
 #if defined __ARM_EABI__
 void SysTick_Handler(void) {
@@ -43,32 +47,46 @@ void dwt_init(void) {
 }
 #endif
 
-extern bshal_spim_instance_t radio_spi_config;
+//bshal_spim_instance_t spi_radio_config;
+bshal_spim_instance_t spi_flash_config;
 
 #define SERIALNUMBER  *((uint32_t*) (0x1FFFF7F0))
 
 void test() {
 	uint8_t partno = 0;
-	rfm69_read_reg(0x10, &partno);
+	sxv1_read_reg(0x10, &partno);
 	printf("Verification partno %02X\n", partno);
 }
 
-void radio_init(void) {
-	SEGGER_RTT_Init();
-	//radio_spi_config.frequency = 10000000;
-	radio_spi_config.frequency = 1000000;
-	radio_spi_config.bit_order = 0; //MSB
-	radio_spi_config.mode = 0;
+void spi_radio_init(bsradio_instance_t *bsradio) {
 
-	radio_spi_config.hw_nr = 1;
-	radio_spi_config.sck_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_5);
-	radio_spi_config.miso_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_6);
-	radio_spi_config.mosi_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_7);
-	radio_spi_config.cs_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_4);
-	radio_spi_config.rs_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_10);
+	bsradio->spim.frequency = 10000000;
+	bsradio->spim.bit_order = 0; //MSB
+	bsradio->spim.mode = 0;
 
-	bshal_spim_init(&radio_spi_config);
+	bsradio->spim.hw_nr = 1;
+	bsradio->spim.sck_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_5);
+	bsradio->spim.miso_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_6);
+	bsradio->spim.mosi_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_7);
+	bsradio->spim.cs_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_4);
+	bsradio->spim.rs_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_10);
 
+	bshal_spim_init(&bsradio->spim);
+}
+
+void spi_flash_init(void) {
+	spi_flash_config.frequency = 10000000;
+	spi_flash_config.bit_order = 0; //MSB
+	spi_flash_config.mode = 0;
+
+	spi_flash_config.hw_nr = 1;
+	spi_flash_config.sck_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_5);
+	spi_flash_config.miso_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_6);
+	spi_flash_config.mosi_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_7);
+	spi_flash_config.cs_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_1);
+	spi_flash_config.rs_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_10);
+
+	bshal_spim_init(&spi_flash_config);
 }
 
 void SystemClock_Config(void) {
@@ -77,22 +95,22 @@ void SystemClock_Config(void) {
 
 void *gp_i2c = NULL;
 
-int rfm69_init() {
+int sxv1_init(bsradio_instance_t *bsradio) {
 
 	// reset is active high!!!!
-	bshal_gpio_write_pin(radio_spi_config.rs_pin, 1);
+	bshal_gpio_write_pin(bsradio->spim.rs_pin, 1);
 	bshal_delay_ms(5);
-	bshal_gpio_write_pin(radio_spi_config.rs_pin, 0);
+	bshal_gpio_write_pin(bsradio->spim.rs_pin, 0);
 	bshal_delay_ms(50);
 
 	uint8_t partno = 0;
-	rfm69_read_reg(0x10, &partno);
+	sxv1_read_reg(bsradio, 0x10, &partno);
 
 	printf("Verification partno %02X\n", partno);
 
-	//  rfm69_set_frequency(915000);
-	rfm69_set_frequency(868000);
-	//rfm69_set_frequency(434000);
+	//  sxv1_set_frequency(915000);
+	//sxv1_set_frequency(868000);
+	sxv1_set_frequency(bsradio, 434000);
 
 	/*
 	 * Europe: 433 MHz Band:
@@ -130,62 +148,48 @@ int rfm69_init() {
 
 	 */
 
-	rfm69_calibarte_rc();
+	sxv1_calibarte_rc(bsradio);
 
-	rfm69_configure_packet();
+	sxv1_configure_packet(bsradio);
 //
-//	rfm69_set_bitrate(12500);
-//	rfm69_set_fdev(12500);
-//	rfm69_set_bandwidth(25000);
+	sxv1_set_bitrate(bsradio, 12500);
+	sxv1_set_fdev(bsradio, 12500);
+	sxv1_set_bandwidth(bsradio, 25000);
 
 // THese appear to be the Si4463 defaults
-	//rfm69_set_bitrate(100000);
-	rfm69_set_bitrate(100000);
-	rfm69_set_fdev(50000);
-	rfm69_set_bandwidth(100000);
+	//sxv1_set_bitrate(100000);
+//	sxv1_set_bitrate(100000);
+//	sxv1_set_fdev(50000);
+//	sxv1_set_bandwidth(100000);
 
+	//sxv1_set_tx_power(17);
+	//sxv1_set_tx_power(10);
+	sxv1_set_tx_power(bsradio, 0);
+	//sxv1_set_tx_power(-4);
 
-	//rfm69_set_tx_power(17);
-	//rfm69_set_tx_power(10);
-	rfm69_set_tx_power(0);
-	//rfm69_set_tx_power(-4);
+	//sxv1_write_reg(SXV1_REG_RSSITHRESH, 0xE4);
+	sxv1_write_reg(bsradio, SXV1_REG_RSSITHRESH, 0xC4);
 
-	//rfm69_write_reg(RFM69_REG_RSSITHRESH, 0xE4);
-	rfm69_write_reg(RFM69_REG_RSSITHRESH, 0xC4);
-
-	rfm69_set_sync_word(0xdeadbeef);
-
-
-
-//	rfm69_set_sync_word(0xb42bb42b); // default on si4663
-	//rfm69_set_sync_word(0xAAAAAAAA); // sync on preamble for debugginh
-	//rfm_set_sync_word_16bit(0xAAAA);
-	//rfm_set_sync_word_16bit(0x5555);
-	//rfm_set_sync_word_16bit(0xb42b);
-	// rfm_set_sync_word_16bit(0x2bb4); // might be endianness after all?
-//	rfm69_set_sync_word(0x2bb42bb4); // endiannes after all
-
-
-
-
+	sxv1_set_sync_word32(bsradio, 0xdeadbeef);
 
 	/*
 	 The DAGC is enabled by setting RegTestDagc to 0x20 for low modulation index systems
 	 (i.e. when AfcLowBetaOn=1, refer to section 3.4.16), and 0x30 for other systems.
 	 It is recommended to always enable the DAGC.
 	 */
-	rfm69_write_reg(RFM69_REG_AFCCTRL, 0x00);
-	rfm69_write_reg(RFM69_REG_TESTDAGC, 0x30);
+	sxv1_write_reg(bsradio, SXV1_REG_AFCCTRL, 0x00);
+	sxv1_write_reg(bsradio, SXV1_REG_TESTDAGC, 0x30);
 
 	return 0;
 }
 
 int si4x3x_init() {
 
-	bshal_gpio_write_pin(radio_spi_config.rs_pin, 1);
-	bshal_delay_ms(5);
-	bshal_gpio_write_pin(radio_spi_config.rs_pin, 0);
-	bshal_delay_ms(50);
+//	TODO
+//	bshal_gpio_write_pin(spi_radio_config.rs_pin, 1);
+//	bshal_delay_ms(5);
+//	bshal_gpio_write_pin(spi_radio_config.rs_pin, 0);
+//	bshal_delay_ms(50);
 
 	uint8_t dt = 0;
 	si4x3x_read_reg8(0x00, &dt);
@@ -198,7 +202,6 @@ int si4x3x_init() {
 	print("Si4432", 5);
 	framebuffer_apply();
 
-
 	// The frequency that was tuned to was 11 kHz too low for
 	// low band and 22 kHz too low for high band.
 	// Seems register 9 is needed to set the correct load capacitance.
@@ -208,10 +211,8 @@ int si4x3x_init() {
 	// on the 868 MHz module. Need to repeat the test on 434 MHz modules
 	si4x3x_write_reg8(0x09, 0x69);
 
-
 	//  915 MHz band for the Americas
 	//  si4x3x_set_frequency(915000);
-
 
 	// Europe
 	si4x3x_set_frequency(868000);
@@ -233,14 +234,13 @@ int si4x3x_init() {
 	//si4x3x_set_tx_power(0);
 	//si4x3x_set_tx_power(-4);
 
-
 	//si4x3x_set_sync_word(0xefbeadde);
 
 	return 0;
 }
 
 void si4x3x_recv_test() {
-	rfm69_air_packet_t packet = { 0 };
+	sxv1_air_packet_t packet = { 0 };
 	char strbuff[32];
 
 	si4x3x_init();
@@ -267,14 +267,14 @@ void si4x3x_recv_test() {
 	}
 }
 void si4x3x_send_test() {
-	rfm69_air_packet_t packet = { 0 };
+	sxv1_air_packet_t packet = { 0 };
 	char strbuff[32];
 
 	//		// Si4x3x test
 	si4x3x_init();
 	print("TX Si4432", 5);
 
-	//		rfm69_init();
+	//		sxv1_init();
 	framebuffer_apply();
 	while (1) {
 
@@ -286,31 +286,31 @@ void si4x3x_send_test() {
 		packet.data[3] = 0xEF;
 		packet.data[4]++;
 		si4x3x_send_request(&packet, &packet);
-		//rfm69_send_request(&packet, &packet);
+		//sxv1_send_request(&packet, &packet);
 		sprintf(strbuff, "TX %02X", packet.data[4]);
 		draw_plain_background();
 		print(strbuff, 1);
 		framebuffer_apply();
 	}
 }
-void rfm69_recv_test() {
-	rfm69_air_packet_t packet = { 0 };
+void sxv1_recv_test(bsradio_instance_t *bsradio) {
+	sxv1_air_packet_t packet = { 0 };
 	char strbuff[32];
 
-	rfm69_init();
+	sxv1_init(bsradio);
 	print("RX ", 5);
 	framebuffer_apply();
-	rfm69_set_mode(rfm69_mode_rx);
-	rfm69_restart();
+	sxv1_set_mode(bsradio,sxv1_mode_rx);
+	sxv1_rx_restart(bsradio);
 
 	int cnt = 0;
 	while (1) {
 
-		if (!rfm69_receive_request(&packet)) {
+		if (!sxv1_receive_request(bsradio,&packet)) {
 			printf("Packet Received\n");
 			// if (packet.header.size < 16)
-				//				for (int i = 0; i < packet.header.size-sizeof(packet.header); i++)
-				//					printf("%02X ", packet.data[i]);
+			//				for (int i = 0; i < packet.header.size-sizeof(packet.header); i++)
+			//					printf("%02X ", packet.data[i]);
 
 			sprintf(strbuff, "RX %02X", packet.data[4]);
 			print(strbuff, 1);
@@ -323,13 +323,20 @@ void rfm69_recv_test() {
 		}
 	}
 }
-void rfm69_send_test() {
-	rfm69_air_packet_t packet = { 0 };
+
+void unsupported(void) {
+	draw_plain_background();
+	print("UNSUPPORTED", 4);
+	framebuffer_apply();
+}
+
+void sxv1_send_test(bsradio_instance_t *bsradio) {
+	sxv1_air_packet_t packet = { 0 };
 	char strbuff[32];
 
 	print("TX SX123x", 5);
 
-	rfm69_init();
+	sxv1_init(bsradio);
 	framebuffer_apply();
 	while (1) {
 
@@ -340,7 +347,7 @@ void rfm69_send_test() {
 		packet.data[2] = 0xBE;
 		packet.data[3] = 0xEF;
 		packet.data[4]++;
-		rfm69_send_request(&packet, &packet);
+		sxv1_send_request(bsradio,&packet, &packet);
 		sprintf(strbuff, "TX %02X", packet.data[4]);
 		draw_plain_background();
 		print(strbuff, 1);
@@ -351,6 +358,7 @@ void rfm69_send_test() {
 int main() {
 	SystemClock_Config();
 	SystemCoreClockUpdate();
+	SEGGER_RTT_Init();
 	dwt_init();
 	bshal_delay_init();
 	HAL_Init();
@@ -360,26 +368,117 @@ int main() {
 	display_init();
 
 	draw_plain_background();
-	print("RFM69 DEMO", 4);
+	print("RADIO DEMO", 4);
 	framebuffer_apply();
 
 	bshal_delay_ms(1000);
-	radio_init();
 
+	bsradio_instance_t bsradio = { };
 
+	spi_radio_init(&bsradio);
+	spi_flash_init();
+
+	uint8_t buffert[256] = { 0 };
+
+	bool write_to_flash = false;
+
+	protocol_header_t *header = buffert;
+	bsradio_config_t *config = buffert + sizeof(protocol_header_t);
+	if (write_to_flash) {
+		spi_flash_erase_page_256(&spi_flash_config, 0x000000);
+		memset(buffert, 0xFF, sizeof(buffert));
+		header->size = sizeof(protocol_header_t) + sizeof(bsradio_config_t);
+		header->cmd = 0x02;
+		header->sub = 0x20;
+		header->res = 'R';
+		config->chip_brand = chip_brand_st;
+		config->chip_type = 2;
+		config->module_brand = module_brand_radiocontrolli;
+		config->frequency_band = 868;
+		spi_flash_program(&spi_flash_config, 0x000000, buffert, header->size);
+	} else {
+		spi_flash_read(&spi_flash_config, 0x000000, buffert, sizeof(buffert));
+	}
+
+	if ((header->size == 0xFF) || (header->size == 0x00)) {
+		bsradio.config.chip_brand = chip_brand_semtech;
+		bsradio.config.chip_type = 1;
+		bsradio.config.frequency_band = 433;
+	} else {
+		bsradio.config = *config;
+	}
 	//si4x6x_test();
 //	while (1);
 
 	if (0x87141031 == SERIALNUMBER) {
-		si4x6x_recv_test();
-		//si4x3x_send_test();
-//		si4x3x_recv_test();
-//		rfm69_recv_test();
-		//rfm69_send_test();
+		switch (bsradio.config.chip_brand) {
+		case chip_brand_semtech:
+			switch (bsradio.config.chip_type) {
+			case 1:
+				sxv1_recv_test(&bsradio);
+				break;
+			case 2:
+				// TODO RFM9x
+				unsupported();
+				break;
+			default:
+				unsupported();
+				break;
+			}
+			break;
+		case chip_brand_silabs:
+			switch (bsradio.config.chip_type) {
+			case 1:
+				si4x3x_recv_test(&bsradio);
+				break;
+			case 2:
+				si4x6x_recv_test(&bsradio);
+				break;
+			default:
+				unsupported();
+				break;
+			}
+			break;
+
+		default:
+			unsupported();
+			break;
+		}
 
 	} else {
-		si4x6x_send_test();
-//		rfm69_send_test();
-		//si4x3x_send_test();
+		switch (bsradio.config.chip_brand) {
+		case chip_brand_semtech:
+			switch (bsradio.config.chip_type) {
+			case 1:
+				sxv1_send_test(&bsradio);
+				break;
+			case 2:
+				// TODO RFM9x
+				unsupported();
+				break;
+			default:
+				unsupported();
+				break;
+			}
+			break;
+		case chip_brand_silabs:
+			switch (bsradio.config.chip_type) {
+			case 1:
+				si4x3x_send_test(&bsradio);
+				break;
+			case 2:
+				si4x6x_send_test(&bsradio);
+				break;
+			default:
+				unsupported();
+				break;
+			}
+			break;
+
+		default:
+			unsupported();
+			break;
+		}
+
 	}
 }

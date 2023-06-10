@@ -10,39 +10,38 @@
 #include "bshal_spim.h"
 #include "bshal_delay.h"
 
-#include "rfm69.h"
-
 #include <endian.h>
+#include "sxv1.h"
 
-extern bshal_spim_instance_t radio_spi_config;
+extern bshal_spim_instance_t spi_radio_config;
 
 #define CMD_TIMEOUT_MS 20
 
 int si4x6x_command(uint8_t cmd, void *request, uint8_t request_size,
 		void *response, uint8_t response_size) {
-	int result = bshal_spim_transmit(&radio_spi_config, &cmd, 1, request_size);
+	int result = bshal_spim_transmit(&spi_radio_config, &cmd, 1, request_size);
 	if (result)
 		return result;
 	if (request_size)
-		result = bshal_spim_transmit(&radio_spi_config, request, request_size,
+		result = bshal_spim_transmit(&spi_radio_config, request, request_size,
 				false);
 	uint8_t status = 0;
 	for (int i = 0; i < CMD_TIMEOUT_MS; i++) {
 		uint8_t get_cts = SI4X6X_CMD_READ_CMD_BUFF;
-		result = bshal_spim_transmit(&radio_spi_config, &get_cts, 1, true);
-		result = bshal_spim_receive(&radio_spi_config, &status, 1,
+		result = bshal_spim_transmit(&spi_radio_config, &get_cts, 1, true);
+		result = bshal_spim_receive(&spi_radio_config, &status, 1,
 				response_size);
 		if (result)
 			return result;
 		if (status == 0xFF)
 			break;
-		bshal_gpio_write_pin(radio_spi_config.cs_pin, !radio_spi_config.cs_pol);
+		bshal_gpio_write_pin(spi_radio_config.cs_pin, !spi_radio_config.cs_pol);
 		bshal_delay_ms(1);
 	}
 	if (status != 0xFF)
 		return -1;
 	if (response_size)
-		result = bshal_spim_receive(&radio_spi_config, response, response_size,
+		result = bshal_spim_receive(&spi_radio_config, response, response_size,
 				false);
 	return result;
 }
@@ -99,8 +98,8 @@ int si4x6x_write_fifo(void *data, uint8_t size) {
 	si4x6x_command(SI4X6X_CMD_FIFO_INFO, &clear_fifo, 1, NULL, 0);
 
 	uint8_t cmd[] = { SI4X6X_CMD_WRITE_TX_FIFO, size };
-	int result = bshal_spim_transmit(&radio_spi_config, &cmd, 2, true);
-	bshal_spim_transmit(&radio_spi_config, data, size, false);
+	int result = bshal_spim_transmit(&spi_radio_config, &cmd, 2, true);
+	bshal_spim_transmit(&spi_radio_config, data, size, false);
 
 	return 0;
 
@@ -120,13 +119,13 @@ int si4x6x_read_fifo(void *data, uint8_t *size) {
 	}
 
 	uint8_t cmd = SI4X6X_CMD_READ_RX_FIFO;
-	result = bshal_spim_transmit(&radio_spi_config, &cmd, 1, true);
+	result = bshal_spim_transmit(&spi_radio_config, &cmd, 1, true);
 	if (result) {
-		bshal_gpio_write_pin(radio_spi_config.cs_pin, !radio_spi_config.cs_pol);
+		bshal_gpio_write_pin(spi_radio_config.cs_pin, !spi_radio_config.cs_pol);
 		return result;
 	}
 
-	bshal_spim_receive(&radio_spi_config, data, *size, false);
+	bshal_spim_receive(&spi_radio_config, data, *size, false);
 
 	return result;
 }
@@ -164,9 +163,9 @@ int si4x6x_init(void) {
 	si4x6x_func_info_t func_info = { };
 
 	// Active High Reset
-	bshal_gpio_write_pin(radio_spi_config.rs_pin, 1);
+	bshal_gpio_write_pin(spi_radio_config.rs_pin, 1);
 	bshal_delay_ms(5);
-	bshal_gpio_write_pin(radio_spi_config.rs_pin, 0);
+	bshal_gpio_write_pin(spi_radio_config.rs_pin, 0);
 	bshal_delay_ms(50);
 
 	// First command will fail to give the correct results
@@ -266,7 +265,7 @@ void si4x6x_send_test(void) {
 	while (true) {
 
 		bshal_delay_ms(2500);
-		rfm69_air_packet_t packet = { };
+		sxv1_air_packet_t packet = { };
 		packet.header.size = 4 + 9;
 		packet.data[0] = 1;
 		packet.data[1] = 2;
@@ -292,7 +291,7 @@ void si4x6x_send_test(void) {
 void si4x6x_recv_test(void) {
 	si4x6x_init();
 
-	rfm69_air_packet_t packet;
+	sxv1_air_packet_t packet;
 	char strbuff[32];
 	int cnt = 0;
 	while (true) {
@@ -416,7 +415,7 @@ int si4x6x_set_frequency(int kHz) {
 	return si4x6x_set_properties(0x40, 0x00, &val, sizeof(val));
 }
 
-int si4x6x_receive_request(rfm69_air_packet_t *p_request) {
+int si4x6x_receive_request(sxv1_air_packet_t *p_request) {
 	si4x6x_cmd_start_rx_t start_rx = { .rx_len_7_0 = 64, .rxtimeout_state = 0,
 			.rxvalid_state = 3, .rxinvalid_state = 3, };
 
@@ -436,7 +435,7 @@ int si4x6x_receive_request(rfm69_air_packet_t *p_request) {
 		si4x6x_command(0x20, NULL, 0, test, 9);
 	}
 
-	//si4x6x_read_fifo(p_packet, sizeof (rfm69_air_packet_t) );
+	//si4x6x_read_fifo(p_packet, sizeof (sxv1_air_packet_t) );
 	uint8_t buffer[64] = { 0 };
 	uint8_t size = sizeof(buffer);
 	si4x6x_read_fifo(buffer, &size);
@@ -445,8 +444,8 @@ int si4x6x_receive_request(rfm69_air_packet_t *p_request) {
 	return 0;
 }
 
-int si4x6x_send_request(rfm69_air_packet_t *p_request,
-		rfm69_air_packet_t *p_response) {
+int si4x6x_send_request(sxv1_air_packet_t *p_request,
+		sxv1_air_packet_t *p_response) {
 	int result = si4x6x_write_fifo(p_request, p_request->header.size);
 	if (result)
 		return result;

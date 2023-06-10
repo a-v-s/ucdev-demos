@@ -7,7 +7,7 @@ MCU?=STM32F103xB
 ################################################################################
 # Set Output Filename 
 ################################################################################
-TARGET = rfm69_test
+TARGET = spi_flash
 
 ################################################################################
 # Set the root directory of the ucdev enviorement 
@@ -20,13 +20,7 @@ U8G2_DIR = $(UCDEV_ROOT)/ext/u8g2/csrc
 # Sources
 ################################################################################
 
-C_SOURCES += rfm69_test.c
-C_SOURCES += sxv1.c
-
-C_SOURCES += si4x3x.c
-C_SOURCES += si4x6x.c
-
-C_SOURCES += magic.c
+C_SOURCES += spi_flash.c
 
 
 C_INCLUDES += $(U8G2_DIR) 
@@ -94,11 +88,6 @@ C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/bshal_spim.c
 C_INCLUDES += $(LIBHALGLUE_ROOT)/bshal/extlib/
 C_INCLUDES += $(LIBHALGLUE_ROOT)/common/
 C_INCLUDES += $(LIBHALGLUE_ROOT)/bshal/
-
-C_INCLUDES += $(UCDEV_ROOT)/lib/bsprot
-C_INCLUDES += $(UCDEV_ROOT)/lib/spi_flash
-C_SOURCES += $(UCDEV_ROOT)/lib/spi_flash/spi_flash.c
-
 
 LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/rtt/debug/arm_m3  -lrtt
 C_SOURCES +=  $(UCDEV_ROOT)/ext/RTT/Syscalls/SEGGER_RTT_Syscalls_GCC.c

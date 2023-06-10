@@ -58,6 +58,7 @@
 #include "pcf8574.h"
 #include "bmp280.h"
 #include "scd4x.h"
+#include "kt0803.h"
 
 #include "rc52x_transport.h"
 #include "rc52x.h"
@@ -198,6 +199,17 @@ int main() {
 	//i2c_eeprom
 
 	scd4x_t scd4x = { 0 };
+
+	kt0803_t kt0803 = { 0 };
+
+	if (0 == bshal_i2cm_isok(gp_i2c, KT0803_I2C_ADDR)) {
+		kt0803.addr = KT0803_I2C_ADDR;
+		kt0803.p_i2c = gp_i2c;
+
+		kt0803_standby(&kt0803, false);
+		kt0803_tune(&kt0803, 107700);
+
+	}
 
 	if (0 == bshal_i2cm_isok(gp_i2c, SCD4X_I2C_ADDR)) {
 		scd4x.addr = SCD4X_I2C_ADDR;
@@ -517,6 +529,7 @@ int main() {
 			print("1: SET TIME", line++);
 			print("2: SCAN BUS", line++);
 			print("3: SENSOR DATA", line++);
+			print("A: RADIO", line++);
 
 			switch (key_pressed) {
 			case '1':
@@ -529,8 +542,15 @@ int main() {
 			case '3':
 				state = 3;
 				break;
+			case 'A':
+				state = 0xa;
+				break;
 			}
 			break;
+			case 0xa:
+				print("FM RADIO", line++);
+				break;
+
 			case 1:
 				print("1: SET TIME", line++);
 				static char datetimestring[20];
