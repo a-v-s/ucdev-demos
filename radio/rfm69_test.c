@@ -402,9 +402,11 @@ int main() {
 
 	if ((header->size == 0xFF) || (header->size == 0x00)) {
 		bsradio.config.chip_brand = chip_brand_silabs;
-		bsradio.config.chip_type = 1;
+		bsradio.config.chip_type = 2;
+		bsradio.config.chip_variant = 2;
 		bsradio.config.frequency_band = 868;
 		bsradio.config.xtal_tune = 0x69;
+		bsradio.config.xtal_freq = 30000000;
 		0x69;
 	} else {
 		bsradio.config = *config;

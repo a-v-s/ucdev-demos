@@ -9,8 +9,9 @@
 #define SI4X6X_H_
 
 #include <stdint.h>
-int si4x6x_command(uint8_t cmd, void *request, uint8_t request_size,
-		void *response, uint8_t response_size);
+#include "radio.h"
+
+
 
 // BOOT_COMMANDS
 #define SI4X6X_CMD_POWER_UP					0x02
@@ -136,7 +137,6 @@ typedef struct {
 
 } si4x6x_cmd_get_int_status_t;
 
-
 typedef struct {
 	unsigned int revext :8;
 	unsigned int revbranch :8;
@@ -166,8 +166,10 @@ typedef union {
 
 #pragma pack(pop)
 
-int si4x6x_set_frequency(int kHz);
-int si4x6x_set_bitrate(int bps);
-int si4x6x_set_fdev(int hz);
+int si4x6x_command(bsradio_instance_t *bsradio,uint8_t cmd, void *request, uint8_t request_size,
+		void *response, uint8_t response_size);
+int si4x6x_set_frequency(bsradio_instance_t *bsradio, int kHz);
+int si4x6x_set_bitrate(bsradio_instance_t *bsradio, int bps);
+int si4x6x_set_fdev(bsradio_instance_t *bsradio, int hz);
 
 #endif /* SI4X6X_H_ */
