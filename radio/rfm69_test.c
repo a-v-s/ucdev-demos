@@ -108,7 +108,7 @@ int sxv1_init(bsradio_instance_t *bsradio) {
 
 	printf("Verification partno %02X\n", partno);
 
-	switch (bsradio->config.frequency_band) {
+	switch (bsradio->hwconfig.frequency_band) {
 	case 434:
 		sxv1_set_frequency(bsradio, 434000);
 		sxv1_set_tx_power(bsradio, 0);
@@ -208,9 +208,9 @@ int si4x3x_init(bsradio_instance_t *bsradio) {
 	// So I have to trial and error to find the correct value,
 	// Tested various values, found 0x69 to give the correct frequency
 	// on the 868 MHz module. Need to repeat the test on 434 MHz modules
-	si4x3x_write_reg8(bsradio, 0x09, bsradio->config.xtal_tune);
+	si4x3x_write_reg8(bsradio, 0x09, bsradio->hwconfig.xtal_tune);
 
-	switch (bsradio->config.frequency_band) {
+	switch (bsradio->hwconfig.frequency_band) {
 	case 434:
 		si4x3x_set_frequency(bsradio, 434000);
 		si4x3x_set_tx_power(bsradio, 0);
@@ -355,6 +355,19 @@ void sxv1_send_test(bsradio_instance_t *bsradio) {
 	}
 }
 
+void sxv2_test(bsradio_instance_t *bsradio) {
+	// reset is active low!!!!
+	bshal_gpio_write_pin(bsradio->spim.rs_pin, 0);
+	bshal_delay_ms(5);
+	bshal_gpio_write_pin(bsradio->spim.rs_pin, 1);
+	bshal_delay_ms(50);
+
+	uint8_t partno = 0;
+	sxv1_read_reg(bsradio, 0x42, &partno);
+
+
+}
+
 int main() {
 	SystemClock_Config();
 	SystemCoreClockUpdate();
@@ -376,6 +389,8 @@ int main() {
 	bsradio_instance_t bsradio = { };
 
 	spi_radio_init(&bsradio);
+	//sxv2_test(&bsradio);
+
 	spi_flash_init();
 
 	uint8_t buffert[256] = { 0 };
@@ -383,17 +398,26 @@ int main() {
 	bool write_to_flash = false;
 
 	protocol_header_t *header = buffert;
-	bsradio_config_t *config = buffert + sizeof(protocol_header_t);
+	bsradio_hwconfig_t *config = buffert + sizeof(protocol_header_t);
 	if (write_to_flash) {
 		spi_flash_erase_page_256(&spi_flash_config, 0x000000);
 		memset(buffert, 0xFF, sizeof(buffert));
-		header->size = sizeof(protocol_header_t) + sizeof(bsradio_config_t);
+		header->size = sizeof(protocol_header_t) + sizeof(bsradio_hwconfig_t);
 		header->cmd = 0x02;
 		header->sub = 0x20;
 		header->res = 'R';
-		config->chip_brand = chip_brand_st;
+		config->chip_brand = chip_brand_silabs;
+
+		config->chip_brand = chip_brand_silabs;
 		config->chip_type = 2;
-		config->module_brand = module_brand_radiocontrolli;
+		config->chip_variant = 3;
+		config->frequency_band = 868;
+		config->xtal_tune = 0x59;
+		config->xtal_freq = 30000000;
+		config->module_brand = module_brand_gnicerf;
+		config->module_variant = module_variant_rf4463pro;
+
+
 		config->frequency_band = 868;
 		spi_flash_program(&spi_flash_config, 0x000000, buffert, header->size);
 	} else {
@@ -401,23 +425,41 @@ int main() {
 	}
 
 	if ((header->size == 0xFF) || (header->size == 0x00)) {
-		bsradio.config.chip_brand = chip_brand_silabs;
-		bsradio.config.chip_type = 2;
-		bsradio.config.chip_variant = 2;
-		bsradio.config.frequency_band = 868;
-		bsradio.config.xtal_tune = 0x69;
-		bsradio.config.xtal_freq = 30000000;
-		0x69;
+		////		// gNiceRF Si4463 module
+		bsradio.hwconfig.chip_brand = chip_brand_silabs;
+		bsradio.hwconfig.chip_type = 2;
+		bsradio.hwconfig.chip_variant = 2;
+		bsradio.hwconfig.frequency_band = 868;
+		bsradio.hwconfig.xtal_tune = 0x59;
+		bsradio.hwconfig.xtal_freq = 30000000;
+
+//		// NoName Si4432 module
+//		bsradio.hwconfig.chip_brand = chip_brand_silabs;
+//		bsradio.hwconfig.chip_type = 1;
+//		bsradio.hwconfig.chip_variant = 2;
+//		bsradio.hwconfig.frequency_band = 868;
+//		bsradio.hwconfig.xtal_tune = 0x69;
+//		bsradio.hwconfig.xtal_freq = 30000000;
+
+
+//
+////		// gNiceRF Si4432 module
+//		bsradio.hwconfig.chip_brand = chip_brand_silabs;
+//		bsradio.hwconfig.chip_type = 1;
+//		bsradio.hwconfig.chip_variant = 2;
+//		bsradio.hwconfig.frequency_band = 868;
+//		bsradio.hwconfig.xtal_tune = 0x79;
+//		bsradio.hwconfig.xtal_freq = 30000000;
 	} else {
-		bsradio.config = *config;
+		bsradio.hwconfig = *config;
 	}
 	//si4x6x_test();
 //	while (1);
 
 	if (0x87141031 == SERIALNUMBER) {
-		switch (bsradio.config.chip_brand) {
+		switch (bsradio.hwconfig.chip_brand) {
 		case chip_brand_semtech:
-			switch (bsradio.config.chip_type) {
+			switch (bsradio.hwconfig.chip_type) {
 			case 1:
 				sxv1_recv_test(&bsradio);
 				break;
@@ -431,7 +473,7 @@ int main() {
 			}
 			break;
 		case chip_brand_silabs:
-			switch (bsradio.config.chip_type) {
+			switch (bsradio.hwconfig.chip_type) {
 			case 1:
 				si4x3x_recv_test(&bsradio);
 				break;
@@ -450,9 +492,9 @@ int main() {
 		}
 
 	} else {
-		switch (bsradio.config.chip_brand) {
+		switch (bsradio.hwconfig.chip_brand) {
 		case chip_brand_semtech:
-			switch (bsradio.config.chip_type) {
+			switch (bsradio.hwconfig.chip_type) {
 			case 1:
 				sxv1_send_test(&bsradio);
 				break;
@@ -466,7 +508,7 @@ int main() {
 			}
 			break;
 		case chip_brand_silabs:
-			switch (bsradio.config.chip_type) {
+			switch (bsradio.hwconfig.chip_type) {
 			case 1:
 				si4x3x_send_test(&bsradio);
 				break;

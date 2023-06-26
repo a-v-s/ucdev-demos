@@ -446,7 +446,8 @@ void sxv1_configure_packet(bsradio_instance_t *bsradio) {
 	// But receiving an Si4432 requires a higher value.
 	// I put it to 0x40 but it can probably be smaller
 	//sxv1_write_reg(SXV1_REG_RXTIMEOUT2, 0x10); // RSSI Timeout
-	sxv1_write_reg(bsradio,SXV1_REG_RXTIMEOUT2, 0x40); // RSSI Timeout
+//	sxv1_write_reg(bsradio,SXV1_REG_RXTIMEOUT2, 0x40); // RSSI Timeout
+	sxv1_write_reg(bsradio,SXV1_REG_RXTIMEOUT2, 0x20); // RSSI Timeout
 
 }
 

@@ -50,7 +50,8 @@ bshal_spim_instance_t* spi_init() {
 	flash_spi_config.mode = 0;
 
 	flash_spi_config.hw_nr = 1; // SPI2
-	flash_spi_config.cs_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_1);
+	flash_spi_config.cs_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_4); // CS1
+//	flash_spi_config.cs_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_1); // CS2
 	flash_spi_config.mosi_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_7);
 	flash_spi_config.miso_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_6);
 	flash_spi_config.sck_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_5);
@@ -363,24 +364,26 @@ int main() {
 
 	}
 
-	puts("Begin chip erase");
-	spi_flash_erase_chip(spim);
-	puts("Chip erased");
+//	puts("Begin chip erase");
+//	spi_flash_erase_chip(spim);
+//	puts("Chip erased");
 
 	uint8_t test [32];
 	for (int i = 0 ; i < sizeof(test) ; i++) {
 		test[i] = (i % 26) + 'a';
 	}
 
-	spi_flash_program(spim, 15, test, sizeof(test));
+//	spi_flash_program(spim, 15, test, sizeof(test));
+//
+//	spi_flash_program(spim, 5, "Blaat",5);
+//
+//	spi_flash_program(spim, 115, "Schaap",6);
 
-	spi_flash_program(spim, 5, "Blaat",5);
+//	spi_flash_program(spim, 254, "Miauw",5);
 
-	spi_flash_program(spim, 115, "Schaap",6);
+//	spi_flash_program(spim, 0, "", 1);
 
-	spi_flash_program(spim, 254, "Miauw",5);
-
-	spi_flash_program(spim, 0, "", 1);
+		spi_flash_program(spim, 256, "Miauw",6);
 
 	uint8_t buffert[512] = {};
 

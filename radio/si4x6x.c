@@ -195,7 +195,7 @@ int si4x6x_init(bsradio_instance_t *bsradio) {
 		power_up.boot_options.func = 1;  // Normal mode
 		//power_up.boot_options.func = 2; // 802.15.4 mode, 4467/4468 only?
 		//power_up.xo_freq_be = htobe16(30000000);
-		power_up.xo_freq_be = htobe16(bsradio->config.xtal_freq);
+		power_up.xo_freq_be = htobe16(bsradio->hwconfig.xtal_freq);
 		si4x6x_command(bsradio, SI4X6X_CMD_POWER_UP, &power_up,
 				sizeof(power_up), NULL, 0);
 	}
@@ -217,17 +217,18 @@ int si4x6x_init(bsradio_instance_t *bsradio) {
 	//si4x6x_load_magic_values(bsradio);
 	ugly(bsradio);
 
-//	si4x6x_set_frequency(867975);	// works now
 
-	switch (bsradio->config.frequency_band) {
+	si4x6x_set_property(bsradio, 0x00, 0x00, bsradio->hwconfig.xtal_tune);
+
+	switch (bsradio->hwconfig.frequency_band) {
 	case 434:
 		si4x6x_set_frequency(bsradio, 434000);
 		si4x6x_set_tx_power(bsradio, 0);
 		break;
 	case 868:
-		//si4x6x_set_frequency(bsradio, 869850);
-		si4x6x_set_frequency(bsradio, 869825);
-		si4x6x_set_tx_power(bsradio, 7);
+		si4x6x_set_frequency(bsradio, 869850);
+		//si4x6x_set_frequency(bsradio, 868000);
+//		si4x6x_set_tx_power(bsradio, 7);
 		break;
 	case 915:
 		si4x6x_set_frequency(bsradio, 915000);

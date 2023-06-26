@@ -31,6 +31,15 @@ typedef enum {
 	module_brand_aithinker = 0x06,
 } bsradio_module_brand_t;
 
+
+typedef enum {
+	module_variant_xl4432_smt = 0x01,
+	module_variant_rf4432pro = 0x02,
+
+	module_variant_rf4463pro = 0x01,
+
+} bsradio_module_variant_t;
+
 typedef enum {
 	antenna_type_trace = 0x01,
 	antenna_type_chip = 0x02,
@@ -51,13 +60,32 @@ typedef struct {
 	unsigned int antenna_type : 8;
 	unsigned int : 8;
 	unsigned int xtal_freq : 32;
-} bsradio_config_t;
+} bsradio_hwconfig_t;
+
+typedef enum {
+	// TODO
+	modulation_ook,
+	modulation_ask,
+	modulation_fsk,
+
+} bsradio_modulation_t;
 
 typedef struct {
-	bsradio_config_t config;
+	uint32_t frequency_hz;
+	uint32_t freq_dev_hz;
+	uint32_t bandwidth_hz;
+	bsradio_modulation_t modulation : 8;
+	uint8_t modulation_shaping; // gaussian filter
+
+} bsradio_rfconfig_t;
+
+typedef struct {
 	bshal_spim_instance_t spim;
+	bsradio_hwconfig_t hwconfig;
+	bsradio_rfconfig_t rfconfig;
 } bsradio_instance_t;
 
 #pragma pack(pop)
 
 #endif /* RADIO_H_ */
+

@@ -337,7 +337,7 @@ int si4x3x_set_tx_power(bsradio_instance_t *bsradio, int tx_power) {
 	si4x3x_reg_6d_t r6d;
 	si4x3x_read_reg8(bsradio, 0x6D, &r6d);
 
-	if (bsradio->config.chip_variant == 2)
+	if (bsradio->hwconfig.chip_variant == 2)
 		r6d.txpow = (tx_power + 1) / 3;
 	else
 		r6d.txpow = (tx_power + 8) / 3;
