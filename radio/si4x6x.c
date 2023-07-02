@@ -214,8 +214,8 @@ int si4x6x_init(bsradio_instance_t *bsradio) {
 	uint8_t buffer[4];
 //
 
-	//si4x6x_load_magic_values(bsradio);
-	ugly(bsradio);
+	si4x6x_load_magic_values(bsradio);
+//	ugly(bsradio);
 
 
 	si4x6x_set_property(bsradio, 0x00, 0x00, bsradio->hwconfig.xtal_tune);
@@ -304,7 +304,7 @@ void si4x6x_recv_test(bsradio_instance_t *bsradio) {
 	int cnt = 0;
 	while (true) {
 		memset(&packet, 0, sizeof(packet));
-		si4x6x_receive_request(&packet);
+		si4x6x_receive_request(bsradio, &packet);
 		if (packet.header.size) {
 			puts("Packet Received");
 

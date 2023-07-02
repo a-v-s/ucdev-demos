@@ -426,20 +426,20 @@ int main() {
 
 	if ((header->size == 0xFF) || (header->size == 0x00)) {
 		////		// gNiceRF Si4463 module
-		bsradio.hwconfig.chip_brand = chip_brand_silabs;
-		bsradio.hwconfig.chip_type = 2;
-		bsradio.hwconfig.chip_variant = 2;
-		bsradio.hwconfig.frequency_band = 868;
-		bsradio.hwconfig.xtal_tune = 0x59;
-		bsradio.hwconfig.xtal_freq = 30000000;
-
-//		// NoName Si4432 module
 //		bsradio.hwconfig.chip_brand = chip_brand_silabs;
-//		bsradio.hwconfig.chip_type = 1;
+//		bsradio.hwconfig.chip_type = 2;
 //		bsradio.hwconfig.chip_variant = 2;
 //		bsradio.hwconfig.frequency_band = 868;
-//		bsradio.hwconfig.xtal_tune = 0x69;
+//		bsradio.hwconfig.xtal_tune = 0x59;
 //		bsradio.hwconfig.xtal_freq = 30000000;
+
+//		// NoName Si4432 module
+		bsradio.hwconfig.chip_brand = chip_brand_silabs;
+		bsradio.hwconfig.chip_type = 1;
+		bsradio.hwconfig.chip_variant = 2;
+		bsradio.hwconfig.frequency_band = 868;
+		bsradio.hwconfig.xtal_tune = 0x69;
+		bsradio.hwconfig.xtal_freq = 30000000;
 
 
 //
