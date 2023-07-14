@@ -16,6 +16,12 @@ MCU ?= STM32F103xB
 #	STM32F030x6		Rabbit Pill
 #
 ##	STM32L051xx		Green Pill (NOT PIN COMPATIBLE 3V3/GND)
+
+# Silicon Labs
+#  EFR32BG22C224F512GM32
+#  EFR32BG22C112F352GM32
+
+
 ################################################################################
 # Set Output Filename 
 ################################################################################
@@ -181,6 +187,18 @@ ifeq ($(SUBARCH), M3)
 	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/u8g2/debug/arm_m3  -lu8g2
 	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/rtt/debug/arm_m3  -lrtt
 endif
+
+ifeq ($(SUBARCH), M33)
+	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/u8g2/debug/arm_m33  -lu8g2
+	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/rtt/debug/arm_m33  -lrtt
+endif
+
+
+ifeq ($(SUBARCH), M33F)
+	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/u8g2/debug/arm_m33f  -lu8g2
+	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/rtt/debug/arm_m33f  -lrtt
+endif
+
 
 ifeq ($(SUBARCH), M4F)
 	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/u8g2/debug/arm_m4f  -lu8g2

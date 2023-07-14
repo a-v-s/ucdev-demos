@@ -16,13 +16,16 @@ bshal_i2cm_instance_t * i2c_init(void) {
 	m_i2c.scl_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_6);
 	m_i2c.hw_nr = 1;
 #elif defined GECKO
-	m_i2c.sda_pin = 5;// bshal_gpio_encode_pin(gpioPortA, 5);
-	m_i2c.scl_pin = 4;// bshal_gpio_encode_pin(gpioPortA, 4);
+//	m_i2c.sda_pin = 5;// bshal_gpio_encode_pin(gpioPortA, 5);
+//	m_i2c.scl_pin = 4;// bshal_gpio_encode_pin(gpioPortA, 4);
+
+	m_i2c.sda_pin = bshal_gpio_encode_pin(1, 2);
+	m_i2c.scl_pin = bshal_gpio_encode_pin(1, 1);
 	m_i2c.hw_nr = 0;
 #endif
 
-//	m_i2c.speed_hz = 100000;
-	m_i2c.speed_hz = 400000;
+	m_i2c.speed_hz = 100000;
+//	m_i2c.speed_hz = 400000;
 	//m_i2c.speed_hz = 360000;
 #ifdef STM32
 	bshal_stm32_i2cm_init(&m_i2c);
