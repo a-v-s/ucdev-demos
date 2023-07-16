@@ -367,9 +367,14 @@ int main(void) {
 				float temp;
 				ds28x20_read(ds28b20+i, &temp);
 				printf("Temperature %2d.%02d\n", (int)temp, (int)(temp*100)%100);
-
+				char buffer[32];
+				snprintf(buffer,32,"%2d.%02d\n", (int)temp, (int)(temp*100)%100);
+				print(buffer,i);
 
 			}
+			framebuffer_apply();
+			draw_background();
+
 		}
 		puts("------------------");
 		bshal_delay_ms(250);
