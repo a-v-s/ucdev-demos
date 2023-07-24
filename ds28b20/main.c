@@ -39,6 +39,7 @@
 #include "bshal_delay.h"
 #include "bshal_i2cm.h"
 #include "bshal_uart.h"
+#include "bshal_gpio.h"
 
 bshal_i2cm_instance_t *gp_i2c = NULL;
 
@@ -97,6 +98,20 @@ void SystemClock_Config(void) {
 #endif
 }
 
+
+void dwt_init(void) {
+	CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+	DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+}
+
+uint32_t dwt_get(void) {
+	return DWT->CYCCNT;
+}
+
+uint32_t get_time_us() {
+	return dwt_get() / (SystemCoreClock / 1000000);
+}
+
 typedef struct {
 	uint64_t device_id;
 	uint8_t collision_pos;
@@ -137,12 +152,12 @@ bshal_uart_instance_t* uart_init(int bps) {
 	return &bshal_uart_instance;
 }
 
-int ds28b20_send_bit(bshal_uart_instance_t *uart, bool val) {
+int ds28b20_send_bit_uart(bshal_uart_instance_t *uart, bool val) {
 	uint8_t tmp = val ? 0xFF : 0x00;
 	return bshal_stm32_uart_tx(uart, &tmp, 1);
 }
 
-int ds28x20_read_bit(bshal_uart_instance_t *uart, bool *val) {
+int ds28x20_read_bit_uart(bshal_uart_instance_t *uart, bool *val) {
 	uint8_t tmp = 0xFF;
 	int result = 0;
 	m_recvd = false;
@@ -157,7 +172,48 @@ int ds28x20_read_bit(bshal_uart_instance_t *uart, bool *val) {
 	return result;
 }
 
-int ds28x20_write_byte(bshal_uart_instance_t *uart, uint8_t val) {
+
+int ds28x20_read_bit(uint8_t pin, bool *val) {
+	bshal_gpio_write_pin(pin, false);
+	bshal_delay_us(5);
+	bshal_gpio_write_pin(pin, true);
+	bshal_delay_us(15);
+	*val = 1;
+	int timeout = get_time_us() + 60;
+	while (get_time_us() < timeout) {
+		if (!bshal_gpio_read_pin(pin)) {
+			*val = 0;
+		}
+	}
+	return 0;
+}
+
+int ds28b20_send_bit(uint8_t pin, bool val) {
+	if(val) {
+		bshal_gpio_write_pin(pin, false);
+		bshal_delay_us(5);
+		bshal_gpio_write_pin(pin, true);
+		bshal_delay_us(55);
+	} else {
+		bshal_gpio_write_pin(pin, false);
+		bshal_delay_us(60);
+		bshal_gpio_write_pin(pin, true);
+	}
+	return 0;
+}
+
+
+int ds28x20_write_byte(int pin, uint8_t val) {
+	int result = 0;
+	for (int i = 0; i < 8; i++) {
+		result = ds28b20_send_bit(pin, val & (1 << i));
+		if (result)
+			return result;
+	}
+	return result;
+}
+
+int ds28x20_write_byte_uart(bshal_uart_instance_t *uart, uint8_t val) {
 	int result = 0;
 	for (int i = 0; i < 8; i++) {
 		result = ds28b20_send_bit(uart, val & (1 << i));
@@ -167,7 +223,20 @@ int ds28x20_write_byte(bshal_uart_instance_t *uart, uint8_t val) {
 	return result;
 }
 
-int ds28b20_read_byte(bshal_uart_instance_t *uart, uint8_t *val) {
+int ds28b20_read_byte(int pin, uint8_t *val) {
+	int result = 0;
+	*val = 0;
+	bool bitval;
+	for (int i = 0; i < 8; i++) {
+		result = ds28x20_read_bit(pin, &bitval);
+		if (result)
+			return result;
+		*val |= bitval << i;
+	}
+	return result;
+}
+
+int ds28b20_read_byte_uart(bshal_uart_instance_t *uart, uint8_t *val) {
 	int result = 0;
 	*val = 0;
 	bool bitval;
@@ -180,7 +249,24 @@ int ds28b20_read_byte(bshal_uart_instance_t *uart, uint8_t *val) {
 	return result;
 }
 
-int ds28x20_reset() {
+
+
+int ds28x20_reset(int pin){
+	bshal_gpio_write_pin(pin, false);
+	bshal_delay_us(480);
+	bshal_gpio_write_pin(pin, true);
+	bshal_delay_us(15);
+	int timeout = 480 + get_time_us();
+	bool presense = false;
+	while (get_time_us() < timeout) {
+		if (!bshal_gpio_read_pin(pin)) {
+			presense = true;
+		}
+	}
+	return -!presense;
+}
+
+int ds28x20_reset_uart() {
 	uint8_t tmp;
 	int result;
 	bshal_uart_instance_t *uart = uart_init(9600);
@@ -219,20 +305,20 @@ int ds28x20_scan_bus(ds28b20_t *ds28b20, size_t size) {
 			break;
 		//printf("Entry %d  Colpos %d\n" , entry, ds28b20[entry].collision_pos);
 
-		result = ds28x20_reset();
+		result = ds28x20_reset(3);
 		if (result)
 			return result;
 
-		bshal_uart_instance_t *uart = uart_init(115200);
-		result = ds28x20_write_byte(uart, OW_ROM_SEARCH);
+		//bshal_uart_instance_t *uart = uart_init(115200);
+		result = ds28x20_write_byte(3, OW_ROM_SEARCH);
 		if (result)
 			return result;
 
 		for (int i = 0; i < 64; i++) {
 
 			bool bits[2];
-			ds28x20_read_bit(uart, bits + 0);
-			ds28x20_read_bit(uart, bits + 1);
+			ds28x20_read_bit(3, bits + 0);
+			ds28x20_read_bit(3, bits + 1);
 			if (bits[0] == bits[1]) {
 				if (bits[0]) {
 					// All devices found
@@ -267,7 +353,7 @@ int ds28x20_scan_bus(ds28b20_t *ds28b20, size_t size) {
 				}
 			}
 			ds28b20[entry].device_id |= (uint64_t) bits[0] << i;
-			ds28b20_send_bit(uart, bits[0]);
+			ds28b20_send_bit(3, bits[0]);
 		}
 
 
@@ -281,44 +367,50 @@ int ds28x20_scan_bus(ds28b20_t *ds28b20, size_t size) {
 
 int ds28x20_convert(ds28b20_t *ds28b20) {
 	int result;
-	result = ds28x20_reset();
+	int pin = 3;
+	result = ds28x20_reset(pin);
 	if (result)
 		return result;
-	bshal_uart_instance_t *uart = uart_init(115200);
-	result = ds28x20_write_byte(uart, OW_ROM_MATCH);
-	result = ds28x20_write_byte(uart, ds28b20->device_id);
-	result = ds28x20_write_byte(uart, ds28b20->device_id>>8);
-	result = ds28x20_write_byte(uart, ds28b20->device_id>>16);
-	result = ds28x20_write_byte(uart, ds28b20->device_id>>24);
-	result = ds28x20_write_byte(uart, ds28b20->device_id>>32);
-	result = ds28x20_write_byte(uart, ds28b20->device_id>>40);
-	result = ds28x20_write_byte(uart, ds28b20->device_id>>48);
-	result = ds28x20_write_byte(uart, ds28b20->device_id>>56);
-	result = ds28x20_write_byte(uart, DS28B20_TEMPERATURE_CONVERT);
+
+	result = ds28x20_write_byte(pin, OW_ROM_MATCH);
+	result = ds28x20_write_byte(pin, ds28b20->device_id);
+	result = ds28x20_write_byte(pin, ds28b20->device_id>>8);
+	result = ds28x20_write_byte(pin, ds28b20->device_id>>16);
+	result = ds28x20_write_byte(pin, ds28b20->device_id>>24);
+	result = ds28x20_write_byte(pin, ds28b20->device_id>>32);
+	result = ds28x20_write_byte(pin, ds28b20->device_id>>40);
+	result = ds28x20_write_byte(pin, ds28b20->device_id>>48);
+	result = ds28x20_write_byte(pin, ds28b20->device_id>>56);
+	result = ds28x20_write_byte(pin, DS28B20_TEMPERATURE_CONVERT);
 	bool readbit = 0;
-	while(!readbit) ds28x20_read_bit(uart,&readbit);
+	int begin = get_time_us();
+	while(!readbit) ds28x20_read_bit(pin,&readbit);
+	int end = get_time_us();
+	printf("Conversion took %d ms\n",(end-begin)/1000);
 	return result;
 }
 
 int ds28x20_read(ds28b20_t *ds28b20, float * temperature_f) {
 	int result;
-	result = ds28x20_reset();
+	int pin = 3;
+	result = ds28x20_reset(3);
 	if (result)
 		return result;
-	bshal_uart_instance_t *uart = uart_init(115200);
-	result = ds28x20_write_byte(uart, OW_ROM_MATCH);
-	result = ds28x20_write_byte(uart, ds28b20->device_id);
-	result = ds28x20_write_byte(uart, ds28b20->device_id>>8);
-	result = ds28x20_write_byte(uart, ds28b20->device_id>>16);
-	result = ds28x20_write_byte(uart, ds28b20->device_id>>24);
-	result = ds28x20_write_byte(uart, ds28b20->device_id>>32);
-	result = ds28x20_write_byte(uart, ds28b20->device_id>>40);
-	result = ds28x20_write_byte(uart, ds28b20->device_id>>48);
-	result = ds28x20_write_byte(uart, ds28b20->device_id>>56);
-	result = ds28x20_write_byte(uart, DS18X20_SCRATCHPAD_READ);
+	//bshal_uart_instance_t *pin = uart_init(115200);
+
+	result = ds28x20_write_byte(pin, OW_ROM_MATCH);
+	result = ds28x20_write_byte(pin, ds28b20->device_id);
+	result = ds28x20_write_byte(pin, ds28b20->device_id>>8);
+	result = ds28x20_write_byte(pin, ds28b20->device_id>>16);
+	result = ds28x20_write_byte(pin, ds28b20->device_id>>24);
+	result = ds28x20_write_byte(pin, ds28b20->device_id>>32);
+	result = ds28x20_write_byte(pin, ds28b20->device_id>>40);
+	result = ds28x20_write_byte(pin, ds28b20->device_id>>48);
+	result = ds28x20_write_byte(pin, ds28b20->device_id>>56);
+	result = ds28x20_write_byte(pin, DS18X20_SCRATCHPAD_READ);
 	uint8_t scratchpad[9]={};
 	for (int i = 0 ; i < sizeof(scratchpad); i++)
-		result = ds28b20_read_byte(uart, scratchpad+i);
+		result = ds28b20_read_byte(pin, scratchpad+i);
 	uint16_t *temperature=(uint16_t *)scratchpad;
 
 	switch (ds28b20->device_id&0xFF) {
@@ -345,6 +437,7 @@ int main(void) {
 
 	bshal_delay_init();
 	bshal_delay_us(10);
+	dwt_init();
 
 	gp_i2c = i2c_init();
 
@@ -353,6 +446,9 @@ int main(void) {
 	print("DS18x20 DEMO", 1);
 	framebuffer_apply();
 	bshal_delay_ms(1000);
+
+	int pin = 3;
+	bshal_gpio_cfg_out(pin, opendrain, true);
 
 	ds28b20_t ds28b20[8];
 	while (1) {
@@ -376,7 +472,7 @@ int main(void) {
 			draw_background();
 
 		}
-		puts("------------------");
-		bshal_delay_ms(250);
+		//puts("------------------");
+		//bshal_delay_ms(250);
 	}
 }
