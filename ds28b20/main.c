@@ -177,7 +177,9 @@ int ds28x20_read_bit(uint8_t pin, bool *val) {
 	bshal_gpio_write_pin(pin, false);
 	bshal_delay_us(5);
 	bshal_gpio_write_pin(pin, true);
-	bshal_delay_us(15);
+//	bshal_delay_us(15);
+	// Seems our delay function is a little off
+	bshal_delay_us(5);
 	*val = 1;
 	int timeout = get_time_us() + 60;
 	while (get_time_us() < timeout) {
@@ -258,6 +260,7 @@ int ds28x20_reset(int pin){
 	bshal_delay_us(15);
 	int timeout = 480 + get_time_us();
 	bool presense = false;
+
 	while (get_time_us() < timeout) {
 		if (!bshal_gpio_read_pin(pin)) {
 			presense = true;
@@ -449,6 +452,13 @@ int main(void) {
 
 	int pin = 3;
 	bshal_gpio_cfg_out(pin, opendrain, true);
+//	while (1) {
+//		bshal_gpio_write_pin(pin, false);
+//		bshal_delay_us(5);
+//		bshal_gpio_write_pin(pin, true);
+//		bshal_delay_us(10);
+//	}
+
 
 	ds28b20_t ds28b20[8];
 	while (1) {
