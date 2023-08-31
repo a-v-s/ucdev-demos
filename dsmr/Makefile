@@ -27,6 +27,7 @@ UCG_DIR = $(UCDEV_ROOT)/ext/ucglib/csrc
 ################################################################################
 
 C_SOURCES += ucglib_demo.c
+C_SOURCES += dsmr.c
 
 
 ifneq (,$(findstring RV32,$(MCU)))
