@@ -264,8 +264,7 @@ int main() {
 	bshal_delay_init();
 	bshal_delay_us(10);
 
-	display_init();
-//	draw_background();
+
 
 
 
@@ -274,6 +273,8 @@ int main() {
 
 	uart_init();
 
+	display_init();
+//	draw_background();
 
 
 	nemaMsgEnable("GST");
