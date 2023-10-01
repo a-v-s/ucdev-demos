@@ -16,6 +16,12 @@ MCU ?= STM32F103xB
 #	STM32F030x6		Rabbit Pill
 #
 ##	STM32L051xx		Green Pill (NOT PIN COMPATIBLE 3V3/GND)
+
+# Silicon Labs
+#  EFR32BG22C224F512GM32
+#  EFR32BG22C112F352GM32
+
+
 ################################################################################
 # Set Output Filename 
 ################################################################################
@@ -53,7 +59,8 @@ C_SOURCES += scd4x.c
 C_SOURCES += kt0803.c
 C_SOURCES += rda5807.c
 
-C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/stm32/bshal_i2cm_stm32.c
+
+
 
 
 ifneq (,$(findstring RV32F1,$(MCU)))
@@ -107,8 +114,29 @@ endif
 # error: 'SCB_Type' has no member named 'PFR'
 #C_SOURCES += $(LIBHALGLUE_ROOT)/common/arm_cpuid.c
 
+
+ifneq (,$(findstring STM32,$(MCU)))
+	C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/stm32/bshal_gpio_stm32.c
+	C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/stm32/bshal_i2cm_stm32.c
+	LDSCRIPT = $(shell echo $(MCU) | tr '[:upper:]' '[:lower:]' ).ld
+endif
+
+ifneq (,$(findstring RV32,$(MCU)))
+	C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/stm32/bshal_gpio_stm32.c
+	C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/stm32/bshal_i2cm_stm32.c
+	LDSCRIPT = $(shell echo $(MCU) | tr '[:upper:]' '[:lower:]' ).ld
+endif
+
+
+ifneq (,$(findstring EFR32,$(MCU)))
+	C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/gecko/bshal_i2cm_gecko.c
+	C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/gecko/bshal_spim_gecko.c
+	C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/gecko/bshal_gpio_gecko.c
+	LDSCRIPT = $(shell echo $(SERIES) | tr '[:upper:]' '[:lower:]' ).ld
+endif
+
+
 C_SOURCES += $(LIBHALGLUE_ROOT)/common/bshal_delay.c
-C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/stm32/bshal_gpio_stm32.c
 
 C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/bshal_i2cm.c
 #C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/bshal_spim.c
@@ -116,12 +144,6 @@ C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/extlib/u8x8_i2c.c
 C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/extlib/u8x8_gpio_delay.c
 
 
-
-#C_SOURCES += $(UCDEV_ROOT)/lib/bsrfid/drivers/rc52x_transport.c
-#C_SOURCES += $(UCDEV_ROOT)/lib/bsrfid/drivers/rc52x.c
-#C_SOURCES += $(UCDEV_ROOT)/lib/bsrfid/drivers/rc66x_transport.c
-#C_SOURCES += $(UCDEV_ROOT)/lib/bsrfid/drivers/rc66x.c
-#C_SOURCES += $(UCDEV_ROOT)/lib/bsrfid/cards/picc.c
 
 
 ################################################################################
@@ -132,13 +154,14 @@ C_INCLUDES += $(U8G2_DIR)
 C_INCLUDES += $(LIBHALGLUE_ROOT)/bshal/extlib/
 C_INCLUDES += $(LIBHALGLUE_ROOT)/common/
 C_INCLUDES += $(LIBHALGLUE_ROOT)/bshal/
+C_INCLUDES += $(LIBHALGLUE_ROOT)/hal/
 
 C_INCLUDES += $(UCDEV_ROOT)/lib/bsrfid/
 C_INCLUDES += $(UCDEV_ROOT)/lib/bsrfid/drivers/
 C_INCLUDES += $(UCDEV_ROOT)/lib/bsrfid/cards
 
 # link script
-LDSCRIPT = $(shell tr '[:upper:]' '[:lower:]' <<< $(MCU)).ld
+
 
 # u8g2 library
 CFLAGS += -DU8X8_WITH_USER_PTR
@@ -175,6 +198,18 @@ ifeq ($(SUBARCH), M3)
 	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/u8g2/debug/arm_m3  -lu8g2
 	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/rtt/debug/arm_m3  -lrtt
 endif
+
+ifeq ($(SUBARCH), M33)
+	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/u8g2/debug/arm_m33  -lu8g2
+	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/rtt/debug/arm_m33  -lrtt
+endif
+
+
+ifeq ($(SUBARCH), M33F)
+	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/u8g2/debug/arm_m33f  -lu8g2
+	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/rtt/debug/arm_m33f  -lrtt
+endif
+
 
 ifeq ($(SUBARCH), M4F)
 	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/u8g2/debug/arm_m4f  -lu8g2
