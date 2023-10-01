@@ -50,6 +50,9 @@ C_SOURCES += ccs811.c
 C_SOURCES += bmp280.c
 C_SOURCES += scd4x.c
 
+C_SOURCES += kt0803.c
+C_SOURCES += rda5807.c
+
 C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/stm32/bshal_i2cm_stm32.c
 
 

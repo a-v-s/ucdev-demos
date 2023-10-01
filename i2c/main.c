@@ -58,6 +58,8 @@
 #include "pcf8574.h"
 #include "bmp280.h"
 #include "scd4x.h"
+#include "kt0803.h"
+#include "rda5807.h"
 
 #include "rc52x_transport.h"
 #include "rc52x.h"
@@ -108,7 +110,10 @@ void scan_i2c(void) {
 	char line[32] = { 0 };
 	int row = 2;
 	int column = 0;
-	for (int i = 0x08; i < 0x78; i++) {
+	//for (int i = 0x08; i < 0x78; i++) {
+
+	// scan reserved addresses as well.....
+	for (int i = 0x00; i < 0x78; i++) {
 		int ready = bshal_i2cm_isok(gp_i2c, i);
 		if (!ready) {
 			sprintf(line + column, "%02X ", i);
@@ -199,6 +204,34 @@ int main() {
 
 	scd4x_t scd4x = { 0 };
 
+	kt0803_t kt0803 = { 0 };
+
+	if (0 == bshal_i2cm_isok(gp_i2c, KT0803_I2C_ADDR)) {
+		kt0803.addr = KT0803_I2C_ADDR;
+		kt0803.p_i2c = gp_i2c;
+
+		kt0803_standby(&kt0803, false);
+		kt0803_tune(&kt0803, 108000);
+
+		//		kt0803_tune(&kt0803, 200000); // 197.3 ??
+//		kt0803_tune(&kt0803, 202000); // 203.35 ??
+
+	}
+
+	rda5807_t rda5807 = {};
+
+
+	if (0 == bshal_i2cm_isok(gp_i2c, RDA5807_I2C_ADDR)) {
+		rda5807.addr = RDA5807_I2C_ADDR;
+		rda5807.p_i2c = gp_i2c;
+		uint16_t chip_id;
+		rda5807_get_chip_id(&rda5807, &chip_id);
+		printf("CHIP ID %04X\n", chip_id);
+
+	}
+
+
+
 	if (0 == bshal_i2cm_isok(gp_i2c, SCD4X_I2C_ADDR)) {
 		scd4x.addr = SCD4X_I2C_ADDR;
 		scd4x.p_i2c = gp_i2c;
@@ -285,8 +318,21 @@ int main() {
 	int count = 0;
 	char buff[64];
 
+//	while (1) {
+//		uint8_t test = 0;
+//		if (!bshal_i2cm_recv_reg(gp_i2c, 0x03 , 0x07, &test, 1)) {
+//			sprintf(buff, "Distance %2d km", test);
+//			print(buff, 3);
+//			framebuffer_apply();
+//			draw_background();
+//			bshal_delay_ms(1000);
+//		}
+//	}
+
+
+
 	//int state ='*';
-	int state =3;
+	int state =2;
 
 	while (1) {
 		int line = 0;
@@ -517,6 +563,7 @@ int main() {
 			print("1: SET TIME", line++);
 			print("2: SCAN BUS", line++);
 			print("3: SENSOR DATA", line++);
+			print("A: RADIO", line++);
 
 			switch (key_pressed) {
 			case '1':
@@ -529,8 +576,15 @@ int main() {
 			case '3':
 				state = 3;
 				break;
+			case 'A':
+				state = 0xa;
+				break;
 			}
 			break;
+			case 0xa:
+				print("FM RADIO", line++);
+				break;
+
 			case 1:
 				print("1: SET TIME", line++);
 				static char datetimestring[20];
