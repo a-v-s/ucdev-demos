@@ -349,15 +349,16 @@ void at_cgdcontQ_cb(at_command_t *cmd) {
 		// SimCom A7670C returns
 		// +CGDCONT: 1,"IP","tm.mnc050.mcc234.gprs","10.5.170.50",0,0,,,,
 
-		char *str_Pcgdcont = strtok(cmd->responses[0], ":");
-		char *str_cid = strtok(NULL, ",");
-		char *str_pdp_type = strtok(NULL, ",");
-		char *str_apn = strtok(NULL, ",");
-		char *str_pdp_addr = strtok(NULL, ",");
-		char *str_d_comp = strtok(NULL, ",");
-		char *str_h_comp = strtok(NULL, ",");
+		char *str_Pcgdcont = strtok(cmd->responses[0], ": ");
+		char *str_cid = strtok(NULL, ", ");
+		char *str_pdp_type = strtok(NULL, ", ");
+		char *str_apn = strtok(NULL, ", ");
+		char *str_pdp_addr = strtok(NULL, ", ");
+		char *str_d_comp = strtok(NULL, ", ");
+		char *str_h_comp = strtok(NULL, ", ");
 
 		if (str_apn) {
+			printf("Current APN is %s\n", str_apn);
 			if (((strlen(str_apn) == (strlen(APN) + 2)
 					|| (strlen(str_apn) > (strlen(APN) + 2)
 							&& ('.' == *(str_apn + strlen(APN) + 1))))
@@ -408,8 +409,8 @@ void at_cgactQ_cb(at_command_t *cmd) {
 		// error
 	} else {
 		char *str_Pcgact = strtok(cmd->responses[0], ":");
-		char *str_cid = strtok(NULL, ",");
-		char *str_state = strtok(NULL, ",");
+		char *str_cid = strtok(NULL, ", ");
+		char *str_state = strtok(NULL, ", ");
 		if (str_state) {
 			if (*str_state == '1') {
 				puts("PDP Context already active");
@@ -462,15 +463,16 @@ void print_registration_status() {
 }
 
 void at_c5gregQ_cb(at_command_t *cmd) {
+	at_generic_cb(cmd);
 	at_modem_info.c5greg = (at_modem_registration_status_t ) { -1 };
 	if (cmd->status) {
 		puts("AT+CEREG failed");
 	} else {
 		char *str_n = strtok(cmd->responses[0], ",");
-		char *str_stat = strtok(NULL, ",");
-		char *str_tac = strtok(NULL, ",");
-		char *str_ci = strtok(NULL, ",");
-		char *str_act = strtok(NULL, ",");
+		char *str_stat = strtok(NULL, ", ");
+		char *str_tac = strtok(NULL, ", ");
+		char *str_ci = strtok(NULL, ", ");
+		char *str_act = strtok(NULL, ", ");
 		at_modem_info.c5greg.stat = strtol(str_stat, NULL, 10);
 		at_modem_info.c5greg.tac = strtol(str_tac + 1, NULL, 16);
 		at_modem_info.c5greg.ci = strtol(str_ci + 1, NULL, 16);
@@ -491,15 +493,16 @@ void at_c5greg2_cb(at_command_t *cmd) {
 	}
 }
 void at_ceregQ_cb(at_command_t *cmd) {
+	at_generic_cb(cmd);
 	at_modem_info.cereg = (at_modem_registration_status_t ) { -1 };
 	if (cmd->status) {
 		puts("AT+CEREG failed");
 	} else {
 		char *str_n = strtok(cmd->responses[0], ",");
-		char *str_stat = strtok(NULL, ",");
-		char *str_tac = strtok(NULL, ",");
-		char *str_ci = strtok(NULL, ",");
-		char *str_act = strtok(NULL, ",");
+		char *str_stat = strtok(NULL, ", ");
+		char *str_tac = strtok(NULL, ", ");
+		char *str_ci = strtok(NULL, ", ");
+		char *str_act = strtok(NULL, ", ");
 		at_modem_info.cereg.stat = strtol(str_stat, NULL, 10);
 		at_modem_info.cereg.tac = strtol(str_tac + 1, NULL, 16);
 		at_modem_info.cereg.ci = strtol(str_ci + 1, NULL, 16);
@@ -517,15 +520,16 @@ void at_cereg2_cb(at_command_t *cmd) {
 	}
 }
 void at_cgregQ_cb(at_command_t *cmd) {
+	at_generic_cb(cmd);
 	at_modem_info.cgreg = (at_modem_registration_status_t ) { -1 };
 	if (cmd->status) {
 		puts("AT+CGREG failed");
 	} else {
 		char *str_n = strtok(cmd->responses[0], ",");
-		char *str_stat = strtok(NULL, ",");
-		char *str_lac = strtok(NULL, ",");
-		char *str_ci = strtok(NULL, ",");
-		char *str_act = strtok(NULL, ",");
+		char *str_stat = strtok(NULL, ", ");
+		char *str_lac = strtok(NULL, ", ");
+		char *str_ci = strtok(NULL, ", ");
+		char *str_act = strtok(NULL, ", ");
 		at_modem_info.cgreg.stat = strtol(str_stat, NULL, 10);
 		at_modem_info.cgreg.lac = strtol(str_lac + 1, NULL, 16);
 		at_modem_info.cgreg.ci = strtol(str_ci + 1, NULL, 16);
@@ -559,15 +563,16 @@ void at_cgreg2_cb(at_command_t *cmd) {
 }
 
 void at_cregQ_cb(at_command_t *cmd) {
+	at_generic_cb(cmd);
 	at_modem_info.creg = (at_modem_registration_status_t ) { -1 };
 	if (cmd->status) {
 		puts("AT+CREG? failed");
 	} else {
 		char *str_n = strtok(cmd->responses[0], ",");
-		char *str_stat = strtok(NULL, ",");
-		char *str_lac = strtok(NULL, ",");
-		char *str_ci = strtok(NULL, ",");
-		char *str_act = strtok(NULL, ",");
+		char *str_stat = strtok(NULL, ", ");
+		char *str_lac = strtok(NULL, ", ");
+		char *str_ci = strtok(NULL, ", ");
+		char *str_act = strtok(NULL, ", ");
 		at_modem_info.creg.stat = strtol(str_stat, NULL, 10);
 		at_modem_info.creg.lac = strtol(str_lac + 1, NULL, 16);
 		at_modem_info.creg.ci = strtol(str_ci + 1, NULL, 16);
