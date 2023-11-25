@@ -143,37 +143,37 @@ void uart_at_cb(char *data, size_t size) {
 		if (!strcmp(data, "OK") || strstr(data, "ERROR")) {
 			at_command.state = 7;
 			//			printf("\t\t\tEarly Status is %s\n", data);
-			[[fallthrough]];
-		} else if (size
-				&& size
-				< (sizeof(at_command.responses[at_command.state - 2]) - 1)) {
-			strncpy(at_command.responses[at_command.state - 2], data,
-					sizeof(at_command.responses[at_command.state - 2]));
+		[[fallthrough]];
+	} else if (size
+			&& size
+					< (sizeof(at_command.responses[at_command.state - 2]) - 1)) {
+		strncpy(at_command.responses[at_command.state - 2], data,
+				sizeof(at_command.responses[at_command.state - 2]));
 
-			//		printf("\t\t\tResponse is %s\n",
-			//				at_command.responses[at_command.state]);
-			at_command.state++;
-			break;
-		}
-		if (!size)
-			return;
-	case 7:
-		if (size < (sizeof(at_command.status_string) - 1)) {
-			if (data[0] == '\n') {
-				strncpy(at_command.status_string, data + 1,
-						sizeof(at_command.status_string));
-			} else {
-				strncpy(at_command.status_string, data,
-						sizeof(at_command.status_string));
-			}
-		}
-		// TODO:  There might be additional data
-		// We need to handle that situation
-		at_command.status = strcmp("OK", at_command.status_string);
-		at_command.cb(&at_command);
-		at_command.state = 0;
-
+		//		printf("\t\t\tResponse is %s\n",
+		//				at_command.responses[at_command.state]);
+		at_command.state++;
 		break;
+	}
+	if (!size)
+		return;
+case 7:
+	if (size < (sizeof(at_command.status_string) - 1)) {
+		if (data[0] == '\n') {
+			strncpy(at_command.status_string, data + 1,
+					sizeof(at_command.status_string));
+		} else {
+			strncpy(at_command.status_string, data,
+					sizeof(at_command.status_string));
+		}
+	}
+	// TODO:  There might be additional data
+	// We need to handle that situation
+	at_command.status = strcmp("OK", at_command.status_string);
+	at_command.cb(&at_command);
+	at_command.state = 0;
+
+	break;
 	}
 }
 
@@ -342,7 +342,12 @@ void at_cgdcontQ_cb(at_command_t *cmd) {
 	if (cmd->status) {
 		// error
 	} else {
+
+		// SimCom SIM800L returns
 		// +CGDCONT: 1,"IP","TM","10.6.64.218",0,0
+
+		// SimCom A7670C returns
+		// +CGDCONT: 1,"IP","tm.mnc050.mcc234.gprs","10.5.170.50",0,0,,,,
 
 		char *str_Pcgdcont = strtok(cmd->responses[0], ":");
 		char *str_cid = strtok(NULL, ",");
@@ -353,10 +358,14 @@ void at_cgdcontQ_cb(at_command_t *cmd) {
 		char *str_h_comp = strtok(NULL, ",");
 
 		if (str_apn) {
-			if (strlen(str_apn) == (strlen(APN) + 2)
-					&& !strncmp(APN, str_apn + 1, strlen(APN))) {
+			if (((strlen(str_apn) == (strlen(APN) + 2)
+					|| (strlen(str_apn) > (strlen(APN) + 2)
+							&& ('.' == *(str_apn + strlen(APN) + 1))))
+					&& (!strncasecmp(APN, str_apn + 1, strlen(APN))))
+			) {
 				puts("Current APN is correct");
 			} else {
+
 				puts("Current APN is incorrect, detaching");
 				at_command_enqueue("AT+CGACT=1,0", at_cgact10_cb);
 			}
@@ -743,30 +752,30 @@ void at_cgmi_cb(at_command_t *cmd) {
 
 char *at_commands[] = { //
 		"ATZ", //
-		"ATI", //
+				"ATI", //
 
-		"AT+GMI", // Request Manufacturer Identification
-		"AT+GMM", // Request Model Identification
-		"AT+GMR", // Request Revision Identification
-		"AT+GSN", // Request Product Serial Number Identification
+				"AT+GMI", // Request Manufacturer Identification
+				"AT+GMM", // Request Model Identification
+				"AT+GMR", // Request Revision Identification
+				"AT+GSN", // Request Product Serial Number Identification
 
-		"AT+CGMI", // Request Manufacturer Identification
-		"AT+CGMM", // Request Model Identification
-		"AT+CGMR", // Request Revision Identification
-		"AT+CGSN", // Request Product Serial Number Identification
+				"AT+CGMI", // Request Manufacturer Identification
+				"AT+CGMM", // Request Model Identification
+				"AT+CGMR", // Request Revision Identification
+				"AT+CGSN", // Request Product Serial Number Identification
 
-		"AT+GCAP", // Request Complete Capabilities List
-		"AT+CPIN?", //
-		"AT+CIMI", //
-		"AT+CNUM", //
-		"AT+COPS?", //
-		"AT+CREG=2", //
-		"AT+CREG?", //
-		"AT+CSQ", // Request Signal Quality
-		"AT+BLAAT",
-		//"AT+CLAC",
-		NULL, //
-};
+				"AT+GCAP", // Request Complete Capabilities List
+				"AT+CPIN?", //
+				"AT+CIMI", //
+				"AT+CNUM", //
+				"AT+COPS?", //
+				"AT+CREG=2", //
+				"AT+CREG?", //
+				"AT+CSQ", // Request Signal Quality
+				"AT+BLAAT",
+				//"AT+CLAC",
+				NULL, //
+		};
 
 int main() {
 
