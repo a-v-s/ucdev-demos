@@ -10,7 +10,7 @@
 #include "bshal_uart.h"
 #include "bshal_gpio.h"
 
-//#include "i2c.h"
+#define APN "TM" // APN for Things Mobile, adjust if needed
 
 void SysTick_Handler(void) {
 	HAL_IncTick();
@@ -37,8 +37,6 @@ void at_command_send(char *cmd) {
 	test_uart_send(buffer, strlen(buffer));
 }
 
-
-
 typedef struct {
 	char command[64];
 	char responses[5][64];
@@ -63,19 +61,25 @@ typedef struct {
 	char command[64];
 } at_command_queue_entry_t;
 
+void at_cgact10_cb(at_command_t *cmd);
+void at_cgact11_cb(at_command_t *cmd);
+void at_cgdcont_cb(at_command_t *cmd);
+void at_cgactQ_cb(at_command_t *cmd);
+
 static at_command_t at_command;
 #define at_command_queue_length (8)
 at_command_queue_entry_t at_command_queue[at_command_queue_length];
 uint32_t at_command_queue_read_pos = 0;
 uint32_t at_command_queue_write_pos = 0;
 
-int at_command_enqueue(char * cmd, at_command_cb_f cb){
-	if ( (at_command_queue_write_pos+1)!= at_command_queue_read_pos) {
+int at_command_enqueue(char *cmd, at_command_cb_f cb) {
+	if ((at_command_queue_write_pos + 1) != at_command_queue_read_pos) {
 		at_command_queue_write_pos++;
-		at_command_queue_write_pos%=at_command_queue_length;
-		at_command_queue[at_command_queue_write_pos].cb=cb;
-		strncpy(at_command_queue[at_command_queue_write_pos].command,cmd,64);
-		printf("QPos %d, Queuing %s\n",at_command_queue_write_pos,at_command_queue[at_command_queue_write_pos].command);
+		at_command_queue_write_pos %= at_command_queue_length;
+		at_command_queue[at_command_queue_write_pos].cb = cb;
+		strncpy(at_command_queue[at_command_queue_write_pos].command, cmd, 64);
+		printf("QPos %d, Queuing %s\n", at_command_queue_write_pos,
+				at_command_queue[at_command_queue_write_pos].command);
 		return 0;
 	} else {
 		puts("Queue is full");
@@ -84,36 +88,40 @@ int at_command_enqueue(char * cmd, at_command_cb_f cb){
 }
 
 void at_command_queue_process(void) {
-	if (at_command.state==0) {
+	if (at_command.state == 0) {
 		while (at_command_queue_read_pos != at_command_queue_write_pos) {
 			at_command_queue_read_pos++;
-			at_command_queue_read_pos%=at_command_queue_length;
+			at_command_queue_read_pos %= at_command_queue_length;
 			if (at_command_queue[at_command_queue_read_pos].cb) {
-				memset(&at_command,0,sizeof(at_command));
+				memset(&at_command, 0, sizeof(at_command));
 				at_command.cb = at_command_queue[at_command_queue_read_pos].cb;
-				at_command.state=1;
-				printf("QPos %d, Sending %s\n",at_command_queue_read_pos,at_command_queue[at_command_queue_read_pos].command);
-				at_command_send(at_command_queue[at_command_queue_read_pos].command);
+				at_command.state = 1;
+				printf("QPos %d, Sending %s\n", at_command_queue_read_pos,
+						at_command_queue[at_command_queue_read_pos].command);
+				at_command_send(
+						at_command_queue[at_command_queue_read_pos].command);
 				return;
 			}
 		}
 	}
 }
 
-
-
 void uart_at_cb(char *data, size_t size) {
 	if (!size)
 		return;
-//
-//	if (!strlen(data))
-//		__BKPT(0);
+	//
+	//	if (!strlen(data))
+	//		__BKPT(0);
 
 	switch (at_command.state) {
 	case 0:
 		// Unsolicited callback?
-		for (int i = 0 ; i < at_unsolicited_cb_registration_count; i++) {
-			if (at_unsolicited_cb_registrations[i].cb && !strncmp(data, at_unsolicited_cb_registrations[i].command, strlen(at_unsolicited_cb_registrations[i].command))){
+		for (int i = 0; i < at_unsolicited_cb_registration_count; i++) {
+			if (at_unsolicited_cb_registrations[i].cb
+					&& !strncmp(data,
+							at_unsolicited_cb_registrations[i].command,
+							strlen(
+									at_unsolicited_cb_registrations[i].command))) {
 				at_unsolicited_cb_registrations[i].cb(data);
 			}
 		}
@@ -134,38 +142,38 @@ void uart_at_cb(char *data, size_t size) {
 		//if (!strcmp(data, "OK") || !strcmp(data, "ERROR")) {
 		if (!strcmp(data, "OK") || strstr(data, "ERROR")) {
 			at_command.state = 7;
-//			printf("\t\t\tEarly Status is %s\n", data);
-		[[fallthrough]];
-	} else if (size
-			&& size
-					< (sizeof(at_command.responses[at_command.state - 2]) - 1)) {
-		strncpy(at_command.responses[at_command.state - 2], data,
-				sizeof(at_command.responses[at_command.state - 2]));
+			//			printf("\t\t\tEarly Status is %s\n", data);
+			[[fallthrough]];
+		} else if (size
+				&& size
+				< (sizeof(at_command.responses[at_command.state - 2]) - 1)) {
+			strncpy(at_command.responses[at_command.state - 2], data,
+					sizeof(at_command.responses[at_command.state - 2]));
 
-//		printf("\t\t\tResponse is %s\n",
-//				at_command.responses[at_command.state]);
-		at_command.state++;
-		break;
-	}
-	if (!size)
-		return;
-case 7:
-	if (size < (sizeof(at_command.status_string) - 1)) {
-		if (data[0] == '\n') {
-			strncpy(at_command.status_string, data + 1,
-					sizeof(at_command.status_string));
-		} else {
-			strncpy(at_command.status_string, data,
-					sizeof(at_command.status_string));
+			//		printf("\t\t\tResponse is %s\n",
+			//				at_command.responses[at_command.state]);
+			at_command.state++;
+			break;
 		}
-	}
-	// TODO:  There might be additional data
-	// We need to handle that situation
-	at_command.status = strcmp("OK", at_command.status_string);
-	at_command.cb(&at_command);
-	at_command.state = 0;
+		if (!size)
+			return;
+	case 7:
+		if (size < (sizeof(at_command.status_string) - 1)) {
+			if (data[0] == '\n') {
+				strncpy(at_command.status_string, data + 1,
+						sizeof(at_command.status_string));
+			} else {
+				strncpy(at_command.status_string, data,
+						sizeof(at_command.status_string));
+			}
+		}
+		// TODO:  There might be additional data
+		// We need to handle that situation
+		at_command.status = strcmp("OK", at_command.status_string);
+		at_command.cb(&at_command);
+		at_command.state = 0;
 
-	break;
+		break;
 	}
 }
 
@@ -221,41 +229,67 @@ void uart_init(void) {
 
 }
 
-char * at_modem_stat2str(stat) {
-	switch(stat) {
-	case 0: return "not registered, MT is not currently searching an operator to register to";
-	case 1: return "registered, home network";
-	case 2: return "not registered, but MT is currently trying to attach or searching an operator to register to";
-	case 3: return "registration denied";
-	case 4: return "unknown (e.g. out of coverage)";
-	case 5: return "registered, roaming";
-	case 6: return "registered for \"SMS only\", home network";
-	case 7: return "registered for \"SMS only\", roaming";
-	case 8: return "registered for emergency services only";
-	case 9: return "registered for \"CSFB not preferred\", home network";
-	case 10: return "registered for \"CSFB not preferred\", roaming";
-	case 11: return "attached for access to RLOS";
+char* at_modem_stat2str( stat) {
+	switch (stat) {
+	case 0:
+		return "not registered, MT is not currently searching an operator to register to";
+	case 1:
+		return "registered, home network";
+	case 2:
+		return "not registered, but MT is currently trying to attach or searching an operator to register to";
+	case 3:
+		return "registration denied";
+	case 4:
+		return "unknown (e.g. out of coverage)";
+	case 5:
+		return "registered, roaming";
+	case 6:
+		return "registered for \"SMS only\", home network";
+	case 7:
+		return "registered for \"SMS only\", roaming";
+	case 8:
+		return "registered for emergency services only";
+	case 9:
+		return "registered for \"CSFB not preferred\", home network";
+	case 10:
+		return "registered for \"CSFB not preferred\", roaming";
+	case 11:
+		return "attached for access to RLOS";
 	default:
 		return "Unknown";
 	}
 }
 
-char * at_modem_act2str(act) {
-	switch(act) {
-	case 0 :return"GSM";
-	case 1 :return"GSM Compact";
-	case 2 :return"UTRAN";
-	case 3 :return"GSM w/EGPRS";
-	case 4 :return"UTRAN w/HSDPA";
-	case 5 :return"UTRAN w/HSUPA";
-	case 6 :return"UTRAN w/HSDPA";
-	case 7 :return"E-UTRAN";
-	case 8 :return"EC-GSM-IoT (A/Gb mode)";
-	case 9 :return"E-UTRAN (NB-S1 mode)";
-	case 10 :return"E-UTRA connected to a 5GCN";
-	case 11 :return"NR connected to a 5GCN";
-	case 12 :return"NG-RAN";
-	case 13 :return"E-UTRA-NR dual connectivity";
+char* at_modem_act2str( act) {
+	switch (act) {
+	case 0:
+		return "GSM";
+	case 1:
+		return "GSM Compact";
+	case 2:
+		return "UTRAN";
+	case 3:
+		return "GSM w/EGPRS";
+	case 4:
+		return "UTRAN w/HSDPA";
+	case 5:
+		return "UTRAN w/HSUPA";
+	case 6:
+		return "UTRAN w/HSDPA";
+	case 7:
+		return "E-UTRAN";
+	case 8:
+		return "EC-GSM-IoT (A/Gb mode)";
+	case 9:
+		return "E-UTRAN (NB-S1 mode)";
+	case 10:
+		return "E-UTRA connected to a 5GCN";
+	case 11:
+		return "NR connected to a 5GCN";
+	case 12:
+		return "NG-RAN";
+	case 13:
+		return "E-UTRA-NR dual connectivity";
 	default:
 		return "Unknown";
 	}
@@ -287,36 +321,139 @@ typedef struct {
 
 at_modem_info_t at_modem_info;
 
-void print_registration_status(){
-	puts("2G/3G Circuit Mode Registration:");
-	printf("Status             : %s \n", at_modem_stat2str(at_modem_info.creg.stat));
-	printf("Location Area Code : %04X \n",at_modem_info.creg.lac);
-	printf("Cell ID            : %08X \n",at_modem_info.creg.ci);
-	printf("Access Technology  : %s \n",at_modem_act2str(at_modem_info.creg.act));
+void any_unsol_cb_test(char *cmd) {
+	puts("any_unsol");
+	puts(cmd);
+}
 
-	puts("2G/3G Packet  Mode Registration:");
-	printf("Status             : %s \n", at_modem_stat2str(at_modem_info.cgreg.stat));
-	printf("Location Area Code : %04X \n",at_modem_info.cgreg.lac);
-	printf("Cell ID            : %08X \n",at_modem_info.cgreg.ci);
-	printf("Access Technology  : %s \n",at_modem_act2str(at_modem_info.cgreg.act));
+void at_generic_cb(at_command_t *cmd) {
+	puts(cmd->command);
+	puts(cmd->responses[0]);
+	puts(cmd->status_string);
+}
 
-	puts("4G Registration:");
-	printf("Status             : %s \n", at_modem_stat2str(at_modem_info.cereg.stat));
-	printf("Tracking Area Code : %08X \n",at_modem_info.cereg.tac);
-	printf("Cell ID            : %08X \n",at_modem_info.cereg.ci);
-	printf("Access Technology  : %s \n",at_modem_act2str(at_modem_info.cereg.act));
+void at_xiic_cb(at_command_t *cmd) {
+	at_generic_cb(cmd);
+	at_command_enqueue("AT+XIIC?", at_generic_cb);
+}
 
-	puts("5G Registration:");
-	printf("Status             : %s \n", at_modem_stat2str(at_modem_info.c5greg.stat));
-	printf("Tracking Area Code : %08X \n",at_modem_info.c5greg.tac);
-	printf("Cell ID            : %08X \n",at_modem_info.c5greg.ci);
-	printf("Access Technology  : %s \n",at_modem_act2str(at_modem_info.c5greg.act));
+void at_cgdcontQ_cb(at_command_t *cmd) {
+	at_generic_cb(cmd);
+	if (cmd->status) {
+		// error
+	} else {
+		// +CGDCONT: 1,"IP","TM","10.6.64.218",0,0
+
+		char *str_Pcgdcont = strtok(cmd->responses[0], ":");
+		char *str_cid = strtok(NULL, ",");
+		char *str_pdp_type = strtok(NULL, ",");
+		char *str_apn = strtok(NULL, ",");
+		char *str_pdp_addr = strtok(NULL, ",");
+		char *str_d_comp = strtok(NULL, ",");
+		char *str_h_comp = strtok(NULL, ",");
+
+		if (str_apn) {
+			if (strlen(str_apn) == (strlen(APN) + 2)
+					&& !strncmp(APN, str_apn + 1, strlen(APN))) {
+				puts("Current APN is correct");
+			} else {
+				puts("Current APN is incorrect, detaching");
+				at_command_enqueue("AT+CGACT=1,0", at_cgact10_cb);
+			}
+
+		} else {
+			puts("Could not determine current PDP context, detaching");
+			at_command_enqueue("AT+CGACT=1,0", at_cgact10_cb);
+		}
+	}
 
 }
 
+void at_cgact10_cb(at_command_t *cmd) {
+	at_generic_cb(cmd);
+	// +CGPADDR
+	at_command_enqueue("AT+CGACT?", at_cgactQ_cb);
+}
+
+void at_cgact11_cb(at_command_t *cmd) {
+	at_generic_cb(cmd);
+	if (cmd->status) {
+		/// error
+	} else {
+		puts("PDP context activated");
+		at_command_enqueue("AT+CGDCONT?", at_generic_cb);
+	}
+}
+
+void at_cgdcont_cb(at_command_t *cmd) {
+	at_generic_cb(cmd);
+	if (cmd->status) {
+	} else {
+		at_command_enqueue("AT+CGACT=1,1", at_cgact11_cb);
+	}
+}
+
+void at_cgactQ_cb(at_command_t *cmd) {
+	at_generic_cb(cmd);
+	if (cmd->status) {
+		// error
+	} else {
+		char *str_Pcgact = strtok(cmd->responses[0], ":");
+		char *str_cid = strtok(NULL, ",");
+		char *str_state = strtok(NULL, ",");
+		if (str_state) {
+			if (*str_state == '1') {
+				puts("PDP Context already active");
+				at_command_enqueue("AT+CGDCONT?", at_cgdcontQ_cb);
+			} else {
+				puts("PDP Context not active");
+				at_command_enqueue("AT+CGDCONT=1,\"IP\",\""APN"\"",
+						at_cgdcont_cb);
+			}
+		} else {
+			// There is no PDP context????
+			puts("Cannot determine current PDP context, attempting to set");
+			at_command_enqueue("AT+CGDCONT=1,\"IP\",\""APN"\"", at_cgdcont_cb);
+		}
+	}
+}
+void print_registration_status() {
+	puts("2G/3G Circuit Mode Registration:");
+	printf("Status             : %s \n",
+			at_modem_stat2str(at_modem_info.creg.stat));
+	printf("Location Area Code : %04X \n", at_modem_info.creg.lac);
+	printf("Cell ID            : %08X \n", at_modem_info.creg.ci);
+	printf("Access Technology  : %s \n",
+			at_modem_act2str(at_modem_info.creg.act));
+
+	puts("2G/3G Packet  Mode Registration:");
+	printf("Status             : %s \n",
+			at_modem_stat2str(at_modem_info.cgreg.stat));
+	printf("Location Area Code : %04X \n", at_modem_info.cgreg.lac);
+	printf("Cell ID            : %08X \n", at_modem_info.cgreg.ci);
+	printf("Access Technology  : %s \n",
+			at_modem_act2str(at_modem_info.cgreg.act));
+
+	puts("4G Registration:");
+	printf("Status             : %s \n",
+			at_modem_stat2str(at_modem_info.cereg.stat));
+	printf("Tracking Area Code : %08X \n", at_modem_info.cereg.tac);
+	printf("Cell ID            : %08X \n", at_modem_info.cereg.ci);
+	printf("Access Technology  : %s \n",
+			at_modem_act2str(at_modem_info.cereg.act));
+
+	puts("5G Registration:");
+	printf("Status             : %s \n",
+			at_modem_stat2str(at_modem_info.c5greg.stat));
+	printf("Tracking Area Code : %08X \n", at_modem_info.c5greg.tac);
+	printf("Cell ID            : %08X \n", at_modem_info.c5greg.ci);
+	printf("Access Technology  : %s \n",
+			at_modem_act2str(at_modem_info.c5greg.act));
+
+}
 
 void at_c5gregQ_cb(at_command_t *cmd) {
-	at_modem_info.c5greg = (at_modem_registration_status_t ){ -1 };
+	at_modem_info.c5greg = (at_modem_registration_status_t ) { -1 };
 	if (cmd->status) {
 		puts("AT+CEREG failed");
 	} else {
@@ -331,21 +468,18 @@ void at_c5gregQ_cb(at_command_t *cmd) {
 		at_modem_info.c5greg.act = strtol(str_act, NULL, 10);
 	}
 
-	print_registration_status();
-
+	//print_registration_status();
 
 }
 void at_c5greg2_cb(at_command_t *cmd) {
 	if (cmd->status) {
-			puts("AT+C5GREG=2 failed");
-			at_modem_info.c5greg = (at_modem_registration_status_t ){ -2 };
-			print_registration_status();
+		puts("AT+C5GREG=2 failed");
+		at_modem_info.c5greg = (at_modem_registration_status_t ) { -2 };
+		//print_registration_status();
 
-		} else {
-			memset(&at_command, 0, sizeof(at_command));
-			at_command.cb = at_c5gregQ_cb;
-			at_command_send("AT+C5GREG?");
-		}
+	} else {
+		at_command_enqueue("AT+C5GREG?", at_c5gregQ_cb);
+	}
 }
 void at_ceregQ_cb(at_command_t *cmd) {
 	at_modem_info.cereg = (at_modem_registration_status_t ) { -1 };
@@ -366,15 +500,12 @@ void at_ceregQ_cb(at_command_t *cmd) {
 }
 void at_cereg2_cb(at_command_t *cmd) {
 	if (cmd->status) {
-			puts("AT+CEREG=2 failed");
-			at_modem_info.cereg = (at_modem_registration_status_t ){ -2 };
+		puts("AT+CEREG=2 failed");
+		at_modem_info.cereg = (at_modem_registration_status_t ) { -2 };
 
-
-		} else {
-			memset(&at_command, 0, sizeof(at_command));
-			at_command.cb = at_ceregQ_cb;
-			at_command_send("AT+CEREG?");
-		}
+	} else {
+		at_command_enqueue("AT+CEREG?", at_ceregQ_cb);
+	}
 }
 void at_cgregQ_cb(at_command_t *cmd) {
 	at_modem_info.cgreg = (at_modem_registration_status_t ) { -1 };
@@ -390,20 +521,32 @@ void at_cgregQ_cb(at_command_t *cmd) {
 		at_modem_info.cgreg.lac = strtol(str_lac + 1, NULL, 16);
 		at_modem_info.cgreg.ci = strtol(str_ci + 1, NULL, 16);
 		at_modem_info.cgreg.act = strtol(str_act, NULL, 10);
+
+		bshal_delay_ms(100);
+		puts("2G/3G Packet  Mode Registration:");
+		printf("Status             : %s \n",
+				at_modem_stat2str(at_modem_info.cgreg.stat));
+		printf("Location Area Code : %04X \n", at_modem_info.cgreg.lac);
+		printf("Cell ID            : %08X \n", at_modem_info.cgreg.ci);
+		printf("Access Technology  : %s \n",
+				at_modem_act2str(at_modem_info.cgreg.act));
+		bshal_delay_ms(100);
+
+		if (at_modem_info.cgreg.stat == 1 || at_modem_info.cgreg.stat == 5) {
+			puts("Registered to a packet service");
+			at_command_enqueue("AT+CGACT?", at_cgactQ_cb);
+		}
 	}
-
-
 }
+
 void at_cgreg2_cb(at_command_t *cmd) {
 	if (cmd->status) {
-			puts("AT+CGREG=2 failed");
-			at_modem_info.cgreg = (at_modem_registration_status_t ){ -2 };
+		puts("AT+CGREG=2 failed");
+		at_modem_info.cgreg = (at_modem_registration_status_t ) { -2 };
 
-		} else {
-			memset(&at_command, 0, sizeof(at_command));
-			at_command.cb = at_cgregQ_cb;
-			at_command_send("AT+CGREG?");
-		}
+	} else {
+		at_command_enqueue("AT+CGREG?", at_cgregQ_cb);
+	}
 }
 
 void at_cregQ_cb(at_command_t *cmd) {
@@ -420,26 +563,35 @@ void at_cregQ_cb(at_command_t *cmd) {
 		at_modem_info.creg.lac = strtol(str_lac + 1, NULL, 16);
 		at_modem_info.creg.ci = strtol(str_ci + 1, NULL, 16);
 		at_modem_info.creg.act = strtol(str_act, NULL, 10);
+
+		bshal_delay_ms(100);
+		puts("2G/3G Circuit Mode Registration:");
+		printf("Status             : %s \n",
+				at_modem_stat2str(at_modem_info.creg.stat));
+		printf("Location Area Code : %04X \n", at_modem_info.creg.lac);
+		printf("Cell ID            : %08X \n", at_modem_info.creg.ci);
+		printf("Access Technology  : %s \n",
+				at_modem_act2str(at_modem_info.creg.act));
+		bshal_delay_ms(100);
 	}
 
 }
 
 void at_creg2_cb(at_command_t *cmd) {
 	if (cmd->status) {
-			puts("AT+CREG=2 failed");
-			at_modem_info.creg = (at_modem_registration_status_t ){ -2 };
-		} else {
-			at_command_enqueue("AT+CGREG?", at_cgregQ_cb);
-		}
+		puts("AT+CREG=2 failed");
+		at_modem_info.creg = (at_modem_registration_status_t ) { -2 };
+	} else {
+		at_command_enqueue("AT+CREG?", at_cregQ_cb);
+	}
 }
 
 void query_registration_status(void) {
-		at_command_enqueue("AT+CREG=2", at_creg2_cb);
-		at_command_enqueue("AT+CGREG=2", at_cgreg2_cb);
-		at_command_enqueue("AT+CEREG=2", at_cereg2_cb);
-		at_command_enqueue("AT+C5GREG=2", at_c5greg2_cb);
+	at_command_enqueue("AT+CREG=2", at_creg2_cb);
+	at_command_enqueue("AT+CGREG=2", at_cgreg2_cb);
+	at_command_enqueue("AT+CEREG=2", at_cereg2_cb);
+	at_command_enqueue("AT+C5GREG=2", at_c5greg2_cb);
 }
-
 
 void at_gcap_cb(at_command_t *cmd) {
 	if (cmd->status) {
@@ -449,7 +601,6 @@ void at_gcap_cb(at_command_t *cmd) {
 		// Attempt to query cellular registration status despite
 		// it does not report to be a cellular modem.
 		query_registration_status();
-
 
 	} else {
 		if (strstr(cmd->responses[0], "+CGSM")) {
@@ -502,8 +653,9 @@ void ati_cb(at_command_t *cmd) {
 		// Query AT+GCAP
 		// Check for +CGSM
 
-//		at_command.cb = at_gcap_cb;
-//		at_command_send("AT+GCAP");
+		//		at_command.cb = at_gcap_cb;
+		//		at_command_send("AT+GCAP");
+		fflush(0);
 
 		at_command_enqueue("AT+GCAP", at_gcap_cb);
 
@@ -526,7 +678,6 @@ void ati_cb(at_command_t *cmd) {
 		// AT+C5REG?
 		// 5G services in NG-RAN
 
-
 	}
 }
 
@@ -538,10 +689,9 @@ void at_cgsn_cb(at_command_t *cmd) {
 		strncpy(at_modem_info.Serial, cmd->responses[0],
 				sizeof(at_modem_info.Serial));
 
-//		memset(&at_command, 0, sizeof(at_command));
-//		at_command.cb = ati_cb;
-//		at_command_send("ATI");
-
+		//		memset(&at_command, 0, sizeof(at_command));
+		//		at_command.cb = ati_cb;
+		//		at_command_send("ATI");
 
 	}
 }
@@ -554,10 +704,9 @@ void at_cgmr_cb(at_command_t *cmd) {
 		strncpy(at_modem_info.Revision, cmd->responses[0],
 				sizeof(at_modem_info.Revision));
 
-//		memset(&at_command, 0, sizeof(at_command));
-//		at_command.cb = at_cgsn_cb;
-//		at_command_send("AT+CGSN");
-
+		//		memset(&at_command, 0, sizeof(at_command));
+		//		at_command.cb = at_cgsn_cb;
+		//		at_command_send("AT+CGSN");
 
 	}
 }
@@ -570,11 +719,9 @@ void at_cgmm_cb(at_command_t *cmd) {
 		strncpy(at_modem_info.Model, cmd->responses[0],
 				sizeof(at_modem_info.Model));
 
-//		memset(&at_command, 0, sizeof(at_command));
-//		at_command.cb = at_cgmr_cb;
-//		at_command_send("AT+CGMR");
-
-
+		//		memset(&at_command, 0, sizeof(at_command));
+		//		at_command.cb = at_cgmr_cb;
+		//		at_command_send("AT+CGMR");
 
 	}
 }
@@ -587,47 +734,40 @@ void at_cgmi_cb(at_command_t *cmd) {
 		strncpy(at_modem_info.Manufacturer, cmd->responses[0],
 				sizeof(at_modem_info.Manufacturer));
 
-//		memset(&at_command, 0, sizeof(at_command));
-//		at_command.cb = at_cgmm_cb;
-//		at_command_send("AT+CGMM");
-
-
+		//		memset(&at_command, 0, sizeof(at_command));
+		//		at_command.cb = at_cgmm_cb;
+		//		at_command_send("AT+CGMM");
 
 	}
 }
 
 char *at_commands[] = { //
 		"ATZ", //
-				"ATI", //
+		"ATI", //
 
-				"AT+GMI", // Request Manufacturer Identification
-				"AT+GMM", // Request Model Identification
-				"AT+GMR", // Request Revision Identification
-				"AT+GSN", // Request Product Serial Number Identification
+		"AT+GMI", // Request Manufacturer Identification
+		"AT+GMM", // Request Model Identification
+		"AT+GMR", // Request Revision Identification
+		"AT+GSN", // Request Product Serial Number Identification
 
-				"AT+CGMI", // Request Manufacturer Identification
-				"AT+CGMM", // Request Model Identification
-				"AT+CGMR", // Request Revision Identification
-				"AT+CGSN", // Request Product Serial Number Identification
+		"AT+CGMI", // Request Manufacturer Identification
+		"AT+CGMM", // Request Model Identification
+		"AT+CGMR", // Request Revision Identification
+		"AT+CGSN", // Request Product Serial Number Identification
 
-				"AT+GCAP", // Request Complete Capabilities List
-				"AT+CPIN?", //
-				"AT+CIMI", //
-				"AT+CNUM", //
-				"AT+COPS?", //
-				"AT+CREG=2", //
-				"AT+CREG?", //
-				"AT+CSQ", // Request Signal Quality
-				"AT+BLAAT",
-				//"AT+CLAC",
-				NULL, //
-		};
+		"AT+GCAP", // Request Complete Capabilities List
+		"AT+CPIN?", //
+		"AT+CIMI", //
+		"AT+CNUM", //
+		"AT+COPS?", //
+		"AT+CREG=2", //
+		"AT+CREG?", //
+		"AT+CSQ", // Request Signal Quality
+		"AT+BLAAT",
+		//"AT+CLAC",
+		NULL, //
+};
 
-
-void any_unsol_cb_test(char* cmd){
-	puts("any_unsol");
-	puts(cmd);
-}
 int main() {
 
 	SystemClock_Config();
@@ -645,12 +785,14 @@ int main() {
 
 	int cnt = 0;
 
-//	memset(&at_command, 0, sizeof(at_command));
-//	at_command.cb = at_cgmi_cb;
-//	at_command_send("AT+CGMI");
+	//	memset(&at_command, 0, sizeof(at_command));
+	//	at_command.cb = at_cgmi_cb;
+	//	at_command_send("AT+CGMI");
 
 	at_unsolicited_cb_registrations[0].cb = any_unsol_cb_test;
-	at_unsolicited_cb_registrations[0].command[0]='+';
+	at_unsolicited_cb_registrations[0].command[0] = '+';
+
+	at_command_enqueue("AT+CPIN?", at_generic_cb);
 
 	at_command_enqueue("AT+CGMI", at_cgmi_cb);
 	at_command_enqueue("AT+CGSN", at_cgsn_cb);
@@ -691,7 +833,7 @@ int main() {
 		}
 		printf("Status :    %s\n", at_command.status_string);
 
-//		bshal_delay_ms(1000);
+		//		bshal_delay_ms(1000);
 
 	}
 }
