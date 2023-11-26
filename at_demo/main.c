@@ -211,8 +211,8 @@ void uart_init(void) {
 	bshal_uart_instance.async = &bshal_uart_async; // Asign the async handler to the uart instance
 
 	// 115200,8,N,1
-	bshal_uart_instance.bps = 115200;
-	//	bshal_uart_instance.bps = 38400; // sinowell
+//	bshal_uart_instance.bps = 115200;
+		bshal_uart_instance.bps = 38400; // sinowell
 	bshal_uart_instance.data_bits = 8;
 	bshal_uart_instance.parity = bshal_uart_parity_none;
 	bshal_uart_instance.stop_bits = 1;
@@ -427,6 +427,15 @@ void at_cgactQ_cb(at_command_t *cmd) {
 		}
 	}
 }
+
+void at_cgatt1_cb(at_command_t *cmd) {
+	if(cmd->status) {
+		// error
+	} else {
+		at_command_enqueue("AT+CGACT?", at_cgactQ_cb);
+	}
+}
+
 void print_registration_status() {
 	puts("2G/3G Circuit Mode Registration:");
 	printf("Status             : %s \n",
@@ -548,7 +557,11 @@ void at_cgregQ_cb(at_command_t *cmd) {
 		if (at_modem_info.cgreg.stat == 1 || at_modem_info.cgreg.stat == 5) {
 			puts("Registered to a packet service");
 			at_command_enqueue("AT+CGACT?", at_cgactQ_cb);
+		} else if ((at_modem_info.creg.stat == 1 || at_modem_info.creg.stat == 5)) {
+			puts("Circuit registration but no Packer registration? Not attached?");
+			at_command_enqueue("AT+CGATT=1", at_cgatt1_cb);
 		}
+
 	}
 }
 
