@@ -107,6 +107,7 @@ void at_command_queue_process(void) {
 }
 
 void uart_at_cb(char *data, size_t size) {
+//	printf("%s:%s\n", __FUNCTION__, data);
 	if (!size)
 		return;
 	//
@@ -177,42 +178,30 @@ case 7:
 	}
 }
 
-static bshal_uart_async_t bshal_uart_async;
+static bshal_uart_async_at_t bshal_uart_at_async;
 static bshal_uart_instance_t bshal_uart_instance;
 void uart_init(void) {
 
 	//  Configuration for the Async handler, to configure the synchronosation
-	bshal_uart_async.callback = uart_at_cb; // Callback
+	bshal_uart_at_async.command_callback = uart_at_cb; // Callback
 
 	static uint8_t receive_buffer[128];
-	bshal_uart_async.receive_buffer = receive_buffer;
-	bshal_uart_async.receive_buffer_len = sizeof(receive_buffer);
+	bshal_uart_at_async.receive_buffer = receive_buffer;
+	bshal_uart_at_async.receive_buffer_len = sizeof(receive_buffer);
 
 	static uint8_t postprocess_buffer[256];
-	bshal_uart_async.postprocess_buffer = postprocess_buffer;
-	bshal_uart_async.postprocess_buffer_len = sizeof(postprocess_buffer);
+	bshal_uart_at_async.postprocess_buffer = postprocess_buffer;
+	bshal_uart_at_async.postprocess_buffer_len = sizeof(postprocess_buffer);
 
 	static uint8_t preprocess_buffer[256];
-	bshal_uart_async.preprocess_buffer = preprocess_buffer;
-	bshal_uart_async.preprocess_buffer_len = sizeof(preprocess_buffer);
+	bshal_uart_at_async.preprocess_buffer = preprocess_buffer;
+	bshal_uart_at_async.preprocess_buffer_len = sizeof(preprocess_buffer);
 
-	bshal_uart_async.null_terminated_string = true; // Terminate the resulting string
+	bshal_uart_instance.async = &bshal_uart_at_async; // Asign the async handler to the uart instance
 
-	bshal_uart_async.sync_begin_data = "\n";
-	bshal_uart_async.sync_begin_len = 1;    //
-	bshal_uart_async.sync_begin_include = false; // Include the $ in the result
 
-	bshal_uart_async.sync_end = "\r";     // NMEA sentences end with \r\n
-	bshal_uart_async.sync_end_len = 1;
-	bshal_uart_async.sync_end_include = false; // Do include the \r\n in the result
-
-	bshal_uart_async.max_data_len = 64; // The maximum length of a line
-
-	bshal_uart_instance.async = &bshal_uart_async; // Asign the async handler to the uart instance
-
-	// 115200,8,N,1
-//	bshal_uart_instance.bps = 115200;
-		bshal_uart_instance.bps = 38400; // sinowell
+	bshal_uart_instance.bps = 115200;	// most modems default at 115200,8,N,1 or auto detect
+//	bshal_uart_instance.bps = 38400; // Sinowell G590E defaults at 38400,N,1
 	bshal_uart_instance.data_bits = 8;
 	bshal_uart_instance.parity = bshal_uart_parity_none;
 	bshal_uart_instance.stop_bits = 1;
@@ -828,39 +817,9 @@ int main() {
 	at_command_enqueue("ATI", ati_cb);
 
 	while (1) {
-		bshal_uart_recv_process(&bshal_uart_async);
+		bshal_uart_at_recv_process(&bshal_uart_at_async);
 		at_command_queue_process();
 	}
 
-	while (1)
-		;
 
-	while (1) {
-		char *cmd = at_commands[cnt++];
-		if (!cmd) {
-			cnt = 0;
-			continue;
-		}
-		printf("Sending %s\n", cmd);
-		memset(&at_command, 0, sizeof(at_command));
-		at_command_send(cmd);
-		while (at_command.state < 7) {
-			bshal_uart_recv_process(&bshal_uart_async);
-		}
-		if (!at_command.status) {
-			puts("AT command succeeded");
-		} else {
-			puts("AT command failed");
-		}
-
-		printf("Command:    %s\n", at_command.command);
-		for (int i = 0; i < 5; i++) {
-			if (strlen(at_command.responses[i]))
-				printf("Response %d  %s\n", i + 1, at_command.responses[i]);
-		}
-		printf("Status :    %s\n", at_command.status_string);
-
-		//		bshal_delay_ms(1000);
-
-	}
 }
