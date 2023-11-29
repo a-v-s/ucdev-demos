@@ -61,7 +61,7 @@ typedef struct {
 	char command[64];
 } at_command_queue_entry_t;
 
-void at_cgact10_cb(at_command_t *cmd);
+void at_cgact01_cb(at_command_t *cmd);
 void at_cgact11_cb(at_command_t *cmd);
 void at_cgdcont_cb(at_command_t *cmd);
 void at_cgactQ_cb(at_command_t *cmd);
@@ -139,9 +139,8 @@ void uart_at_cb(char *data, size_t size) {
 	case 4:
 	case 5:
 	case 6:
-		// In order to handle CMEE=1, we look if "ERROR" is included in the string
-		//if (!strcmp(data, "OK") || !strcmp(data, "ERROR")) {
-		if (!strcmp(data, "OK") || strstr(data, "ERROR")) {
+		// "Err:" is a non-compliant response used by FS800E
+		if (!strcmp(data, "OK") || strstr(data, "ERROR") || strstr(data, "Err:")) {
 			at_command.state = 7;
 			//			printf("\t\t\tEarly Status is %s\n", data);
 		[[fallthrough]];
@@ -357,21 +356,27 @@ void at_cgdcontQ_cb(at_command_t *cmd) {
 			} else {
 
 				puts("Current APN is incorrect, detaching");
-				at_command_enqueue("AT+CGACT=1,0", at_cgact10_cb);
+				at_command_enqueue("AT+CGACT=0,1", at_cgact01_cb);
 			}
 
 		} else {
-			puts("Could not determine current PDP context, detaching");
-			at_command_enqueue("AT+CGACT=1,0", at_cgact10_cb);
+			puts("Could not determine current PDP context, deactivating");
+			at_command_enqueue("AT+CGACT=0,1", at_cgact01_cb);
+
 		}
 	}
 
 }
 
-void at_cgact10_cb(at_command_t *cmd) {
+void at_cgact01_cb(at_command_t *cmd) {
 	at_generic_cb(cmd);
-	// +CGPADDR
-	at_command_enqueue("AT+CGACT?", at_cgactQ_cb);
+
+	if (cmd->status) {
+		// On a Quectel EC600N, we see an active
+	} else {
+		at_command_enqueue("AT+CGDCONT=1,\"IP\",\""APN"\"",
+				at_cgdcont_cb);
+	}
 }
 
 void at_cgact11_cb(at_command_t *cmd) {
@@ -610,6 +615,7 @@ void query_registration_status(void) {
 }
 
 void at_gcap_cb(at_command_t *cmd) {
+	at_generic_cb(cmd);
 	if (cmd->status) {
 		puts("AT+GCAP failed");
 		puts(cmd->status_string);
@@ -624,7 +630,10 @@ void at_gcap_cb(at_command_t *cmd) {
 			puts("Querying Network Registration Status");
 			query_registration_status();
 		} else {
+			// Quectel EC600N returns an empty capability string???
 			puts("Device does not appear to be a cellular modem");
+			puts("Querying Network Registration Status anyways");
+			query_registration_status();
 		}
 	}
 }
@@ -807,6 +816,10 @@ int main() {
 
 	at_unsolicited_cb_registrations[0].cb = any_unsol_cb_test;
 	at_unsolicited_cb_registrations[0].command[0] = '+';
+
+	// leaving data mode? FS800E
+	// This FS800E is a weird thing, definitely not GSM 07.07 complaint
+	// test_uart_send("+++", 3);
 
 	at_command_enqueue("AT+CPIN?", at_generic_cb);
 
