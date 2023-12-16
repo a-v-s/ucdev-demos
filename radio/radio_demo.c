@@ -114,7 +114,10 @@ int sxv1_init(bsradio_instance_t *bsradio) {
 		sxv1_set_tx_power(bsradio, 0);
 		break;
 	case 868:
-		sxv1_set_frequency(bsradio, 869850);
+
+		//sxv1_set_frequency(bsradio, 869850);
+		sxv1_set_frequency(bsradio, 870000);
+
 //		sxv1_set_frequency(bsradio, 868000);
 //		sxv1_set_tx_power(bsradio, 7);
 		sxv1_set_tx_power(bsradio, 0);
@@ -208,7 +211,7 @@ int si4x3x_init(bsradio_instance_t *bsradio) {
 	// So I have to trial and error to find the correct value,
 	// Tested various values, found 0x69 to give the correct frequency
 	// on the 868 MHz module. Need to repeat the test on 434 MHz modules
-	si4x3x_write_reg8(bsradio, 0x09, bsradio->hwconfig.xtal_tune);
+	si4x3x_write_reg8(bsradio, 0x09, bsradio->hwconfig.tune);
 
 	switch (bsradio->hwconfig.frequency_band) {
 	case 434:
@@ -216,10 +219,13 @@ int si4x3x_init(bsradio_instance_t *bsradio) {
 		si4x3x_set_tx_power(bsradio, 0);
 		break;
 	case 868:
-		si4x3x_set_frequency(bsradio, 869850);
+		//si4x3x_set_frequency(bsradio, 869850);
+		si4x3x_set_frequency(bsradio, 870000);
+
+
 //		si4x3x_set_frequency(bsradio, 868000);
-//		si4x3x_set_tx_power(bsradio, 7);
-		si4x3x_set_tx_power(bsradio, 0);
+		si4x3x_set_tx_power(bsradio, 18);
+//		si4x3x_set_tx_power(bsradio, 0);
 		break;
 	case 915:
 		si4x3x_set_frequency(bsradio, 915000);
@@ -247,6 +253,8 @@ void si4x3x_recv_test(bsradio_instance_t *bsradio) {
 	print("RX Si4x3x", 5);
 	framebuffer_apply();
 	si4x3x_configure_packet(bsradio);
+	si4x3x_clear_rx_fifo(bsradio);
+	si4x3x_set_mode(bsradio, si4x3x_mode_reveive);
 
 	while (1) {
 
@@ -400,25 +408,28 @@ int main() {
 	protocol_header_t *header = buffert;
 	bsradio_hwconfig_t *config = buffert + sizeof(protocol_header_t);
 	if (write_to_flash) {
+		spi_flash_read(&spi_flash_config, 0x000000, buffert, sizeof(buffert));
 		spi_flash_erase_page_256(&spi_flash_config, 0x000000);
-		memset(buffert, 0xFF, sizeof(buffert));
-		header->size = sizeof(protocol_header_t) + sizeof(bsradio_hwconfig_t);
-		header->cmd = 0x02;
-		header->sub = 0x20;
-		header->res = 'R';
-		config->chip_brand = chip_brand_silabs;
+		config->tune = 108;
 
-		config->chip_brand = chip_brand_silabs;
-		config->chip_type = 2;
-		config->chip_variant = 3;
-		config->frequency_band = 868;
-		config->xtal_tune = 0x59;
-		config->xtal_freq = 30000000;
-		config->module_brand = module_brand_gnicerf;
-		config->module_variant = module_variant_rf4463pro;
+		//		memset(buffert, 0xFF, sizeof(buffert));
+//		header->size = sizeof(protocol_header_t) + sizeof(bsradio_hwconfig_t);
+//		header->cmd = 0x02;
+//		header->sub = 0x20;
+//		header->res = 'R';
+//
+//		config->chip_brand = chip_brand_semtech;
+//		config->chip_type = 1;
+//		config->chip_variant = -1;
+//		config->module_brand = module_brand_hoperf;
+//		config->module_variant = -1;
+//		config->frequency_band = 868;
+//		config->tune = -10;
+//		config->pa_config = 1;
+//		config->antenna_type = -1;
+//		config->xtal_freq = 32000000;
 
 
-		config->frequency_band = 868;
 		spi_flash_program(&spi_flash_config, 0x000000, buffert, header->size);
 	} else {
 		spi_flash_read(&spi_flash_config, 0x000000, buffert, sizeof(buffert));
@@ -438,7 +449,7 @@ int main() {
 		bsradio.hwconfig.chip_type = 1;
 		bsradio.hwconfig.chip_variant = 2;
 		bsradio.hwconfig.frequency_band = 868;
-		bsradio.hwconfig.xtal_tune = 0x69;
+		bsradio.hwconfig.tune = 0x69;
 		bsradio.hwconfig.xtal_freq = 30000000;
 
 
@@ -456,7 +467,8 @@ int main() {
 	//si4x6x_test();
 //	while (1);
 
-	if (0x87141031 == SERIALNUMBER) {
+	if (0x87141031 != SERIALNUMBER) {
+//	if (false) {
 		switch (bsradio.hwconfig.chip_brand) {
 		case chip_brand_semtech:
 			switch (bsradio.hwconfig.chip_type) {

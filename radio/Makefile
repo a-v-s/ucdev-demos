@@ -7,7 +7,7 @@ MCU?=STM32F103xB
 ################################################################################
 # Set Output Filename 
 ################################################################################
-TARGET = rfm69_test
+TARGET = radio_demo
 
 ################################################################################
 # Set the root directory of the ucdev enviorement 
@@ -15,21 +15,26 @@ TARGET = rfm69_test
 UCDEV_ROOT=../../ucdev
 U8G2_DIR = $(UCDEV_ROOT)/ext/u8g2/csrc
 
+BSRADIO_DIR = $(UCDEV_ROOT)/lib/bsradio
 
 ################################################################################
 # Sources
 ################################################################################
 
-C_SOURCES += rfm69_test.c
-C_SOURCES += sxv1.c
-
-C_SOURCES += si4x3x.c
-C_SOURCES += si4x6x.c
-
-C_SOURCES += magic.c
+C_SOURCES += radio_demo.c
 
 
+C_SOURCES += $(BSRADIO_DIR)/sxv1.c
+
+C_SOURCES += $(BSRADIO_DIR)/si4x3x.c
+C_SOURCES += $(BSRADIO_DIR)/si4x6x.c
+
+C_SOURCES += $(BSRADIO_DIR)/magic.c
+
+C_INCLUDES += $(BSRADIO_DIR)
 C_INCLUDES += $(U8G2_DIR) 
+C_INCLUDES += .
+
 CFLAGS += -DU8X8_WITH_USER_PTR
 C_SOURCES += dis2.c
 C_SOURCES += i2c.c
