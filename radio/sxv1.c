@@ -96,6 +96,7 @@ int sxv1_set_frequency(bsradio_instance_t *bsradio,int kHz) {
 	//int regval = (float) (1000*kHz) / (float) SXV1_FSTEP_HZ;
 
 	// Without the need of float
+	kHz += bsradio->hwconfig.tune;
 	int regval = ((uint64_t)(1000 * kHz) << 19) / SXV1_XTAL_FREQ;
 
 	int status;
@@ -364,6 +365,12 @@ int sxv1_receive_request(bsradio_instance_t *bsradio,sxv1_air_packet_t *p_packet
 
 	if (status)
 		return status;
+
+	static uint8_t rssi_raw;
+	if (irq_flags_1.sync_address_match) {
+		sxv1_read_reg(bsradio,SXV1_REG_RSSIVALUE, &rssi_raw);
+	}
+
 	if (irq_flags_2.payload_ready) {
 		// there is data, but how much to read
 		// Is there a FIFO LEVEL register???
@@ -371,8 +378,8 @@ int sxv1_receive_request(bsradio_instance_t *bsradio,sxv1_air_packet_t *p_packet
 		sxv1_read_fifo(bsradio,p_packet, &size);
 
 
-		uint8_t rssi_raw;
-		sxv1_read_reg(bsradio,SXV1_REG_RSSIVALUE, &rssi_raw);
+
+
 		int8_t rssi = (-rssi_raw) / 2;
 		printf("RSSI val %d\n", rssi);
 
@@ -410,11 +417,11 @@ void sxv1_configure_packet(bsradio_instance_t *bsradio) {
 
 
 //	config1.crc_on = 1;
-//	config1.packet_format = 1; // Variable Length
+	config1.packet_format = 1; // Variable Length
 
 
 	config1.crc_on = 0; // for  inter-module testing
-	config1.packet_format = 0; // Fixed Length for intermodule testing
+//	config1.packet_format = 0; // Fixed Length for intermodule testing
 
 
 
@@ -422,7 +429,8 @@ void sxv1_configure_packet(bsradio_instance_t *bsradio) {
 
 	sxv1_packet_config2_t config2;
 	config2.aes_on = 0;
-	config2.auto_rx_restart_on = 1;
+	//config2.auto_rx_restart_on = 1;
+	config2.auto_rx_restart_on = 0; // manually restart rx
 	// config2.inter_packet_rx_delay=0; //?? Verify this value
 	config2.inter_packet_rx_delay = 1; //?? Verify this value
 	config2.restart_rx = 0;
@@ -444,10 +452,14 @@ void sxv1_configure_packet(bsradio_instance_t *bsradio) {
 
 	// Two SXV1 can communicate with RSSI timeout set to 0x10
 	// But receiving an Si4432 requires a higher value.
-	// I put it to 0x40 but it can probably be smaller
+	// I put it to 0x40 but it can probably be smaller, 0x20 works
 	//sxv1_write_reg(SXV1_REG_RXTIMEOUT2, 0x10); // RSSI Timeout
 //	sxv1_write_reg(bsradio,SXV1_REG_RXTIMEOUT2, 0x40); // RSSI Timeout
 	sxv1_write_reg(bsradio,SXV1_REG_RXTIMEOUT2, 0x20); // RSSI Timeout
+
+//	sxv1_write_reg(bsradio,SXV1_REG_TESTDAGC, 0x00); // Disable DAGC
+
+
 
 }
 

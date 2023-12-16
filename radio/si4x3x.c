@@ -366,24 +366,48 @@ void si4x3x_configure_packet(bsradio_instance_t *bsradio) {
 
 }
 
+int si4x3x_set_mode(bsradio_instance_t *bsradio,si4x3x_mode_t mode) {
+	//si4x3x_write_reg8(bsradio, 0x07, 0x04);
+	return si4x3x_write_reg8(bsradio, 0x07, mode);
+}
+
 int si4x3x_receive_request(bsradio_instance_t *bsradio, sxv1_air_packet_t *p_request) {
 	uint8_t reg, val;
 	si4x3x_reg_03_t r03 = { };
 	si4x3x_reg_04_t r04 = { };
 
-	si4x3x_clear_rx_fifo(bsradio);
-	si4x3x_write_reg8(bsradio, 0x07, 0x04);
+	si4x3x_read_reg8(bsradio, 0x03, &r03);
+			si4x3x_read_reg8(bsradio, 0x04, &r04);
 
-	while (!r03.ipkvalid) {
-		bshal_delay_ms(1);
-		si4x3x_read_reg8(bsradio, 0x03, &r03);
-		si4x3x_read_reg8(bsradio, 0x04, &r04);
+	uint8_t rssi_raw;
+	if (r04.irssi) {
+			si4x3x_read_reg8(bsradio,0x26, &rssi_raw);
+		}
+	if (r03.ipkvalid) {
+//		bshal_delay_ms(1);
+
+
+		uint8_t size = sizeof(sxv1_air_packet_t);
+			si4x3x_read_fifo(bsradio, p_request, &size);
+
+
+
+			int8_t rssi = (-rssi_raw) / 2;
+			printf("RSSI val %d\n", rssi);
+			char buff[32] = { 0 };
+			sprintf(buff, "RSSI %d\n", rssi);
+			print(buff, 0);
+
+			si4x3x_clear_rx_fifo(bsradio);
+			si4x3x_set_mode(bsradio, si4x3x_mode_reveive);
+			return 0;
+
+
+
 	}
 
-	uint8_t size = sizeof(sxv1_air_packet_t);
-	si4x3x_read_fifo(bsradio, p_request, &size);
+	return -1;
 
-	return 0;
 
 }
 
@@ -398,6 +422,8 @@ int si4x3x_send_request(bsradio_instance_t *bsradio, sxv1_air_packet_t *p_reques
 	si4x3x_write_fifo(bsradio, p_request, p_request->header.size);
 
 	si4x3x_write_reg8(bsradio, 0x07, 0x08);
+
+
 
 	si4x3x_reg_03_t r03 = { };
 	si4x3x_reg_03_t r04 = { };

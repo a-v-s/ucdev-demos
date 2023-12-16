@@ -137,6 +137,11 @@ typedef union {
 	uint8_t as_uint8;
 } si4x3x_reg_07_t;
 
+typedef enum {
+	si4x3x_mode_reveive = 0x04,
+	si4x3x_mode_transmit = 0x08,
+} si4x3x_mode_t;
+
 typedef union {
 	struct {
 		unsigned int ffclrtx :1;

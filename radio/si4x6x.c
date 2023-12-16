@@ -218,7 +218,7 @@ int si4x6x_init(bsradio_instance_t *bsradio) {
 //	ugly(bsradio);
 
 
-	si4x6x_set_property(bsradio, 0x00, 0x00, bsradio->hwconfig.xtal_tune);
+	si4x6x_set_property(bsradio, 0x00, 0x00, bsradio->hwconfig.tune);
 
 	switch (bsradio->hwconfig.frequency_band) {
 	case 434:
@@ -226,7 +226,9 @@ int si4x6x_init(bsradio_instance_t *bsradio) {
 		si4x6x_set_tx_power(bsradio, 0);
 		break;
 	case 868:
-		si4x6x_set_frequency(bsradio, 869850);
+//		si4x6x_set_frequency(bsradio, 869850);
+		si4x6x_set_frequency(bsradio, 870000);
+
 		//si4x6x_set_frequency(bsradio, 868000);
 //		si4x6x_set_tx_power(bsradio, 7);
 		break;
