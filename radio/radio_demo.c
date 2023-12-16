@@ -6,7 +6,7 @@
 #include "sxv1.h"
 #include "si4x3x.h"
 
-#include "radio.h"
+#include "bsradio.h"
 
 #include "spi_flash.h"
 
@@ -95,7 +95,7 @@ void SystemClock_Config(void) {
 
 void *gp_i2c = NULL;
 
-int sxv1_init(bsradio_instance_t *bsradio) {
+int demo_sxv1_init(bsradio_instance_t *bsradio) {
 
 	// reset is active high!!!!
 	bshal_gpio_write_pin(bsradio->spim.rs_pin, 1);
@@ -164,9 +164,8 @@ int sxv1_init(bsradio_instance_t *bsradio) {
 
 	 */
 
-	sxv1_calibarte_rc(bsradio);
-	sxv1_write_reg(bsradio, SXV1_REG_RSSITHRESH, 0xC4);
-	sxv1_configure_packet(bsradio);
+
+	sxv1_init(bsradio);
 
 	sxv1_set_sync_word32(bsradio, 0xdeadbeef);
 
@@ -174,13 +173,7 @@ int sxv1_init(bsradio_instance_t *bsradio) {
 	sxv1_set_fdev(bsradio, 12500);
 	sxv1_set_bandwidth(bsradio, 25000);
 
-	/*
-	 The DAGC is enabled by setting RegTestDagc to 0x20 for low modulation index systems
-	 (i.e. when AfcLowBetaOn=1, refer to section 3.4.16), and 0x30 for other systems.
-	 It is recommended to always enable the DAGC.
-	 */
-	sxv1_write_reg(bsradio, SXV1_REG_AFCCTRL, 0x00);
-	sxv1_write_reg(bsradio, SXV1_REG_TESTDAGC, 0x30);
+
 
 	return 0;
 }

@@ -11,15 +11,27 @@ TARGET = wireless_sensor
 ################################################################################
 # Set the root directory of the ucdev enviorement 
 ################################################################################
-
-C_SOURCES += wireless_sensor.c
-
-
 UCDEV_ROOT=../../ucdev
 U8G2_DIR = $(UCDEV_ROOT)/ext/u8g2/csrc
 BSSENSOR_DIR = $(UCDEV_ROOT)/lib/bssensor
 BSRADIO_DIR = $(UCDEV_ROOT)/lib/bsradio
 BSPROT_DIR =  $(UCDEV_ROOT)/lib/bsprot
+BSRADIO_DIR = $(UCDEV_ROOT)/lib/bsradio
+
+C_SOURCES += wireless_sensor.c
+C_SOURCES += sensors.c
+C_SOURCES += timer_stm32.c
+
+C_SOURCES += $(LIBHALGLUE_ROOT)/common/arm_cpuid.c
+C_SOURCES += $(LIBHALGLUE_ROOT)/common/bshal_delay.c
+C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/bshal_i2cm.c
+C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/bshal_spim.c
+
+C_SOURCES += $(BSRADIO_DIR)/bsradio.c
+C_SOURCES += $(BSRADIO_DIR)/sxv1.c
+C_SOURCES += $(BSRADIO_DIR)/si4x3x.c
+C_SOURCES += $(BSRADIO_DIR)/si4x6x.c
+C_SOURCES += $(BSRADIO_DIR)/magic.c
 
 C_INCLUDES += $(BSSENSOR_DIR)
 C_INCLUDES += $(BSRADIO_DIR)
@@ -42,6 +54,17 @@ C_SOURCES +=  $(UCDEV_ROOT)/ext/RTT/Syscalls/SEGGER_RTT_Syscalls_GCC.c
 C_INCLUDES += $(UCDEV_ROOT)/ext/RTT//Syscalls/
 C_INCLUDES += $(UCDEV_ROOT)/ext/RTT//RTT/
 C_INCLUDES += $(UCDEV_ROOT)/ext/RTT//Config/
+
+
+C_SOURCES += $(LIBHALGLUE_ROOT)/hal/stm32f1/clocksetup.c
+C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/stm32/bshal_i2cm_stm32f1.c
+C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/stm32/bshal_spim_stm32f1.c
+C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/stm32/bshal_gpio_stm32.c
+C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/stm32/bshal_i2cm_stm32.c
+
+
+
+
 # link script
 LDSCRIPT = $(shell tr '[:upper:]' '[:lower:]' <<< $(MCU)).ld
 
