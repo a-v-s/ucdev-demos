@@ -30,3 +30,5 @@ void timer_init(void) {
 }
 
 uint32_t get_time_us(void) { return (TIM4->CNT) | (m_overflows << 16); }
+
+uint32_t get_time_ms(void) { return get_time_us()/1000; }

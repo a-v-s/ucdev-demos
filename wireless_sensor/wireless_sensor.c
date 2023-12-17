@@ -124,7 +124,9 @@ int radio_init(bsradio_instance_t *bsradio) {
 		//		header->res == 'R';
 		bsradio_hwconfig_t *config = buffert + sizeof(protocol_header_t);
 		bsradio->hwconfig = *config;
+		puts("Config loaded");
 	} else {
+		puts("Config missing");
 		return -1;
 	}
 
@@ -140,19 +142,27 @@ int radio_init(bsradio_instance_t *bsradio) {
 	bsradio->spim.rs_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_10);
 
 	bshal_spim_init(&bsradio->spim);
-
-
-
 	switch (bsradio->hwconfig.chip_brand) {
 			case chip_brand_semtech:
 				switch (bsradio->hwconfig.chip_type) {
 				case 1:
+					puts("Semtech variant 1");
 					// Semtech variant 1
 					// Transceiver: SX1231, SX1231H, SX1233, RFM69,
 					// Receiver only MRF39RA: SX1239
 					// Potentially others. This variant can be recognised by the
 					// presence of register RegVersion at 0x10
 					// Tested on RFM69
+
+
+					// reset is active high!!!!
+					// TODO: Can we set reset polarity in our config
+					// and reset universally in stead of per chip?
+					bshal_gpio_write_pin(bsradio->spim.rs_pin, 1);
+					bshal_delay_ms(5);
+					bshal_gpio_write_pin(bsradio->spim.rs_pin, 0);
+					bshal_delay_ms(50);
+
 					bsradio->driver.set_frequency = sxv1_set_frequency;
 					bsradio->driver.set_tx_power = sxv1_set_tx_power;
 					bsradio->driver.set_bitrate = sxv1_set_bitrate;
@@ -257,10 +267,13 @@ int radio_init(bsradio_instance_t *bsradio) {
 	// TODO --> update radio config
 	// and do all these calls in the init function
 	//sxv1_set_sync_word32(bsradio, 0xdeadbeef);
-	bsradio->driver.set_bitrate(bsradio, 12500);
-	bsradio->driver.set_fdev(bsradio, 12500);
-	bsradio->driver.set_bandwidth(bsradio, 25000);
+//	bsradio->driver.set_bitrate(bsradio, 12500);
+//	bsradio->driver.set_fdev(bsradio, 12500);
+//	bsradio->driver.set_bandwidth(bsradio, 25000);
 
+	bsradio->rfconfig.birrate_bps = 12500;
+	bsradio->rfconfig.freq_dev_hz = 12500;
+	bsradio->rfconfig.bandwidth_hz = 25000;
 
 
 
@@ -304,29 +317,92 @@ int radio_init(bsradio_instance_t *bsradio) {
 
 	switch (bsradio->hwconfig.frequency_band) {
 	case 434:
-		bsradio->driver.set_frequency(bsradio, 434000);
-		bsradio->driver.set_tx_power(bsradio, 10);
+//		bsradio->driver.set_frequency(bsradio, 434000);
+//		bsradio->driver.set_tx_power(bsradio, 10);
+		bsradio->rfconfig.frequency_kHz = 434000;
+		bsradio->rfconfig.tx_power_dBm = 10;
+
 		break;
 	case 868:
-		bsradio->driver.set_frequency(bsradio, 869850);
-		bsradio->driver.set_tx_power(bsradio, 7);
+//		bsradio->driver.set_frequency(bsradio, 869850);
+//		bsradio->driver.set_tx_power(bsradio, 7);
+		bsradio->rfconfig.frequency_kHz = 869850;
+		bsradio->rfconfig.tx_power_dBm = 7;
 		break;
 	case 915:
 		// Sorry Americans... your FCC only allows very weak signals
-		bsradio->driver.set_frequency(bsradio, 915000);
-		bsradio->driver.set_tx_power(bsradio, -3);
+//		bsradio->driver.set_frequency(bsradio, 915000);
+//		bsradio->driver.set_tx_power(bsradio, -3);
+		bsradio->rfconfig.frequency_kHz = 915000;
+		bsradio->rfconfig.tx_power_dBm = -3;
 		break;
 	}
 
+	bsradio->rfconfig.modulation = modulation_2fsk;
 
+	char network_id[] = {0xDE, 0xAD, 0xBE, 0xEF};
+	bsradio_set_network_id(bsradio, network_id, sizeof(network_id));
 
-	bsradio->driver.init(bsradio);
+	return bsradio_init(bsradio);
 
 }
 
 
-
 int main(){
+	//	ClockSetup_HSE8_SYS72();
+	SystemCoreClockUpdate();
+	SEGGER_RTT_Init();
+	puts("Wireless Sensor");
+	timer_init();
 	i2c_init();
 	radio_init(&radio);
-	while(1);}
+	bsradio_set_mode(&radio, mode_receive);
+	int last_ping = 0;
+//	while (1) {
+//		bshal_delay_ms(5000);
+//		static uint8_t cnt = 0;
+//		bsradio_packet_t request = {}, response = {};
+//		memset(&request,0,sizeof(request));
+//		request.from = 0x12;
+//		request.to = 0xAB;
+//		itph_protocol_packet_t * payload = (itph_protocol_packet_t *)(request.payload);
+//		payload->head.size=60;
+//		payload->head.cmd = ITPH_CMD_PING;
+//		payload->head.sub = ITPH_SUB_QSET;
+//		payload->head.res = cnt++;
+//		request.length = payload->head.size + 4;
+//
+//		if (!bsradio_send_request(&radio, &request, &response)) {
+//
+//		}
+//	}
+
+	while(1){
+		bsradio_packet_t packet = {};
+		if (!bsradio_recv_packet(&radio, &packet)){
+			puts("Packet received");
+			printf("Length %2d, to: %02X, from: %02X rssi %3d\n", packet.length, packet.to, packet.from, packet.rssi);
+			itph_protocol_packet_t * payload = (itph_protocol_packet_t *)(packet.payload);
+			printf("\tSize %2d, cmd: %02X, sub: %02X, res: %02X\n", payload->head.size, payload->head.cmd  ,
+					payload->head.sub, payload->head.res);
+			memset(&packet,0,sizeof(packet));
+		}
+//		if ( (last_ping + 1000) < get_time_ms() ) {
+//			static uint8_t cnt = 0;
+//			last_ping = get_time_ms();
+//			memset(&packet,0,sizeof(packet));
+//			packet.from = 0x12;
+//			packet.to = 0xAB;
+//			itph_protocol_packet_t * payload = (itph_protocol_packet_t *)(packet.payload);
+//			payload->head.size=60;
+//			payload->head.cmd = ITPH_CMD_PING;
+//			payload->head.sub = ITPH_SUB_QSET;
+//			payload->head.res = cnt++;
+//			packet.length = payload->head.size;
+//			bsradio_send_packet(&radio, &packet);
+//			puts("Packet sent!");
+//			bsradio_set_mode(&radio, mode_receive);
+//			memset(&packet,0,sizeof(packet));
+//		}
+	}
+}
