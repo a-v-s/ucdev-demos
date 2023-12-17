@@ -324,9 +324,8 @@ int radio_init(bsradio_instance_t *bsradio) {
 
 		break;
 	case 868:
-//		bsradio->driver.set_frequency(bsradio, 869850);
-//		bsradio->driver.set_tx_power(bsradio, 7);
-		bsradio->rfconfig.frequency_kHz = 869850;
+//		bsradio->rfconfig.frequency_kHz = 869850;
+		bsradio->rfconfig.frequency_kHz = 870000;
 		bsradio->rfconfig.tx_power_dBm = 7;
 		break;
 	case 915:
@@ -339,6 +338,7 @@ int radio_init(bsradio_instance_t *bsradio) {
 	}
 
 	bsradio->rfconfig.modulation = modulation_2fsk;
+	//bsradio->rfconfig.modulation = modulation_ook;
 
 	char network_id[] = {0xDE, 0xAD, 0xBE, 0xEF};
 	bsradio_set_network_id(bsradio, network_id, sizeof(network_id));
@@ -358,35 +358,59 @@ int main(){
 	radio_init(&radio);
 	bsradio_set_mode(&radio, mode_receive);
 	int last_ping = 0;
-//	while (1) {
-//		bshal_delay_ms(5000);
-//		static uint8_t cnt = 0;
-//		bsradio_packet_t request = {}, response = {};
-//		memset(&request,0,sizeof(request));
-//		request.from = 0x12;
-//		request.to = 0xAB;
-//		itph_protocol_packet_t * payload = (itph_protocol_packet_t *)(request.payload);
-//		payload->head.size=60;
-//		payload->head.cmd = ITPH_CMD_PING;
-//		payload->head.sub = ITPH_SUB_QSET;
-//		payload->head.res = cnt++;
-//		request.length = payload->head.size + 4;
-//
-//		if (!bsradio_send_request(&radio, &request, &response)) {
-//
-//		}
-//	}
+	while (1) {
 
-	while(1){
-		bsradio_packet_t packet = {};
-		if (!bsradio_recv_packet(&radio, &packet)){
+		static uint8_t cnt = 0;
+		bsradio_packet_t request = {}, response = {};
+		memset(&request,0,sizeof(request));
+		if ( (last_ping + 5000) < get_time_ms() ) {
+			last_ping = get_time_ms();
+			request.from = 0x12;
+			request.to = 0xAB;
+			itph_protocol_packet_t * payload = (itph_protocol_packet_t *)(request.payload);
+			payload->head.size=4;
+			payload->head.cmd = ITPH_CMD_PING;
+			payload->head.sub = ITPH_SUB_QSET;
+			payload->head.res = cnt++;
+			request.length = payload->head.size + 4;
+
+			if (!bsradio_send_request(&radio, &request, &response)) {
+				puts("PINGPONG COMPLETE");
+				memset(&request,0,sizeof(request));
+				memset(&response,0,sizeof(response));
+			}
+		}
+
+		if (!bsradio_recv_packet(&radio, &request)){
 			puts("Packet received");
-			printf("Length %2d, to: %02X, from: %02X rssi %3d\n", packet.length, packet.to, packet.from, packet.rssi);
-			itph_protocol_packet_t * payload = (itph_protocol_packet_t *)(packet.payload);
+			printf("Length %2d, to: %02X, from: %02X rssi %3d\n", request.length, request.to, request.from, request.rssi);
+			itph_protocol_packet_t * payload = (itph_protocol_packet_t *)(request.payload);
 			printf("\tSize %2d, cmd: %02X, sub: %02X, res: %02X\n", payload->head.size, payload->head.cmd  ,
 					payload->head.sub, payload->head.res);
-			memset(&packet,0,sizeof(packet));
+			if (request.ack_request) {
+				response=request;
+				response.ack_request=0;
+				response.ack_response=1;
+				response.to=request.from;
+				response.from=request.to;
+				bsradio_send_packet(&radio, &response);
+			}
+			memset(&request,0,sizeof(request));
+			memset(&response,0,sizeof(response));
 		}
+
+	}
+
+//	while(1){
+//		bsradio_packet_t packet = {};
+//		if (!bsradio_recv_packet(&radio, &packet)){
+//			puts("Packet received");
+//			printf("Length %2d, to: %02X, from: %02X rssi %3d\n", packet.length, packet.to, packet.from, packet.rssi);
+//			itph_protocol_packet_t * payload = (itph_protocol_packet_t *)(packet.payload);
+//			printf("\tSize %2d, cmd: %02X, sub: %02X, res: %02X\n", payload->head.size, payload->head.cmd  ,
+//					payload->head.sub, payload->head.res);
+//			memset(&packet,0,sizeof(packet));
+//		}
 //		if ( (last_ping + 1000) < get_time_ms() ) {
 //			static uint8_t cnt = 0;
 //			last_ping = get_time_ms();
@@ -404,5 +428,6 @@ int main(){
 //			bsradio_set_mode(&radio, mode_receive);
 //			memset(&packet,0,sizeof(packet));
 //		}
-	}
+//	}
 }
+
