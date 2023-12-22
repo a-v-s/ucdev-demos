@@ -55,19 +55,19 @@
 #include "bmp280.h"
 #include "scd4x.h"
 
+
 #include "sxv1.h"
 #include "si4x3x.h"
 #include "si4x6x.h"
 
 #include "protocol.h"
+#include "sensor_protocol.h"
 
 #include "bshal_i2cm.h"
 
 static bshal_i2cm_instance_t m_i2c;
-bshal_i2cm_instance_t *gp_i2c = NULL;
 bshal_spim_instance_t spi_flash_config;
-static bsradio_instance_t m_radio;
-bsradio_instance_t* gp_radio = NULL;
+bsradio_instance_t m_radio;
 
 bshal_i2cm_instance_t * i2c_init(void) {
 #ifdef STM32
@@ -93,7 +93,6 @@ bshal_i2cm_instance_t * i2c_init(void) {
 #else
 #error "Unsupported MCU"
 #endif
-	gp_i2c = &m_i2c;
 	return &m_i2c;
 }
 
@@ -344,11 +343,54 @@ int radio_init(bsradio_instance_t *bsradio) {
 
 	char network_id[] = {0xDE, 0xAD, 0xBE, 0xEF};
 	bsradio_set_network_id(bsradio, network_id, sizeof(network_id));
-	bsradio_set_node_id(bsradio,0x01);
+	bsradio_set_node_id(bsradio,0x00);
 
-	gp_radio = bsradio;
+
 	return bsradio_init(bsradio);
 
+}
+
+itph_handler_status_t sensordata_handler(itph_protocol_packet_t *packet, protocol_transport_t transport, uint32_t param){
+	bsprot_sensor_enviromental_data_t * sensordata =  (bsprot_sensor_enviromental_data_t *)packet->data;
+	printf("Sensor %2d ", sensordata->id);
+	switch(sensordata->type){
+	case bsprot_sensor_enviromental_temperature:
+		printf("%16s %3d.%2d °C","temperature",
+				sensordata->value.temperature_centi_celcius / 100,
+				abs(sensordata->value.temperature_centi_celcius) % 100);
+		break;
+	case bsprot_sensor_enviromental_humidity:
+		printf("%16s ","humidity");
+
+		break;
+	case bsprot_sensor_enviromental_illuminance:
+		printf("%16s ","illuminance");
+
+		break;
+	case bsprot_sensor_enviromental_airpressure:
+		printf("%16s ","airpressure");
+		break;
+
+	case bsprot_sensor_enviromental_co2:
+		printf("%16s ","co2");
+
+		break;
+	case bsprot_sensor_enviromental_eco2:
+		printf("%16s ","eco2");
+
+		break;
+	case bsprot_sensor_enviromental_etvoc:
+		printf("%16s ","etvoc");
+
+		break;
+	case bsprot_sensor_enviromental_pm25:
+
+		break;
+	default:
+	break;
+
+	}
+	putchar('\n');
 }
 
 
@@ -356,40 +398,53 @@ int main(){
 	//	ClockSetup_HSE8_SYS72();
 	SystemCoreClockUpdate();
 	SEGGER_RTT_Init();
-	puts("Wireless Sensor");
+	puts("Wireless Dongle");
 	timer_init();
 	i2c_init();
-	sensors_init();
 	radio_init(&m_radio);
 	bsradio_set_mode(&m_radio, mode_receive);
 	int last_ping = 0;
+
+	protocol_register_command( sensordata_handler , BSCP_CMD_SENSOR_ENVIOREMENTAL_VALUE);
+
 	while (1) {
 
-		sensors_process();
-
+		static uint8_t cnt = 0;
 		bsradio_packet_t request = {}, response = {};
+		memset(&request,0,sizeof(request));
+//		if ( (last_ping + 5000) < get_time_ms() ) {
+//			last_ping = get_time_ms();
+//			request.from = 0x00;
+//			request.to = 0x01;
+//			itph_protocol_packet_t * payload = (itph_protocol_packet_t *)(request.payload);
+//			payload->head.size=4;
+//			payload->head.cmd = ITPH_CMD_PING;
+//			payload->head.sub = ITPH_SUB_QSET;
+//			payload->head.res = cnt++;
+//			request.length = payload->head.size + 4;
+//
+//			if (!bsradio_send_request(&m_radio, &request, &response)) {
+//				puts("PINGPONG COMPLETE");
+//				memset(&request,0,sizeof(request));
+//				memset(&response,0,sizeof(response));
+//			}
+//		}
+
 		if (!bsradio_recv_packet(&m_radio, &request)){
 			puts("Packet received");
 			printf("Length %2d, to: %02X, from: %02X rssi %3d\n", request.length, request.to, request.from, request.rssi);
-			itph_protocol_packet_t * payload = (itph_protocol_packet_t *)(request.payload);
-			printf("\tSize %2d, cmd: %02X, sub: %02X, res: %02X\n", payload->head.size, payload->head.cmd  ,
-					payload->head.sub, payload->head.res);
-
-			// This filter will be moved to bsradio later
-			// possible to hardware level if supported by radio.
-			if (request.to==m_radio.rfconfig.node_id) {
-				puts("Packet is for us");
-				if (request.ack_request) {
-					response=request;
-					response.ack_request=0;
-					response.ack_response=1;
-					response.to=request.from;
-					response.from=request.to;
-					bsradio_send_packet(&m_radio, &response);
-				}
-			} else {
-				puts("Packet is not for us");
+			if (request.ack_request) {
+				response=request;
+				response.ack_request=0;
+				response.ack_response=1;
+				response.to=request.from;
+				response.from=request.to;
+				bsradio_send_packet(&m_radio, &response);
 			}
+
+			protocol_parse(request.payload, request.length,PROTOCOL_TRANSPORT_RF, request.rssi);
+
+
 			memset(&request,0,sizeof(request));
 			memset(&response,0,sizeof(response));
 		}

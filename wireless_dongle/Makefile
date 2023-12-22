@@ -6,7 +6,7 @@ MCU ?= STM32F103xB
 ################################################################################
 # Set Output Filename 
 ################################################################################
-TARGET = wireless_sensor
+TARGET = wireless_dongle
 
 ################################################################################
 # Set the root directory of the ucdev enviorement 
@@ -18,9 +18,11 @@ BSRADIO_DIR = $(UCDEV_ROOT)/lib/bsradio
 BSPROT_DIR =  $(UCDEV_ROOT)/lib/bsprot
 BSRADIO_DIR = $(UCDEV_ROOT)/lib/bsradio
 
-C_SOURCES += wireless_sensor.c
+C_SOURCES += wireless_dongle.c
 C_SOURCES += sensors.c
 C_SOURCES += timer_stm32.c
+
+C_SOURCES += $(BSPROT_DIR)/protocol.c
 
 C_SOURCES += $(LIBHALGLUE_ROOT)/common/arm_cpuid.c
 C_SOURCES += $(LIBHALGLUE_ROOT)/common/bshal_delay.c
@@ -32,8 +34,6 @@ C_SOURCES += $(BSRADIO_DIR)/sxv1.c
 C_SOURCES += $(BSRADIO_DIR)/si4x3x.c
 C_SOURCES += $(BSRADIO_DIR)/si4x6x.c
 C_SOURCES += $(BSRADIO_DIR)/magic.c
-
-C_SOURCES += $(UCDEV_ROOT)/lib/bsprot/protocol.c
 
 C_INCLUDES += $(BSSENSOR_DIR)
 C_INCLUDES += $(BSRADIO_DIR)
@@ -65,14 +65,7 @@ C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/stm32/bshal_gpio_stm32.c
 C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/stm32/bshal_i2cm_stm32.c
 
 
-C_SOURCES += $(BSSENSOR_DIR)/lm75b.c
-C_SOURCES += $(BSSENSOR_DIR)/sht3x.c
-C_SOURCES += $(BSSENSOR_DIR)/bh1750.c
-C_SOURCES += $(BSSENSOR_DIR)/si70xx.c
-C_SOURCES += $(BSSENSOR_DIR)/hcd1080.c
-C_SOURCES += $(BSSENSOR_DIR)/ccs811.c
-C_SOURCES += $(BSSENSOR_DIR)/bmp280.c
-C_SOURCES += $(BSSENSOR_DIR)/scd4x.c
+
 
 # link script
 LDSCRIPT = $(shell tr '[:upper:]' '[:lower:]' <<< $(MCU)).ld
