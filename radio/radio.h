@@ -55,7 +55,7 @@ typedef struct {
 	bsradio_module_brand_t module_brand: 8;
 	unsigned int  module_variant : 8;
 	unsigned int frequency_band : 16;
-	unsigned int xtal_tune : 8;
+	 int tune : 8;
 	unsigned int pa_config : 8;
 	unsigned int antenna_type : 8;
 	unsigned int : 8;
