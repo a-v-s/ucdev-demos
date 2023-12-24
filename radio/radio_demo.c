@@ -6,7 +6,7 @@
 #include "sxv1.h"
 #include "si4x3x.h"
 
-#include "radio.h"
+#include "bsradio.h"
 
 #include "spi_flash.h"
 
@@ -95,7 +95,7 @@ void SystemClock_Config(void) {
 
 void *gp_i2c = NULL;
 
-int sxv1_init(bsradio_instance_t *bsradio) {
+int demo_sxv1_init(bsradio_instance_t *bsradio) {
 
 	// reset is active high!!!!
 	bshal_gpio_write_pin(bsradio->spim.rs_pin, 1);
@@ -164,9 +164,8 @@ int sxv1_init(bsradio_instance_t *bsradio) {
 
 	 */
 
-	sxv1_calibarte_rc(bsradio);
-	sxv1_write_reg(bsradio, SXV1_REG_RSSITHRESH, 0xC4);
-	sxv1_configure_packet(bsradio);
+
+	sxv1_init(bsradio);
 
 	sxv1_set_sync_word32(bsradio, 0xdeadbeef);
 
@@ -174,13 +173,7 @@ int sxv1_init(bsradio_instance_t *bsradio) {
 	sxv1_set_fdev(bsradio, 12500);
 	sxv1_set_bandwidth(bsradio, 25000);
 
-	/*
-	 The DAGC is enabled by setting RegTestDagc to 0x20 for low modulation index systems
-	 (i.e. when AfcLowBetaOn=1, refer to section 3.4.16), and 0x30 for other systems.
-	 It is recommended to always enable the DAGC.
-	 */
-	sxv1_write_reg(bsradio, SXV1_REG_AFCCTRL, 0x00);
-	sxv1_write_reg(bsradio, SXV1_REG_TESTDAGC, 0x30);
+
 
 	return 0;
 }
@@ -403,33 +396,35 @@ int main() {
 
 	uint8_t buffert[256] = { 0 };
 
-	bool write_to_flash = false;
+	bool write_to_flash = true;
 
 	protocol_header_t *header = buffert;
 	bsradio_hwconfig_t *config = buffert + sizeof(protocol_header_t);
 	if (write_to_flash) {
 		spi_flash_read(&spi_flash_config, 0x000000, buffert, sizeof(buffert));
-		spi_flash_erase_page_256(&spi_flash_config, 0x000000);
-		config->tune = 108;
+
+
 
 		//		memset(buffert, 0xFF, sizeof(buffert));
-//		header->size = sizeof(protocol_header_t) + sizeof(bsradio_hwconfig_t);
-//		header->cmd = 0x02;
-//		header->sub = 0x20;
-//		header->res = 'R';
-//
-//		config->chip_brand = chip_brand_semtech;
-//		config->chip_type = 1;
-//		config->chip_variant = -1;
-//		config->module_brand = module_brand_hoperf;
-//		config->module_variant = -1;
-//		config->frequency_band = 868;
-//		config->tune = -10;
-//		config->pa_config = 1;
-//		config->antenna_type = -1;
-//		config->xtal_freq = 32000000;
+		header->size = sizeof(protocol_header_t) + sizeof(bsradio_hwconfig_t);
+		header->cmd = 0x02;
+		header->sub = 0x20;
+		header->res = 'R';
 
+		config->chip_brand = chip_brand_semtech;
+		config->chip_type = 1;
+		config->chip_variant = -1;
+		config->module_brand = module_brand_dreamlnk;
+		config->module_variant = -1;
+		config->frequency_band = 868;
+		config->tune = -10;
+		config->pa_config = 1;
+		config->antenna_type = -1;
+		config->xtal_freq = 32000000;
 
+		config->tune = 0;
+		__BKPT();
+		spi_flash_erase_page_256(&spi_flash_config, 0x000000);
 		spi_flash_program(&spi_flash_config, 0x000000, buffert, header->size);
 	} else {
 		spi_flash_read(&spi_flash_config, 0x000000, buffert, sizeof(buffert));
@@ -467,76 +462,76 @@ int main() {
 	//si4x6x_test();
 //	while (1);
 
-	if (0x87141031 != SERIALNUMBER) {
-//	if (false) {
-		switch (bsradio.hwconfig.chip_brand) {
-		case chip_brand_semtech:
-			switch (bsradio.hwconfig.chip_type) {
-			case 1:
-				sxv1_recv_test(&bsradio);
-				break;
-			case 2:
-				// TODO RFM9x
-				unsupported();
-				break;
-			default:
-				unsupported();
-				break;
-			}
-			break;
-		case chip_brand_silabs:
-			switch (bsradio.hwconfig.chip_type) {
-			case 1:
-				si4x3x_recv_test(&bsradio);
-				break;
-			case 2:
-				si4x6x_recv_test(&bsradio);
-				break;
-			default:
-				unsupported();
-				break;
-			}
-			break;
-
-		default:
-			unsupported();
-			break;
-		}
-
-	} else {
-		switch (bsradio.hwconfig.chip_brand) {
-		case chip_brand_semtech:
-			switch (bsradio.hwconfig.chip_type) {
-			case 1:
-				sxv1_send_test(&bsradio);
-				break;
-			case 2:
-				// TODO RFM9x
-				unsupported();
-				break;
-			default:
-				unsupported();
-				break;
-			}
-			break;
-		case chip_brand_silabs:
-			switch (bsradio.hwconfig.chip_type) {
-			case 1:
-				si4x3x_send_test(&bsradio);
-				break;
-			case 2:
-				si4x6x_send_test(&bsradio);
-				break;
-			default:
-				unsupported();
-				break;
-			}
-			break;
-
-		default:
-			unsupported();
-			break;
-		}
-
-	}
+//	if (0x87141031 != SERIALNUMBER) {
+////	if (false) {
+//		switch (bsradio.hwconfig.chip_brand) {
+//		case chip_brand_semtech:
+//			switch (bsradio.hwconfig.chip_type) {
+//			case 1:
+//				sxv1_recv_test(&bsradio);
+//				break;
+//			case 2:
+//				// TODO RFM9x
+//				unsupported();
+//				break;
+//			default:
+//				unsupported();
+//				break;
+//			}
+//			break;
+//		case chip_brand_silabs:
+//			switch (bsradio.hwconfig.chip_type) {
+//			case 1:
+//				si4x3x_recv_test(&bsradio);
+//				break;
+//			case 2:
+//				si4x6x_recv_test(&bsradio);
+//				break;
+//			default:
+//				unsupported();
+//				break;
+//			}
+//			break;
+//
+//		default:
+//			unsupported();
+//			break;
+//		}
+//
+//	} else {
+//		switch (bsradio.hwconfig.chip_brand) {
+//		case chip_brand_semtech:
+//			switch (bsradio.hwconfig.chip_type) {
+//			case 1:
+//				sxv1_send_test(&bsradio);
+//				break;
+//			case 2:
+//				// TODO RFM9x
+//				unsupported();
+//				break;
+//			default:
+//				unsupported();
+//				break;
+//			}
+//			break;
+//		case chip_brand_silabs:
+//			switch (bsradio.hwconfig.chip_type) {
+//			case 1:
+//				si4x3x_send_test(&bsradio);
+//				break;
+//			case 2:
+//				si4x6x_send_test(&bsradio);
+//				break;
+//			default:
+//				unsupported();
+//				break;
+//			}
+//			break;
+//
+//		default:
+//			unsupported();
+//			break;
+//		}
+//
+//	}
 }
