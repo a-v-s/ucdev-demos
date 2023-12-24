@@ -21,6 +21,18 @@ BSRADIO_DIR = $(UCDEV_ROOT)/lib/bsradio
 C_SOURCES += wireless_dongle.c
 C_SOURCES += sensors.c
 C_SOURCES += timer_stm32.c
+C_SOURCES += usb.c
+
+# USB
+C_SOURCES += $(LIBHALGLUE_ROOT)/common/serialnumber.c
+C_SOURCES += $(LIBHLUSBD_ROOT)/drivers/usbd_stm.c
+C_SOURCES += $(LIBHLUSBD_ROOT)/usbd.c
+C_SOURCES += $(LIBHLUSBD_ROOT)/usbd_descriptors.c
+C_SOURCES += $(LIBHLUSBD_ROOT)/ConvertUTF/ConvertUTF.c
+C_INCLUDES += $(LIBHLUSBD_ROOT)/
+C_INCLUDES += $(LIBHLUSBD_ROOT)/drivers/
+C_INCLUDES += $(LIBHLUSBD_ROOT)/ConvertUTF
+
 
 C_SOURCES += $(BSPROT_DIR)/protocol.c
 

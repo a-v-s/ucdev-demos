@@ -21,6 +21,7 @@ BSRADIO_DIR = $(UCDEV_ROOT)/lib/bsradio
 C_SOURCES += wireless_sensor.c
 C_SOURCES += sensors.c
 C_SOURCES += timer_stm32.c
+#C_SOURCES += default_handler.c
 
 C_SOURCES += $(LIBHALGLUE_ROOT)/common/arm_cpuid.c
 C_SOURCES += $(LIBHALGLUE_ROOT)/common/bshal_delay.c

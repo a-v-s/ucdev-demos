@@ -60,17 +60,18 @@ extern bshal_i2cm_instance_t *gp_i2c;
 
 void sensors_send(void) {
 	bsradio_packet_t request = { }, response = { };
-	request.from = 0x01;
+	//request.from = 0x01;
+	request.from = 0x03;
 	request.to = 0x00;
 #pragma pack (push,1)
 	struct sensor_data_packet {
 		protocol_header_t head;
 		bsprot_sensor_enviromental_data_t data;
 	} sensor_data_packet;
-	itph_protocol_packet_t *packet = &sensor_data_packet;
+	bscp_protocol_packet_t *packet = &sensor_data_packet;
 	sensor_data_packet.head.size = sizeof(sensor_data_packet);
 	sensor_data_packet.head.cmd = BSCP_CMD_SENSOR_ENVIOREMENTAL_VALUE;
-	sensor_data_packet.head.sub = ITPH_SUB_SDAT;
+	sensor_data_packet.head.sub = BSCP_SUB_SDAT;
 #pragma pack (pop)
 	if (lm75b_ready) {
 		lm75b_ready = false;
@@ -86,6 +87,7 @@ void sensors_send(void) {
 					sizeof(request.payload));
 			bsradio_send_request(gp_radio, &request, &response);
 			request.payload[0] = 0;
+			memset(request.payload, 0,sizeof(request.payload));
 			protocol_packet_merge(request.payload, sizeof(request.payload),
 					packet);
 		}
@@ -104,7 +106,8 @@ void sensors_send(void) {
 			request.length = 4 + protocol_merged_packet_size(request.payload,
 					sizeof(request.payload));
 			bsradio_send_request(gp_radio, &request, &response);
-			request.payload[0] = 0;
+			//request.payload[0] = 0;
+			memset(request.payload, 0,sizeof(request.payload));
 			protocol_packet_merge(request.payload, sizeof(request.payload),
 					packet);
 		}
@@ -137,7 +140,8 @@ void sensors_send(void) {
 			request.length = 4 + protocol_merged_packet_size(request.payload,
 					sizeof(request.payload));
 			bsradio_send_request(gp_radio, &request, &response);
-			request.payload[0] = 0;
+//			request.payload[0] = 0;
+			memset(request.payload, 0,sizeof(request.payload));
 			protocol_packet_merge(request.payload, sizeof(request.payload),
 					packet);
 		}
@@ -156,7 +160,8 @@ void sensors_send(void) {
 			request.length = 4 + protocol_merged_packet_size(request.payload,
 					sizeof(request.payload));
 			bsradio_send_request(gp_radio, &request, &response);
-			request.payload[0] = 0;
+//			request.payload[0] = 0;
+			memset(request.payload, 0,sizeof(request.payload));
 			protocol_packet_merge(request.payload, sizeof(request.payload),
 					packet);
 		}
@@ -191,7 +196,8 @@ void sensors_send(void) {
 			request.length = 4 + protocol_merged_packet_size(request.payload,
 					sizeof(request.payload));
 			bsradio_send_request(gp_radio, &request, &response);
-			request.payload[0] = 0;
+//			request.payload[0] = 0;
+			memset(request.payload, 0,sizeof(request.payload));
 			protocol_packet_merge(request.payload, sizeof(request.payload),
 					packet);
 		}
@@ -220,7 +226,8 @@ void sensors_send(void) {
 			request.length = 4 + protocol_merged_packet_size(request.payload,
 					sizeof(request.payload));
 			bsradio_send_request(gp_radio, &request, &response);
-			request.payload[0] = 0;
+//			request.payload[0] = 0;
+			memset(request.payload, 0,sizeof(request.payload));
 			protocol_packet_merge(request.payload, sizeof(request.payload),
 					packet);
 		}
@@ -240,7 +247,8 @@ void sensors_send(void) {
 			request.length = 4 + protocol_merged_packet_size(request.payload,
 					sizeof(request.payload));
 			bsradio_send_request(gp_radio, &request, &response);
-			request.payload[0] = 0;
+//			request.payload[0] = 0;
+			memset(request.payload, 0,sizeof(request.payload));
 			protocol_packet_merge(request.payload, sizeof(request.payload),
 					packet);
 		}
@@ -254,7 +262,8 @@ void sensors_send(void) {
 			request.length = 4 + protocol_merged_packet_size(request.payload,
 					sizeof(request.payload));
 			bsradio_send_request(gp_radio, &request, &response);
-			request.payload[0] = 0;
+//			request.payload[0] = 0;
+			memset(request.payload, 0,sizeof(request.payload));
 			protocol_packet_merge(request.payload, sizeof(request.payload),
 					packet);
 		}
@@ -264,7 +273,8 @@ void sensors_send(void) {
 	request.length = 4 + protocol_merged_packet_size(request.payload,
 			sizeof(request.payload));
 	bsradio_send_request(gp_radio, &request, &response);
-	request.payload[0] = 0;
+//	request.payload[0] = 0;
+	memset(request.payload, 0,sizeof(request.payload));
 
 }
 

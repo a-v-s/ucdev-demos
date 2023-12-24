@@ -64,10 +64,12 @@
 #include "sensor_protocol.h"
 
 #include "bshal_i2cm.h"
+#include "usbd.h"
 
 static bshal_i2cm_instance_t m_i2c;
 bshal_spim_instance_t spi_flash_config;
 bsradio_instance_t m_radio;
+bscp_usbd_handle_t * gp_usbd;
 
 bshal_i2cm_instance_t * i2c_init(void) {
 #ifdef STM32
@@ -97,7 +99,7 @@ bshal_i2cm_instance_t * i2c_init(void) {
 }
 
 void spi_flash_init(void) {
-	spi_flash_config.frequency = 10000000;
+	spi_flash_config.frequency = 1000000;
 	spi_flash_config.bit_order = 0; //MSB
 	spi_flash_config.mode = 0;
 
@@ -131,7 +133,7 @@ int radio_init(bsradio_instance_t *bsradio) {
 		return -1;
 	}
 
-	bsradio->spim.frequency = 10000000;
+	bsradio->spim.frequency = 1000000;
 	bsradio->spim.bit_order = 0; //MSB
 	bsradio->spim.mode = 0;
 
@@ -350,7 +352,7 @@ int radio_init(bsradio_instance_t *bsradio) {
 
 }
 
-itph_handler_status_t sensordata_handler(itph_protocol_packet_t *packet, protocol_transport_t transport, uint32_t param){
+bscp_handler_status_t sensordata_handler(bscp_protocol_packet_t *packet, protocol_transport_t transport, uint32_t param){
 	bsprot_sensor_enviromental_data_t * sensordata =  (bsprot_sensor_enviromental_data_t *)packet->data;
 	printf("Sensor %2d ", sensordata->id);
 	switch(sensordata->type){
@@ -395,10 +397,12 @@ itph_handler_status_t sensordata_handler(itph_protocol_packet_t *packet, protoco
 
 
 int main(){
-	//	ClockSetup_HSE8_SYS72();
+	ClockSetup_HSE8_SYS72();
 	SystemCoreClockUpdate();
 	SEGGER_RTT_Init();
 	puts("Wireless Dongle");
+	usbd_reenumerate();
+	gp_usbd = usbd_init();
 	timer_init();
 	i2c_init();
 	radio_init(&m_radio);
@@ -412,29 +416,13 @@ int main(){
 		static uint8_t cnt = 0;
 		bsradio_packet_t request = {}, response = {};
 		memset(&request,0,sizeof(request));
-//		if ( (last_ping + 5000) < get_time_ms() ) {
-//			last_ping = get_time_ms();
-//			request.from = 0x00;
-//			request.to = 0x01;
-//			itph_protocol_packet_t * payload = (itph_protocol_packet_t *)(request.payload);
-//			payload->head.size=4;
-//			payload->head.cmd = ITPH_CMD_PING;
-//			payload->head.sub = ITPH_SUB_QSET;
-//			payload->head.res = cnt++;
-//			request.length = payload->head.size + 4;
-//
-//			if (!bsradio_send_request(&m_radio, &request, &response)) {
-//				puts("PINGPONG COMPLETE");
-//				memset(&request,0,sizeof(request));
-//				memset(&response,0,sizeof(response));
-//			}
-//		}
 
 		if (!bsradio_recv_packet(&m_radio, &request)){
 			puts("Packet received");
 			printf("Length %2d, to: %02X, from: %02X rssi %3d\n", request.length, request.to, request.from, request.rssi);
 			if (request.ack_request) {
 				response=request;
+				response.length = 4;
 				response.ack_request=0;
 				response.ack_response=1;
 				response.to=request.from;
@@ -442,8 +430,30 @@ int main(){
 				bsradio_send_packet(&m_radio, &response);
 			}
 
-			protocol_parse(request.payload, request.length,PROTOCOL_TRANSPORT_RF, request.rssi);
+			//protocol_parse(request.payload, request.length,PROTOCOL_TRANSPORT_RF, request.rssi);
 
+			// Forward
+			static char buffer[255] = {};
+			bscp_protocol_packet_t* forward_packet = (bscp_protocol_packet_t*)(buffer);
+			bscp_protocol_forward_t* forward_data = (bscp_protocol_forward_t*)(forward_packet->data);
+			*((bsradio_packet_t*)forward_data->data) = request;
+
+			forward_packet->head.size = sizeof (bscp_protocol_packet_t) + sizeof (bscp_protocol_forward_t) + request.length;
+			forward_packet->head.cmd = BSCP_CMD_FORWARD;
+			forward_packet->head.sub = BSCP_SUB_SDAT;
+
+			forward_data->transport = PROTOCOL_TRANSPORT_RF;
+			forward_data->from = request.from;
+			forward_data->to = request.to;
+			forward_data->rssi = request.rssi;
+
+//			if (request.from != 1)
+//				__BKPT(0);
+
+			memcpy ( forward_data->data, request.payload, request.length);
+
+
+			bscp_usbd_transmit(gp_usbd, 0x81, forward_packet, forward_packet->head.size);
 
 			memset(&request,0,sizeof(request));
 			memset(&response,0,sizeof(response));
