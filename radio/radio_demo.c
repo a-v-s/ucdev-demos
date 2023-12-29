@@ -332,23 +332,90 @@ void unsupported(void) {
 }
 
 void sxv1_send_test(bsradio_instance_t *bsradio) {
-	sxv1_air_packet_t packet = { 0 };
+	bscp_protocol_packet_t  packet = { 0 };
 	char strbuff[32];
 
 	print("TX SX123x", 5);
+///---
+
+
+	switch (bsradio->hwconfig.frequency_band) {
+	case 434:
+		//		bsradio->driver.set_frequency(bsradio, 434000);
+		//		bsradio->driver.set_tx_power(bsradio, 10);
+		bsradio->rfconfig.frequency_kHz = 434000;
+		bsradio->rfconfig.tx_power_dBm = 10;
+
+		break;
+	case 868:
+//		bsradio->rfconfig.frequency_kHz = 869850;
+				bsradio->rfconfig.frequency_kHz = 870000;
+		bsradio->rfconfig.tx_power_dBm = 0;
+		break;
+	case 915:
+		// Sorry Americans... your FCC only allows very weak signals
+		//		bsradio->driver.set_frequency(bsradio, 915000);
+		//		bsradio->driver.set_tx_power(bsradio, -3);
+		bsradio->rfconfig.frequency_kHz = 915000;
+		bsradio->rfconfig.tx_power_dBm = -3;
+		break;
+	}
+
+	//	bsradio->rfconfig.modulation_shaping = 0;
+	bsradio->rfconfig.modulation_shaping = 5; // 0.5 gfsk
+	bsradio->rfconfig.modulation = modulation_2fsk;
+	//bsradio->rfconfig.modulation = modulation_ook;
+
+	// TODO --> update radio config
+	// and do all these calls in the init function
+	//sxv1_set_sync_word32(bsradio, 0xdeadbeef);
+	//	bsradio->driver.set_bitrate(bsradio, 12500);
+	//	bsradio->driver.set_fdev(bsradio, 12500);
+	//	bsradio->driver.set_bandwidth(bsradio, 25000);
+
+	bsradio->rfconfig.birrate_bps = 12500;
+	bsradio->rfconfig.freq_dev_hz = 12500;
+	bsradio->rfconfig.bandwidth_hz = 25000;
+
+	bsradio->rfconfig.network_id[0] = 0xDE;
+	bsradio->rfconfig.network_id[1] = 0xAD;
+	bsradio->rfconfig.network_id[2] = 0xBE;
+	bsradio->rfconfig.network_id[3] = 0xEF;
+	bsradio->rfconfig.network_id_size = 4;
+
+	bsradio->rfconfig.node_id = 0x00;
+	bsradio->rfconfig.broadcast_id = 0xFF;
+	///---
+
+	bsradio->driver.set_frequency = sxv1_set_frequency;
+	bsradio->driver.set_tx_power = sxv1_set_tx_power;
+	bsradio->driver.set_bitrate = sxv1_set_bitrate;
+	bsradio->driver.set_fdev = sxv1_set_fdev;
+	bsradio->driver.set_bandwidth = sxv1_set_bandwidth;
+	bsradio->driver.init = sxv1_init;
+	bsradio->driver.set_network_id = sxv1_set_network_id;
+	bsradio->driver.set_mode = sxv1_set_mode;
+	bsradio->driver.recv_packet = sxv1_recv_packet;
+	bsradio->driver.send_packet = sxv1_send_packet;
+
+
+	bshal_gpio_write_pin(bsradio->spim.rs_pin, 1);
+	bshal_delay_ms(5);
+	bshal_gpio_write_pin(bsradio->spim.rs_pin, 0);
+	bshal_delay_ms(50);
 
 	sxv1_init(bsradio);
 	framebuffer_apply();
 	while (1) {
 
 		bshal_delay_ms(1000);
-		packet.header.size = 9;
+		packet.head.size = 9;
 		packet.data[0] = 0xDE;
 		packet.data[1] = 0xAD;
 		packet.data[2] = 0xBE;
 		packet.data[3] = 0xEF;
 		packet.data[4]++;
-		sxv1_send_request(bsradio, &packet, &packet);
+		sxv1_send_packet(bsradio, &packet);
 		sprintf(strbuff, "TX %02X", packet.data[4]);
 		draw_plain_background();
 		print(strbuff, 1);
@@ -396,17 +463,17 @@ int main() {
 
 	uint8_t buffert[256] = { 0 };
 
-	bool write_to_flash = true;
+	bool write_to_flash = false;
 
-	protocol_header_t *header = buffert;
-	bsradio_hwconfig_t *config = buffert + sizeof(protocol_header_t);
+	bscp_protocol_header_t *header = buffert;
+	bsradio_hwconfig_t *config = buffert + sizeof(bscp_protocol_header_t);
 	if (write_to_flash) {
 		spi_flash_read(&spi_flash_config, 0x000000, buffert, sizeof(buffert));
 
 
 
 		//		memset(buffert, 0xFF, sizeof(buffert));
-		header->size = sizeof(protocol_header_t) + sizeof(bsradio_hwconfig_t);
+		header->size = sizeof(bscp_protocol_header_t) + sizeof(bsradio_hwconfig_t);
 		header->cmd = 0x02;
 		header->sub = 0x20;
 		header->res = 'R';
@@ -414,7 +481,7 @@ int main() {
 		config->chip_brand = chip_brand_semtech;
 		config->chip_type = 1;
 		config->chip_variant = -1;
-		config->module_brand = module_brand_dreamlnk;
+		config->module_brand = module_brand_hoperf;
 		config->module_variant = -1;
 		config->frequency_band = 868;
 		config->tune = -10;
@@ -499,39 +566,39 @@ int main() {
 //		}
 //
 //	} else {
-//		switch (bsradio.hwconfig.chip_brand) {
-//		case chip_brand_semtech:
-//			switch (bsradio.hwconfig.chip_type) {
-//			case 1:
-//				sxv1_send_test(&bsradio);
-//				break;
-//			case 2:
-//				// TODO RFM9x
-//				unsupported();
-//				break;
-//			default:
-//				unsupported();
-//				break;
-//			}
-//			break;
-//		case chip_brand_silabs:
-//			switch (bsradio.hwconfig.chip_type) {
-//			case 1:
-//				si4x3x_send_test(&bsradio);
-//				break;
-//			case 2:
-//				si4x6x_send_test(&bsradio);
-//				break;
-//			default:
-//				unsupported();
-//				break;
-//			}
-//			break;
-//
-//		default:
-//			unsupported();
-//			break;
-//		}
+		switch (bsradio.hwconfig.chip_brand) {
+		case chip_brand_semtech:
+			switch (bsradio.hwconfig.chip_type) {
+			case 1:
+				sxv1_send_test(&bsradio);
+				break;
+			case 2:
+				// TODO RFM9x
+				unsupported();
+				break;
+			default:
+				unsupported();
+				break;
+			}
+			break;
+		case chip_brand_silabs:
+			switch (bsradio.hwconfig.chip_type) {
+			case 1:
+				si4x3x_send_test(&bsradio);
+				break;
+			case 2:
+				si4x6x_send_test(&bsradio);
+				break;
+			default:
+				unsupported();
+				break;
+			}
+			break;
+
+		default:
+			unsupported();
+			break;
+		}
 //
 //	}
 }

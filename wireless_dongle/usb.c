@@ -32,7 +32,15 @@ Copyright (c) 2018 - 2023 André van Schoubroeck <andre@blaatschaap.be>
 
 #include <system.h>
 
-uint8_t temp_recv_buffer[256];
+uint8_t temp_recv_buffer[257];
+
+
+usbd_process(void) {
+	if (temp_recv_buffer[256]) {
+		protocol_parse(temp_recv_buffer, temp_recv_buffer[256], 0x10, 0x00);
+		temp_recv_buffer[256] = 0;
+	}
+}
 void transfer_in_complete(bscp_usbd_handle_t *handle, uint8_t epnum, void *data,
 		size_t size) {
 	// Data sent!
@@ -41,6 +49,16 @@ void transfer_in_complete(bscp_usbd_handle_t *handle, uint8_t epnum, void *data,
 void transfer_out_complete(bscp_usbd_handle_t *handle, uint8_t epnum,
 		void *data, size_t size) {
 	//Data Received
+
+	 // quick and dirty for testing; we should implement a queue
+	// not process the data from the USB interrupt. But a quick test...
+	// Well... can't do SPI from interrupts... a quick and dirty buffer then
+
+	if (size <= 256) {
+		memcpy ( temp_recv_buffer, data, size);
+		temp_recv_buffer[256] = size;
+	}
+
 }
 
 bscp_usbd_handler_result_t bscp_usbd_handle_user_request(

@@ -65,7 +65,7 @@ void sensors_send(void) {
 	request.to = 0x00;
 #pragma pack (push,1)
 	struct sensor_data_packet {
-		protocol_header_t head;
+		bscp_protocol_header_t head;
 		bsprot_sensor_enviromental_data_t data;
 	} sensor_data_packet;
 	bscp_protocol_packet_t *packet = &sensor_data_packet;
@@ -212,7 +212,8 @@ void sensors_send(void) {
 			request.length = 4 + protocol_merged_packet_size(request.payload,
 					sizeof(request.payload));
 			bsradio_send_request(gp_radio, &request, &response);
-			request.payload[0] = 0;
+//			request.payload[0] = 0;
+			memset(request.payload, 0,sizeof(request.payload));
 			protocol_packet_merge(request.payload, sizeof(request.payload),
 					packet);
 		}
@@ -280,6 +281,10 @@ void sensors_send(void) {
 
 void sensors_process(void) {
 	static uint32_t process_time = 0;
+	if (process_time > 5000 && ((int) get_time_ms() - (int) process_time  < -5000)) {
+		// handle overflow
+		process_time = 0;
+	}
 	if (get_time_ms() > process_time) {
 		process_time = get_time_ms() + 5000;
 
@@ -331,13 +336,14 @@ void sensors_process(void) {
 		if (ccs811.addr) {
 			uint16_t eTVOC = 0;
 			uint16_t eCO2 = 0;
-			css811_measure(&ccs811, &eCO2, &eTVOC);
-			ccs811_eco2_ppm = eCO2;
-			ccs811_etvoc_ppb = eTVOC;
-			ccs811_ready = true;
+			if (!css811_measure(&ccs811, &eCO2, &eTVOC)) {
+				ccs811_eco2_ppm = eCO2;
+				ccs811_etvoc_ppb = eTVOC;
+				ccs811_ready = true;
+			}
 		}
 
-		sensors_send();
+//		sensors_send();
 
 	}
 }

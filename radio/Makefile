@@ -23,6 +23,7 @@ BSRADIO_DIR = $(UCDEV_ROOT)/lib/bsradio
 
 C_SOURCES += radio_demo.c
 
+C_SOURCES += $(BSRADIO_DIR)/bsradio.c
 
 C_SOURCES += $(BSRADIO_DIR)/sxv1.c
 
