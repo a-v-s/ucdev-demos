@@ -805,9 +805,14 @@ int main() {
 
 	//	#gp_i2c = i2c_init();
 	puts("AT test");
-	uart_init();
-	bshal_delay_ms(1000);
 
+	uart_init();
+
+	// power on the modem
+	bshal_gpio_cfg_out(16+12, pushpull, false);
+	bshal_delay_ms(1000);
+	bshal_gpio_write_pin(16+12,true);
+	bshal_delay_ms(5000);
 	int cnt = 0;
 
 	//	memset(&at_command, 0, sizeof(at_command));
@@ -822,6 +827,7 @@ int main() {
 	// test_uart_send("+++", 3);
 
 	at_command_enqueue("AT+CPIN?", at_generic_cb);
+	at_command_enqueue("AT+CBC", at_generic_cb);
 
 	at_command_enqueue("AT+CGMI", at_cgmi_cb);
 	at_command_enqueue("AT+CGSN", at_cgsn_cb);
