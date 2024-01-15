@@ -189,7 +189,7 @@ int radio_init(bsradio_instance_t *bsradio) {
 		bsradio->rfconfig.network_id[3] = 0xEF;
 		bsradio->rfconfig.network_id_size = 4;
 
-		bsradio->rfconfig.node_id = 0x00;
+		bsradio->rfconfig.node_id = 0x03;
 		bsradio->rfconfig.broadcast_id = 0xFF;
 
 		bool update_flash = false;
@@ -202,7 +202,7 @@ int radio_init(bsradio_instance_t *bsradio) {
 							+ sizeof(bsradio_rfconfig_t);
 			header->cmd = 0x02;
 			header->sub = 0x20;
-			header->res = 'R';
+			header->res = 'r';
 			*rfconfig = (bsradio->rfconfig);
 			puts("Erasing page");
 			spi_flash_erase_page_256(&spi_flash_config, 0x100);
@@ -298,18 +298,25 @@ int radio_init(bsradio_instance_t *bsradio) {
 		case chip_brand_silabs:
 			switch (bsradio->hwconfig.chip_type) {
 			case 1:
+
+				bshal_gpio_write_pin(bsradio->spim.rs_pin, 1);
+				bshal_delay_ms(5);
+				bshal_gpio_write_pin(bsradio->spim.rs_pin, 0);
+				bshal_delay_ms(50);
+
 				// SiLabs Si4x3x chips.
 				// These are well documented, unfortunately not recommended for new design
-				//					bsradio->driver.set_frequency = si4x3x_set_frequency;
-				//					bsradio->driver.set_tx_power = si4x3x_set_tx_power;
-				//					bsradio->driver.set_bitrate = si4x3x_set_bitrate;
-				//					bsradio->driver.set_fdev = si4x3x_set_fdev;
-				//					bsradio->driver.set_bandwidth = si4x3x_set_bandwidth;
-				//					bsradio->driver.init = si4x3x_init;
-				//					bsradio->driver.set_network_id = si4x3x_set_network_id;
-				//					bsradio->driver.set_mode = si4x3x_set_mode;
-				//					bsradio->driver.recv_packet = si4x3x_recv_packet;
-				//					bsradio->driver.send_packet = si4x3x_send_packet;
+				// and the alternative Si4x6x ain't as nice.
+				bsradio->driver.set_frequency = si4x3x_set_frequency;
+				bsradio->driver.set_tx_power = si4x3x_set_tx_power;
+				bsradio->driver.set_bitrate = si4x3x_set_bitrate;
+				bsradio->driver.set_fdev = si4x3x_set_fdev;
+				bsradio->driver.set_bandwidth = si4x3x_set_bandwidth;
+				bsradio->driver.init = si4x3x_init;
+				bsradio->driver.set_network_id = si4x3x_set_network_id;
+				bsradio->driver.set_mode = si4x3x_set_mode;
+				bsradio->driver.recv_packet = si4x3x_recv_packet;
+				bsradio->driver.send_packet = si4x3x_send_packet;
 				break;
 			case 2:
 				// SiLabs Si4x6x chips.
@@ -323,16 +330,16 @@ int radio_init(bsradio_instance_t *bsradio) {
 				// this is going to be a trickier one to support.
 				//
 				// TODO
-				//					bsradio->driver.set_frequency = si4x6x_set_frequency;
-				//					bsradio->driver.set_tx_power = si4x6x_set_tx_power;
-				//					bsradio->driver.set_bitrate = si4x6x_set_bitrate;
-				//					bsradio->driver.set_fdev = si4x6x_set_fdev;
-				//					bsradio->driver.set_bandwidth = si4x6x_set_bandwidth;
-				//					bsradio->driver.init = si4x6x_init;
-				//					bsradio->driver.set_network_id = si4x6x_set_network_id;
-				//					bsradio->driver.set_mode = si4x6x_set_mode;
-				//					bsradio->driver.recv_packet = si4x6x_recv_packet;
-				//					bsradio->driver.send_packet = si4x6x_send_packet;
+//				bsradio->driver.set_frequency = si4x6x_set_frequency;
+//				bsradio->driver.set_tx_power = si4x6x_set_tx_power;
+//				bsradio->driver.set_bitrate = si4x6x_set_bitrate;
+//				bsradio->driver.set_fdev = si4x6x_set_fdev;
+//				bsradio->driver.set_bandwidth = si4x6x_set_bandwidth;
+//				bsradio->driver.init = si4x6x_init;
+//				bsradio->driver.set_network_id = si4x6x_set_network_id;
+//				bsradio->driver.set_mode = si4x6x_set_mode;
+//				bsradio->driver.recv_packet = si4x6x_recv_packet;
+//				bsradio->driver.send_packet = si4x6x_send_packet;
 				break;
 			default:
 				return -1;
