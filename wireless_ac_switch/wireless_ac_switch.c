@@ -7,7 +7,7 @@
 
  MIT License
 
- Copyright (c) 2023 André van Schoubroeck <andre@blaatschaap.be>
+ Copyright (c) 2023 - 2024 André van Schoubroeck <andre@blaatschaap.be>
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -42,6 +42,7 @@
 #include "bshal_spim.h"
 #include "bshal_delay.h"
 #include "bshal_i2cm.h"
+#include "bshal_gpio.h"
 
 #include "lm75b.h"
 #include "sht3x.h"
@@ -58,14 +59,21 @@
 
 #include "protocol.h"
 #include "sensor_protocol.h"
+#include "switch_protocol.h"
 
 #include "bshal_i2cm.h"
-#include "usbd.h"
+
+//#include "spi_flash.h"
+#include "i2c_eeprom.h"
+
+#include "sunrise.h"
 
 static bshal_i2cm_instance_t m_i2c;
-bshal_spim_instance_t spi_flash_config;
-bsradio_instance_t m_radio;
-bscp_usbd_handle_t *gp_usbd;
+bshal_i2cm_instance_t *gp_i2c = NULL;
+//bshal_spim_instance_t spi_flash_config;
+i2c_eeprom_t i2c_eeprom_config;
+static bsradio_instance_t m_radio;
+bsradio_instance_t *gp_radio = NULL;
 
 bshal_i2cm_instance_t* i2c_init(void) {
 #ifdef STM32
@@ -91,54 +99,89 @@ bshal_i2cm_instance_t* i2c_init(void) {
 #else
 #error "Unsupported MCU"
 #endif
+	gp_i2c = &m_i2c;
 	return &m_i2c;
 }
 
-void spi_flash_init(void) {
-	spi_flash_config.frequency = 1000000;
-	spi_flash_config.bit_order = 0; //MSB
-	spi_flash_config.mode = 0;
-
-	spi_flash_config.hw_nr = 1;
-	spi_flash_config.sck_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_5);
-	spi_flash_config.miso_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_6);
-	spi_flash_config.mosi_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_7);
-	spi_flash_config.cs_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_1);
-	spi_flash_config.rs_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_10);
-
-	bshal_spim_init(&spi_flash_config);
+void i2c_eeprom_init(void) {
+	// Configuration of 2 Kbit (256 bytes)
+	// xx24C02
+	i2c_eeprom_config.p_i2c = gp_i2c;
+	i2c_eeprom_config.i2c_addr = 0x50;
+	i2c_eeprom_config.page_count = 32;
+	i2c_eeprom_config.page_size = 8;
+	i2c_eeprom_config.page_address_size = 1;
 }
 
 int radio_init(bsradio_instance_t *bsradio) {
-	spi_flash_init();
-	uint8_t hwconfig_buffer[256] = { };
+	i2c_eeprom_init();
+
+	bsradio->spim.frequency = 1000000;
+	bsradio->spim.bit_order = 0; //MSB
+	bsradio->spim.mode = 0;
+
+	bsradio->spim.hw_nr = 1;
+	bsradio->spim.sck_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_5);
+	bsradio->spim.miso_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_6);
+	bsradio->spim.mosi_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_7);
+	bsradio->spim.cs_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_4);
+	bsradio->spim.rs_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_10);
+
+	bshal_spim_init(&bsradio->spim);
+
+	uint8_t hwconfig_buffer[0x14] = { };
 	bscp_protocol_header_t *header = (bscp_protocol_header_t*) (hwconfig_buffer);
-	spi_flash_read(&spi_flash_config, 0x000, hwconfig_buffer,
-			sizeof(hwconfig_buffer));
+	bsradio_hwconfig_t *hwconfig = hwconfig_buffer
+			+ sizeof(bscp_protocol_header_t);
+
+	//spi_flash_read(&spi_flash_config, 0x000, hwconfig_buffer, sizeof(hwconfig_buffer));
+	i2c_eeprom_read(&i2c_eeprom_config, 0x00, hwconfig_buffer, sizeof(hwconfig_buffer));
+
 	if (header->size
 			== sizeof(bscp_protocol_header_t) + sizeof(bsradio_hwconfig_t)) {
-		// Should check the whole header, but for testing keep it like this
-		//		header->cmd == 0x02;
-		//		header->sub == 0x20;
-		//		header->res == 'R';
-		bsradio_hwconfig_t *hwconfig = hwconfig_buffer
-				+ sizeof(bscp_protocol_header_t);
 		bsradio->hwconfig = *hwconfig;
 		puts("hwconfig loaded");
 	} else {
 		puts("hwconfig missing");
-		return -1;
+		//		memset(buffert, 0xFF, sizeof(buffert));
+		header->size = sizeof(bscp_protocol_header_t)
+				+ sizeof(bsradio_hwconfig_t);
+		header->cmd = 0x02;
+		header->sub = 0x20;
+		header->res = 'R';
+
+		hwconfig->chip_brand = chip_brand_semtech;
+		hwconfig->chip_type = 1;
+		hwconfig->chip_variant = -1;
+		hwconfig->module_brand = module_brand_hoperf;
+		hwconfig->module_variant = -1;
+		hwconfig->frequency_band = 868;
+		hwconfig->tune = 0;
+		hwconfig->pa_config = 1;
+		hwconfig->antenna_type = -1;
+		hwconfig->xtal_freq = 32000000;
+
+		hwconfig->tune = -1;
+
+		bsradio->hwconfig = *hwconfig;
+
+		bool update_flash = false;
+
+		if (update_flash) {
+			i2c_eeprom_program(&i2c_eeprom_config, 0x000, hwconfig_buffer,
+					sizeof(hwconfig_buffer));
+			puts("Done");
+		}
 	}
 
 	// Need to write this first
-	uint8_t rfconfig_buffer[256] = { };
+	uint8_t rfconfig_buffer[0x23] = { };
 	header = (bscp_protocol_header_t*) (rfconfig_buffer);
-	spi_flash_read(&spi_flash_config, 0x100, rfconfig_buffer,
-			sizeof(rfconfig_buffer));
-	if (false && header->size
+	bsradio_rfconfig_t *rfconfig = rfconfig_buffer
+			+ sizeof(bscp_protocol_header_t);
+	i2c_eeprom_read(&i2c_eeprom_config, 0x14, rfconfig_buffer, 0x23);
+	if (header->size
 			== sizeof(bscp_protocol_header_t) + sizeof(bsradio_rfconfig_t)) {
-		bsradio_rfconfig_t *rfconfig = rfconfig_buffer
-				+ sizeof(bscp_protocol_header_t);
 		bsradio->rfconfig = *rfconfig;
 		puts("rfconfig loaded");
 	} else {
@@ -169,26 +212,22 @@ int radio_init(bsradio_instance_t *bsradio) {
 		//	bsradio->rfconfig.modulation_shaping = 0;
 		bsradio->rfconfig.modulation_shaping = 5; // 0.5 gfsk
 		bsradio->rfconfig.modulation = modulation_2fsk;
-		//bsradio->rfconfig.modulation = modulation_ook;
-
-		// TODO --> update radio config
-		// and do all these calls in the init function
-		//sxv1_set_sync_word32(bsradio, 0xdeadbeef);
-		//	bsradio->driver.set_bitrate(bsradio, 12500);
-		//	bsradio->driver.set_fdev(bsradio, 12500);
-		//	bsradio->driver.set_bandwidth(bsradio, 25000);
 
 //		bsradio->rfconfig.birrate_bps = 12500;
 //		bsradio->rfconfig.freq_dev_hz = 12500;
 //		bsradio->rfconfig.bandwidth_hz = 25000;
 
+//		We want to do higher speed in the future, but for now
+//		Let's get the I²C EEPROM for the settings working first
 //		bsradio->rfconfig.birrate_bps = 25000;
 //		bsradio->rfconfig.freq_dev_hz = 25000;
 //		bsradio->rfconfig.bandwidth_hz = 50000;
 
-		bsradio->rfconfig.birrate_bps = 50000;
-		bsradio->rfconfig.freq_dev_hz = 50000;
+
+		bsradio->rfconfig.birrate_bps  =  50000;
+		bsradio->rfconfig.freq_dev_hz  =  50000;
 		bsradio->rfconfig.bandwidth_hz = 100000;
+
 
 		bsradio->rfconfig.network_id[0] = 0xDE;
 		bsradio->rfconfig.network_id[1] = 0xAD;
@@ -196,42 +235,24 @@ int radio_init(bsradio_instance_t *bsradio) {
 		bsradio->rfconfig.network_id[3] = 0xEF;
 		bsradio->rfconfig.network_id_size = 4;
 
-		bsradio->rfconfig.node_id = 0x00;
+		bsradio->rfconfig.node_id = 0x10;
 		bsradio->rfconfig.broadcast_id = 0xFF;
 
 		bool update_flash = false;
+		//__BKPT(0);
 		if (update_flash) {
-			uint8_t buffer[256];
-			bscp_protocol_header_t *header = buffer;
-			bsradio_rfconfig_t *rfconfig = buffer
-					+ sizeof(bscp_protocol_header_t);
 			header->size = sizeof(bscp_protocol_header_t)
-							+ sizeof(bsradio_rfconfig_t);
+					+ sizeof(bsradio_rfconfig_t);
 			header->cmd = 0x02;
 			header->sub = 0x20;
-			header->res = 'R';
+			header->res = 'r';
 			*rfconfig = (bsradio->rfconfig);
-			puts("Erasing page");
-			spi_flash_erase_page_256(&spi_flash_config, 0x100);
-			puts("Programming");
-			spi_flash_program(&spi_flash_config, 0x100, buffer, header->size);
+
+			i2c_eeprom_program(&i2c_eeprom_config, 0x14, rfconfig_buffer, 0x23);
 			puts("Done");
 		}
-
 	}
 
-	bsradio->spim.frequency = 1000000;
-	bsradio->spim.bit_order = 0; //MSB
-	bsradio->spim.mode = 0;
-
-	bsradio->spim.hw_nr = 1;
-	bsradio->spim.sck_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_5);
-	bsradio->spim.miso_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_6);
-	bsradio->spim.mosi_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_7);
-	bsradio->spim.cs_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_4);
-	bsradio->spim.rs_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_10);
-
-	bshal_spim_init(&bsradio->spim);
 	switch (bsradio->hwconfig.chip_brand) {
 	case chip_brand_semtech:
 		switch (bsradio->hwconfig.chip_type) {
@@ -302,54 +323,61 @@ int radio_init(bsradio_instance_t *bsradio) {
 			break;
 		}
 		break;
-		case chip_brand_silabs:
-			switch (bsradio->hwconfig.chip_type) {
-			case 1:
-				// SiLabs Si4x3x chips.
-				// These are well documented, unfortunately not recommended for new design
-				//					bsradio->driver.set_frequency = si4x3x_set_frequency;
-				//					bsradio->driver.set_tx_power = si4x3x_set_tx_power;
-				//					bsradio->driver.set_bitrate = si4x3x_set_bitrate;
-				//					bsradio->driver.set_fdev = si4x3x_set_fdev;
-				//					bsradio->driver.set_bandwidth = si4x3x_set_bandwidth;
-				//					bsradio->driver.init = si4x3x_init;
-				//					bsradio->driver.set_network_id = si4x3x_set_network_id;
-				//					bsradio->driver.set_mode = si4x3x_set_mode;
-				//					bsradio->driver.recv_packet = si4x3x_recv_packet;
-				//					bsradio->driver.send_packet = si4x3x_send_packet;
-				break;
-			case 2:
-				// SiLabs Si4x6x chips.
-				// This is the newer generation of SiLabs Radio chips
-				// While there is extended documentation, many details are missing.
-				// The official development way is getting magic values generated
-				// by a tool that only runs on Microsoft Windows.
-				// This tool takes all the frequency, deviation, bandwidth, packet format
-				// all the settings and generates a header file to use.
-				// As this project wishes to create an API to configure the radio parameters,
-				// this is going to be a trickier one to support.
-				//
-				// TODO
-				//					bsradio->driver.set_frequency = si4x6x_set_frequency;
-				//					bsradio->driver.set_tx_power = si4x6x_set_tx_power;
-				//					bsradio->driver.set_bitrate = si4x6x_set_bitrate;
-				//					bsradio->driver.set_fdev = si4x6x_set_fdev;
-				//					bsradio->driver.set_bandwidth = si4x6x_set_bandwidth;
-				//					bsradio->driver.init = si4x6x_init;
-				//					bsradio->driver.set_network_id = si4x6x_set_network_id;
-				//					bsradio->driver.set_mode = si4x6x_set_mode;
-				//					bsradio->driver.recv_packet = si4x6x_recv_packet;
-				//					bsradio->driver.send_packet = si4x6x_send_packet;
-				break;
-			default:
-				return -1;
-				break;
-			}
-			break;
+	case chip_brand_silabs:
+		switch (bsradio->hwconfig.chip_type) {
+		case 1:
 
-			default:
-				return -1;
-				break;
+			bshal_gpio_write_pin(bsradio->spim.rs_pin, 1);
+			bshal_delay_ms(5);
+			bshal_gpio_write_pin(bsradio->spim.rs_pin, 0);
+			bshal_delay_ms(50);
+
+			// SiLabs Si4x3x chips.
+			// These are well documented, unfortunately not recommended for new design
+			// and the alternative Si4x6x ain't as nice.
+			bsradio->driver.set_frequency = si4x3x_set_frequency;
+			bsradio->driver.set_tx_power = si4x3x_set_tx_power;
+			bsradio->driver.set_bitrate = si4x3x_set_bitrate;
+			bsradio->driver.set_fdev = si4x3x_set_fdev;
+			bsradio->driver.set_bandwidth = si4x3x_set_bandwidth;
+			bsradio->driver.init = si4x3x_init;
+			bsradio->driver.set_network_id = si4x3x_set_network_id;
+			bsradio->driver.set_mode = si4x3x_set_mode;
+			bsradio->driver.recv_packet = si4x3x_recv_packet;
+			bsradio->driver.send_packet = si4x3x_send_packet;
+			break;
+		case 2:
+			// SiLabs Si4x6x chips.
+			// This is the newer generation of SiLabs Radio chips
+			// While there is extended documentation, many details are missing.
+			// The official development way is getting magic values generated
+			// by a tool that only runs on Microsoft Windows.
+			// This tool takes all the frequency, deviation, bandwidth, packet format
+			// all the settings and generates a header file to use.
+			// As this project wishes to create an API to configure the radio parameters,
+			// this is going to be a trickier one to support.
+			//
+			// TODO
+			//				bsradio->driver.set_frequency = si4x6x_set_frequency;
+			//				bsradio->driver.set_tx_power = si4x6x_set_tx_power;
+			//				bsradio->driver.set_bitrate = si4x6x_set_bitrate;
+			//				bsradio->driver.set_fdev = si4x6x_set_fdev;
+			//				bsradio->driver.set_bandwidth = si4x6x_set_bandwidth;
+			//				bsradio->driver.init = si4x6x_init;
+			//				bsradio->driver.set_network_id = si4x6x_set_network_id;
+			//				bsradio->driver.set_mode = si4x6x_set_mode;
+			//				bsradio->driver.recv_packet = si4x6x_recv_packet;
+			//				bsradio->driver.send_packet = si4x6x_send_packet;
+			break;
+		default:
+			return -1;
+			break;
+		}
+		break;
+
+	default:
+		return -1;
+		break;
 	}
 
 	/*
@@ -393,158 +421,149 @@ int radio_init(bsradio_instance_t *bsradio) {
 
 }
 
-bscp_handler_status_t forward_handler(bscp_protocol_packet_t *packet,
-		protocol_transport_t transport, uint32_t param) {
-	bscp_protocol_forward_t *forward = (bscp_protocol_forward_t*) (packet->data);
-
-	if (packet->head.sub = BSCP_SUB_QSET) {
-		switch (forward->head.transport) {
-		case PROTOCOL_TRANSPORT_RF:
-			bsradio_packet_t request = { }, response = { };
-			request.from = 0x00;
-			request.to = forward->head.to;
-			request.length = packet->head.size - sizeof(packet->head);
-#pragma pack (push,1)
-			memcpy(request.payload, forward->data,
-					packet->head.size - sizeof(packet->head));
-			int result = bsradio_send_request(&m_radio, &request, &response);
-			if (transport == PROTOCOL_TRANSPORT_USB) {
-				static bscp_protocol_packet_t usb_response;
-				usb_response.head = packet->head;
-				usb_response.head.res = result;
-				usb_response.head.sub = BSCP_SUB_SSTA;
-				bscp_usbd_transmit(gp_usbd, 0x81, &usb_response,
-						usb_response.head.size);
-			}
-
-#pragma pack (pop)
-
-			return BSCP_HANDLER_STATUS_OK_FW;
-		default:
-			return BSCP_HANDLER_STATUS_BADDATA;
-		}
-	}
+void SysTick_Handler(void) {
+	// Make the STM32 HAL happy.
+	HAL_IncTick();
 }
 
 bscp_handler_status_t sensordata_handler(bscp_protocol_packet_t *packet,
 		protocol_transport_t transport, uint32_t param) {
-	bsprot_sensor_enviromental_data_t *sensordata =
-			(bsprot_sensor_enviromental_data_t*) packet->data;
-	printf("Sensor %2d ", sensordata->id);
-	switch (sensordata->type) {
-	case bsprot_sensor_enviromental_temperature:
-		printf("%16s %3d.%2d °C", "temperature",
-				sensordata->value.temperature_centi_celcius / 100,
-				abs(sensordata->value.temperature_centi_celcius) % 100);
-		break;
-	case bsprot_sensor_enviromental_humidity:
-		printf("%16s ", "humidity");
+	protocol_transport_header_t flags = { .as_uint32 = param };
+	if (packet->head.sub = BSCP_SUB_QGET)
+		sensors_send();
+	return 0;
+}
 
-		break;
-	case bsprot_sensor_enviromental_illuminance:
-		printf("%16s ", "illuminance");
+void gpio_init() {
+	// int bshal_gpio_cfg_in(uint8_t bshal_pin, gpio_drive_type_t drive_type, bool init_val){
+	bshal_gpio_cfg_in(0, opendrain, 1);
+	bshal_gpio_cfg_in(2, opendrain, 1);
+	bshal_gpio_cfg_out(1, pushpull, 0);
+}
 
-		break;
-	case bsprot_sensor_enviromental_airpressure:
-		printf("%16s ", "airpressure");
-		break;
-
-	case bsprot_sensor_enviromental_co2:
-		printf("%16s ", "co2");
-
-		break;
-	case bsprot_sensor_enviromental_eco2:
-		printf("%16s ", "eco2");
-
-		break;
-	case bsprot_sensor_enviromental_etvoc:
-		printf("%16s ", "etvoc");
-
-		break;
-	case bsprot_sensor_enviromental_pm25:
-
-		break;
-	default:
-		break;
-
+bscp_handler_status_t switch_onoff_handler(bscp_protocol_packet_t *packet,
+		protocol_transport_t transport, uint32_t param) {
+	switch (packet->head.sub) {
+	case BSCP_SUB_QGET:
+		// TODO
+		return 0;
+	case BSCP_SUB_QSET:
+		light_switch_set(packet->data[0]);
+		// TODO confirmation
+		return 0;
 	}
-	putchar('\n');
+	// TODO send error
+	return -1;
+}
+
+void buttons_process(void) {
+	if (button1_get()) {
+		light_switch_set(false);
+	}
+
+	if (button2_get()) {
+		light_switch_set(true);
+	}
 }
 
 int main() {
-	ClockSetup_HSE8_SYS72();
-	SystemCoreClockUpdate();
+	ClockSetup_HSI_SYS48();
+	bshal_delay_init();
 	SEGGER_RTT_Init();
-	puts("Wireless Dongle");
-	usbd_reenumerate();
-	gp_usbd = usbd_init();
+	gpio_init();
+
+	puts("Wireless AC Switch");
+
+	printf("Sizeof bsradio_hwconfig_t is %d\n", sizeof(bsradio_hwconfig_t));
+	printf("Sizeof bsradio_rfconfig_t is %d\n", sizeof(bsradio_rfconfig_t));
 	timer_init();
+	ir_init();
 	i2c_init();
+	sensors_init();
+	display_init();
 	radio_init(&m_radio);
+	gp_radio = &m_radio;
 	bsradio_set_mode(&m_radio, mode_receive);
-	int last_ping = 0;
+
 
 	protocol_register_command(sensordata_handler,
-			BSCP_CMD_SENSOR_ENVIOREMENTAL_VALUE);
+	BSCP_CMD_SENSOR_ENVIOREMENTAL_VALUE);
 
-	protocol_register_command(forward_handler, BSCP_CMD_FORWARD);
+	protocol_register_command(switch_onoff_handler,
+	BSCP_CMD_SWITCH_ONOFF);
+
 	while (1) {
 
-		usbd_process();
+		sensors_process();
+		buttons_process();
+		display_process();
+		ir_process();
 
-		static uint8_t cnt = 0;
+
 		bsradio_packet_t request = { }, response = { };
-		memset(&request, 0, sizeof(request));
+
+		bool calibration = false;
+		if (calibration) {
+			sxv1_set_mode_internal(&m_radio, sxv1_mode_standby);
+
+			// Calibration to fund the tune value, for SXv1 (RFM69)
+			// this is the frequency offset in kHz
+			m_radio.hwconfig.tune = 0;
+
+			sxv1_set_frequency(&m_radio, 870000);
+			while (1) {
+				response.ack_request = 0;
+				response.ack_response = 1;
+				response.to = request.from;
+				response.from = request.to;
+				response.length = 4;
+
+				puts("Sending ACK");
+				bsradio_send_packet(&m_radio, &response);
+				bshal_delay_ms(1000);
+
+			}
+		}
 
 		if (!bsradio_recv_packet(&m_radio, &request)) {
 			puts("Packet received");
 			printf("Length %2d, to: %02X, from: %02X rssi %3d\n",
 					request.length, request.to, request.from, request.rssi);
-			if (request.ack_request) {
-				response = request;
-				response.length = 4;
-				response.ack_request = 0;
-				response.ack_response = 1;
-				response.to = request.from;
-				response.from = request.to;
-				bsradio_send_packet(&m_radio, &response);
+			bscp_protocol_packet_t *payload =
+					(bscp_protocol_packet_t*) (request.payload);
+			printf("\tSize %2d, cmd: %02X, sub: %02X, res: %02X\n",
+					payload->head.size, payload->head.cmd, payload->head.sub,
+					payload->head.res);
+
+			// This filter will be moved to bsradio later
+			// possible to hardware level if supported by radio.
+			if (request.to == m_radio.rfconfig.node_id) {
+				puts("Packet is for us");
+				if (request.ack_request) {
+					response = request;
+					response.ack_request = 0;
+					response.ack_response = 1;
+					response.to = request.from;
+					response.from = request.to;
+					response.length = 4;
+
+					puts("Sending ACK");
+					bsradio_send_packet(&m_radio, &response);
+
+					puts("Processing packet");
+					protocol_transport_header_t flags = { .from = request.from,
+							.to = request.to, .rssi = request.rssi, .transport =
+									PROTOCOL_TRANSPORT_RF };
+					protocol_parse(request.payload, request.length,
+							PROTOCOL_TRANSPORT_RF, flags.as_uint32);
+
+				}
+			} else {
+				puts("Packet is not for us");
 			}
-
-			//protocol_parse(request.payload, request.length,PROTOCOL_TRANSPORT_RF, request.rssi);
-
-			// Forward
-			static char buffer[255] = { };
-			bscp_protocol_packet_t *forward_packet =
-					(bscp_protocol_packet_t*) (buffer);
-			bscp_protocol_forward_t *forward_data =
-					(bscp_protocol_forward_t*) (forward_packet->data);
-			*((bsradio_packet_t*) forward_data->data) = request;
-
-			forward_packet->head.size = sizeof(bscp_protocol_packet_t)
-							+ sizeof(bscp_protocol_forward_t) + sizeof(request.payload);
-			forward_packet->head.cmd = BSCP_CMD_FORWARD;
-			forward_packet->head.sub = BSCP_SUB_SDAT;
-
-			forward_data->head.transport = PROTOCOL_TRANSPORT_RF;
-			forward_data->head.from = request.from;
-			forward_data->head.to = request.to;
-			forward_data->head.rssi = request.rssi;
-
-			//			if (request.from != 1)
-			//				__BKPT(0);
-
-			//memcpy ( forward_data->data, request.payload, request.length);
-			memcpy(forward_data->data, request.payload,
-					sizeof(request.payload));
-
-			bscp_usbd_transmit(gp_usbd, 0x81, forward_packet,
-					forward_packet->head.size);
-
 			memset(&request, 0, sizeof(request));
 			memset(&response, 0, sizeof(response));
 		}
-
 	}
-
 }
 
