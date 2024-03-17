@@ -289,21 +289,24 @@ void sensors_process(void) {
 		process_time = get_time_ms() + 5000;
 
 		if (lm75b.addr) {
-			float temperature_f;
-			lm75b_get_temperature_C_float(&lm75b, &temperature_f);
-			lm75b_temperature_centi_celcius = 100 * temperature_f;
+//			float temperature_f;
+//			lm75b_get_temperature_C_float(&lm75b, &temperature_f);
+//			lm75b_temperature_centi_celcius = 100 * temperature_f;
+			accum temperature_a;
+			lm75b_get_temperature_C_accum(&lm75b, &temperature_a);
+			lm75b_temperature_centi_celcius = 100 * temperature_a;
 			lm75b_ready = true;
 		}
 
-		if (sht3x.addr) {
-			float temperature_f;
-			float huminity_f;
-			sht3x_get_humidity_float(&sht3x, &huminity_f);
-			sht3x_get_temperature_C_float(&sht3x, &temperature_f);
-			sht3x_temperature_centi_celcius = 100 * temperature_f;
-			sht3x_humidify_relative_promille = 10 * huminity_f;
-			sht3x_ready = true;
-		}
+//		if (sht3x.addr) {
+//			float temperature_f;
+//			float huminity_f;
+//			sht3x_get_humidity_float(&sht3x, &huminity_f);
+//			sht3x_get_temperature_C_float(&sht3x, &temperature_f);
+//			sht3x_temperature_centi_celcius = 100 * temperature_f;
+//			sht3x_humidify_relative_promille = 10 * huminity_f;
+//			sht3x_ready = true;
+//		}
 
 		if (bh1750.addr) {
 			static int lux = 0;
@@ -311,37 +314,37 @@ void sensors_process(void) {
 			bh1750_illuminance_lux = lux;
 			bh1750_ready = true;
 		}
-
-		if (bmp280.addr) {
-			float temperature_f;
-			float pressure_f;
-			bmp280_measure_f(&bmp280, &temperature_f, &pressure_f);
-			bmp280_temperature_centi_celcius = 100 * temperature_f;
-			bmp280_air_pressure_deci_pascal = pressure_f / 10;
-			bmp280_ready = true;
-		}
-
-		if (scd4x.addr) {
-			static float temp_C = 0, humidity_percent = 0;
-			static uint16_t co2_ppm = 0;
-			if (!scd4x_get_result_float(&scd4x, &co2_ppm, &temp_C,
-					&humidity_percent)) {
-				scd4x_temperature_centi_celcius = 100 * temp_C;
-				scd4x_humidify_relative_promille = humidity_percent * 10;
-				scd4x_co2_ppm = co2_ppm;
-				scd4x_ready = true;
-			}
-		}
-
-		if (ccs811.addr) {
-			uint16_t eTVOC = 0;
-			uint16_t eCO2 = 0;
-			if (!css811_measure(&ccs811, &eCO2, &eTVOC)) {
-				ccs811_eco2_ppm = eCO2;
-				ccs811_etvoc_ppb = eTVOC;
-				ccs811_ready = true;
-			}
-		}
+//
+//		if (bmp280.addr) {
+//			float temperature_f;
+//			float pressure_f;
+//			bmp280_measure_f(&bmp280, &temperature_f, &pressure_f);
+//			bmp280_temperature_centi_celcius = 100 * temperature_f;
+//			bmp280_air_pressure_deci_pascal = pressure_f / 10;
+//			bmp280_ready = true;
+//		}
+//
+//		if (scd4x.addr) {
+//			static float temp_C = 0, humidity_percent = 0;
+//			static uint16_t co2_ppm = 0;
+//			if (!scd4x_get_result_float(&scd4x, &co2_ppm, &temp_C,
+//					&humidity_percent)) {
+//				scd4x_temperature_centi_celcius = 100 * temp_C;
+//				scd4x_humidify_relative_promille = humidity_percent * 10;
+//				scd4x_co2_ppm = co2_ppm;
+//				scd4x_ready = true;
+//			}
+//		}
+//
+//		if (ccs811.addr) {
+//			uint16_t eTVOC = 0;
+//			uint16_t eCO2 = 0;
+//			if (!css811_measure(&ccs811, &eCO2, &eTVOC)) {
+//				ccs811_eco2_ppm = eCO2;
+//				ccs811_etvoc_ppb = eTVOC;
+//				ccs811_ready = true;
+//			}
+//		}
 
 //		sensors_send();
 

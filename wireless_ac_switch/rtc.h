@@ -9,7 +9,4 @@
 #define RTC_H_
 
 
-
-
-
 #endif /* RTC_H_ */

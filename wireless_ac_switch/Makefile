@@ -27,6 +27,7 @@ C_SOURCES += light_switch.c
 C_SOURCES += ir_stm32.c
 C_SOURCES += ir.c
 C_SOURCES += display.c
+C_SOURCES += rtc.c
 
 C_SOURCES +=  $(UCDEV_ROOT)/lib/libsunrise/sunrise.c
 C_INCLUDES += C_SOURCES +=  $(UCDEV_ROOT)/lib/libsunrise/

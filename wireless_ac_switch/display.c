@@ -4,6 +4,11 @@
 #include "u8g2.h"
 #include "bshal_i2cm.h"
 
+#include <time.h>
+
+#include "bsradio.h"
+extern bsradio_instance_t *gp_radio;
+
 static u8g2_t m_u8g2;
 extern bshal_i2cm_instance_t *gp_i2c;
 static char m_key;
@@ -20,11 +25,18 @@ void display_init(void) {
 void display_print_upper(char *str) {
 	//u8g2_SetFont(&m_u8g2, u8g2_font_unifont_t_symbols); //square, with symbols like ⏴ ⏵ ⏶ ⏷
 	u8g2_SetFont(&m_u8g2, u8g2_font_inr16_mr);
-	u8g2_DrawUTF8(&m_u8g2, 0, 16, str);
+	u8g2_DrawUTF8(&m_u8g2, 8, 16, str);
+}
+
+void display_print_middle(char *str) {
+	//u8g2_SetFont(&m_u8g2, u8g2_font_inr33_mr);
+	u8g2_SetFont(&m_u8g2, u8g2_font_inr16_mr);
+	u8g2_DrawUTF8(&m_u8g2, 8, 48, str);
 }
 
 void display_print_large(char *str) {
-	u8g2_SetFont(&m_u8g2, u8g2_font_inr33_mr);
+	//u8g2_SetFont(&m_u8g2, u8g2_font_inr33_mr);
+	u8g2_SetFont(&m_u8g2, u8g2_font_inr16_mr);
 	u8g2_DrawUTF8(&m_u8g2, 0, 56, str);
 }
 
@@ -37,14 +49,57 @@ void display_clear() {
 }
 
 void display_process(void) {
+	static time_t prev_time = 0;
+	if (prev_time == time(NULL)) return;
+	prev_time = time(NULL);
+	display_clear();
+	struct tm * timeinfo = localtime (&prev_time);
+	char buff[16];
+	sprintf(buff, "%02d:%02d:%02d",
+			timeinfo->tm_hour,
+			timeinfo->tm_min,
+			timeinfo->tm_sec);
+	display_print_upper(buff);
+
 	if (m_key) {
-		char buff[5] = "    ";
-		buff [2] = m_key;
+		memset(buff, 0x20,8);
+		buff [4] = m_key;
 		m_key = 0;
-		display_clear();
 		display_print_large(buff);
-		display_apply();
+	} else {
+		extern uint16_t bh1750_illuminance_lux;
+		extern int16_t lm75b_temperature_centi_celcius;
+
+		switch (timeinfo->tm_sec/10) {
+		case 0:
+		sprintf(buff,"addr %3d", gp_radio->rfconfig.node_id);
+		display_print_large(buff);
+		break;
+		case 1:
+		case 4:
+			sprintf(buff,"%5d lux", bh1750_illuminance_lux);
+			display_print_large(buff);
+			break;
+		case 2:
+		case 5:
+			sprintf(buff,"%3d.02 °C", lm75b_temperature_centi_celcius/100, lm75b_temperature_centi_celcius%100);
+			display_print_large(buff);
+			break;
+		default:
+			sprintf(buff, "%02d-%02d-%02d",
+					timeinfo->tm_mday,
+					timeinfo->tm_mon+1,
+					timeinfo->tm_year%100);
+			display_print_middle(buff);
+			break;
+
+		}
 	}
+
+
+
+
+	display_apply();
 }
 
 void display_set_key(char key) {

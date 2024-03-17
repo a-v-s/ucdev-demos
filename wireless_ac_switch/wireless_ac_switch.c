@@ -468,6 +468,7 @@ void buttons_process(void) {
 
 int main() {
 	ClockSetup_HSI_SYS48();
+	HAL_Init(); // gah
 	bshal_delay_init();
 	SEGGER_RTT_Init();
 	gpio_init();
@@ -477,6 +478,7 @@ int main() {
 	printf("Sizeof bsradio_hwconfig_t is %d\n", sizeof(bsradio_hwconfig_t));
 	printf("Sizeof bsradio_rfconfig_t is %d\n", sizeof(bsradio_rfconfig_t));
 	timer_init();
+	rtc_init();
 	ir_init();
 	i2c_init();
 	sensors_init();
