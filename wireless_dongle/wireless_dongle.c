@@ -182,13 +182,13 @@ int radio_init(bsradio_instance_t *bsradio) {
 //		bsradio->rfconfig.freq_dev_hz = 12500;
 //		bsradio->rfconfig.bandwidth_hz = 25000;
 
-//		bsradio->rfconfig.birrate_bps = 25000;
-//		bsradio->rfconfig.freq_dev_hz = 25000;
-//		bsradio->rfconfig.bandwidth_hz = 50000;
+		bsradio->rfconfig.birrate_bps = 25000;
+		bsradio->rfconfig.freq_dev_hz = 25000;
+		bsradio->rfconfig.bandwidth_hz = 50000;
 
-		bsradio->rfconfig.birrate_bps = 50000;
-		bsradio->rfconfig.freq_dev_hz = 50000;
-		bsradio->rfconfig.bandwidth_hz = 100000;
+//		bsradio->rfconfig.birrate_bps = 50000;
+//		bsradio->rfconfig.freq_dev_hz = 50000;
+//		bsradio->rfconfig.bandwidth_hz = 100000;
 
 		bsradio->rfconfig.network_id[0] = 0xDE;
 		bsradio->rfconfig.network_id[1] = 0xAD;

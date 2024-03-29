@@ -30,6 +30,7 @@
 
 #include <stdbool.h>
 #include <string.h>
+#include <time.h>
 
 #include "system.h"
 
@@ -60,6 +61,7 @@
 #include "protocol.h"
 #include "sensor_protocol.h"
 #include "switch_protocol.h"
+#include "time_protocol.h"
 
 #include "bshal_i2cm.h"
 
@@ -135,7 +137,8 @@ int radio_init(bsradio_instance_t *bsradio) {
 			+ sizeof(bscp_protocol_header_t);
 
 	//spi_flash_read(&spi_flash_config, 0x000, hwconfig_buffer, sizeof(hwconfig_buffer));
-	i2c_eeprom_read(&i2c_eeprom_config, 0x00, hwconfig_buffer, sizeof(hwconfig_buffer));
+	i2c_eeprom_read(&i2c_eeprom_config, 0x00, hwconfig_buffer,
+			sizeof(hwconfig_buffer));
 
 	if (header->size
 			== sizeof(bscp_protocol_header_t) + sizeof(bsradio_hwconfig_t)) {
@@ -219,15 +222,13 @@ int radio_init(bsradio_instance_t *bsradio) {
 
 //		We want to do higher speed in the future, but for now
 //		Let's get the I²C EEPROM for the settings working first
-//		bsradio->rfconfig.birrate_bps = 25000;
-//		bsradio->rfconfig.freq_dev_hz = 25000;
-//		bsradio->rfconfig.bandwidth_hz = 50000;
+		bsradio->rfconfig.birrate_bps = 25000;
+		bsradio->rfconfig.freq_dev_hz = 25000;
+		bsradio->rfconfig.bandwidth_hz = 50000;
 
-
-		bsradio->rfconfig.birrate_bps  =  50000;
-		bsradio->rfconfig.freq_dev_hz  =  50000;
-		bsradio->rfconfig.bandwidth_hz = 100000;
-
+//		bsradio->rfconfig.birrate_bps = 50000;
+//		bsradio->rfconfig.freq_dev_hz = 50000;
+//		bsradio->rfconfig.bandwidth_hz = 100000;
 
 		bsradio->rfconfig.network_id[0] = 0xDE;
 		bsradio->rfconfig.network_id[1] = 0xAD;
@@ -441,6 +442,23 @@ void gpio_init() {
 	bshal_gpio_cfg_out(1, pushpull, 0);
 }
 
+bscp_handler_status_t unixtime_handler(bscp_protocol_packet_t *packet,
+		protocol_transport_t transport, uint32_t param) {
+
+	time_t unixtime = *(uint32_t*) packet->data;
+	switch (packet->head.sub) {
+	case BSCP_SUB_QGET:
+		// TODO
+		return 0;
+	case BSCP_SUB_QSET:
+		time_set(unixtime);
+		return 0;
+		break;
+	default:
+		return 0;
+	}
+}
+
 bscp_handler_status_t switch_onoff_handler(bscp_protocol_packet_t *packet,
 		protocol_transport_t transport, uint32_t param) {
 	switch (packet->head.sub) {
@@ -458,17 +476,28 @@ bscp_handler_status_t switch_onoff_handler(bscp_protocol_packet_t *packet,
 
 void buttons_process(void) {
 	if (button1_get()) {
-		light_switch_set(false);
+		//light_switch_set(false);
+		display_set_key('*');
+
 	}
 
 	if (button2_get()) {
-		light_switch_set(true);
+		//light_switch_set(true);
+		display_set_key('#');
 	}
 }
 
 int main() {
 	ClockSetup_HSI_SYS48();
 	HAL_Init(); // gah
+
+
+	// Time zone on the microcontroller
+	// https://newlib.sourceware.narkive.com/fvlGlRPa/how-to-set-timezone-for-localtime
+	// https://stackoverflow.com/questions/73935736/time-zone-format
+	putenv("TZ=CET-1CEST,M3.5.0,M10.5.0/3");
+	tzset();
+
 	bshal_delay_init();
 	SEGGER_RTT_Init();
 	gpio_init();
@@ -487,12 +516,13 @@ int main() {
 	gp_radio = &m_radio;
 	bsradio_set_mode(&m_radio, mode_receive);
 
-
 	protocol_register_command(sensordata_handler,
 	BSCP_CMD_SENSOR_ENVIOREMENTAL_VALUE);
 
 	protocol_register_command(switch_onoff_handler,
 	BSCP_CMD_SWITCH_ONOFF);
+
+	protocol_register_command(unixtime_handler, BSCP_CMD_UNIXTIME);
 
 	while (1) {
 
@@ -500,7 +530,6 @@ int main() {
 		buttons_process();
 		display_process();
 		ir_process();
-
 
 		bsradio_packet_t request = { }, response = { };
 

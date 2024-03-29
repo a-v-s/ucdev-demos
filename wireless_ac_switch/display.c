@@ -24,19 +24,25 @@ void display_init(void) {
 
 void display_print_upper(char *str) {
 	//u8g2_SetFont(&m_u8g2, u8g2_font_unifont_t_symbols); //square, with symbols like ⏴ ⏵ ⏶ ⏷
-	u8g2_SetFont(&m_u8g2, u8g2_font_inr16_mr);
+	u8g2_SetFont(&m_u8g2, u8g2_font_inr16_mf);
 	u8g2_DrawUTF8(&m_u8g2, 8, 16, str);
 }
 
 void display_print_middle(char *str) {
 	//u8g2_SetFont(&m_u8g2, u8g2_font_inr33_mr);
-	u8g2_SetFont(&m_u8g2, u8g2_font_inr16_mr);
-	u8g2_DrawUTF8(&m_u8g2, 8, 48, str);
+	u8g2_SetFont(&m_u8g2, u8g2_font_inr16_mf);
+	u8g2_DrawUTF8(&m_u8g2, 8, 40, str);
+}
+
+void display_print_lower(char *str) {
+	//u8g2_SetFont(&m_u8g2, u8g2_font_inr33_mr);
+	u8g2_SetFont(&m_u8g2, u8g2_font_inr16_mf);
+	u8g2_DrawUTF8(&m_u8g2, 8, 64, str);
 }
 
 void display_print_large(char *str) {
-	//u8g2_SetFont(&m_u8g2, u8g2_font_inr33_mr);
-	u8g2_SetFont(&m_u8g2, u8g2_font_inr16_mr);
+	u8g2_SetFont(&m_u8g2, u8g2_font_inr33_mr);
+//	u8g2_SetFont(&m_u8g2, u8g2_font_inr16_mr);
 	u8g2_DrawUTF8(&m_u8g2, 0, 56, str);
 }
 
@@ -49,41 +55,50 @@ void display_clear() {
 }
 
 void display_process(void) {
+	char buff[16];
 	static time_t prev_time = 0;
+	if (m_key) {
+		memset(buff, 0x20,8);
+		buff [2] = m_key;
+		m_key = 0;
+
+		if (m_key == '*') {
+			// Toggle Light
+		}
+
+		if (m_key == '#') {
+			// Display Sensors
+		}
+		display_print_large(buff);
+	} else
 	if (prev_time == time(NULL)) return;
 	prev_time = time(NULL);
 	display_clear();
 	struct tm * timeinfo = localtime (&prev_time);
-	char buff[16];
+
 	sprintf(buff, "%02d:%02d:%02d",
 			timeinfo->tm_hour,
 			timeinfo->tm_min,
 			timeinfo->tm_sec);
 	display_print_upper(buff);
 
-	if (m_key) {
-		memset(buff, 0x20,8);
-		buff [4] = m_key;
-		m_key = 0;
-		display_print_large(buff);
-	} else {
+ {
 		extern uint16_t bh1750_illuminance_lux;
 		extern int16_t lm75b_temperature_centi_celcius;
 
 		switch (timeinfo->tm_sec/10) {
 		case 0:
 		sprintf(buff,"addr %3d", gp_radio->rfconfig.node_id);
-		display_print_large(buff);
+		display_print_middle(buff);
+		display_print_lower(buff);
 		break;
 		case 1:
-		case 4:
-			sprintf(buff,"%5d lux", bh1750_illuminance_lux);
-			display_print_large(buff);
-			break;
-		case 2:
+		case 3:
 		case 5:
-			sprintf(buff,"%3d.02 °C", lm75b_temperature_centi_celcius/100, lm75b_temperature_centi_celcius%100);
-			display_print_large(buff);
+			sprintf(buff,"%5d lx", bh1750_illuminance_lux);
+			display_print_middle(buff);
+			sprintf(buff,"%3d.02°C", lm75b_temperature_centi_celcius/100, lm75b_temperature_centi_celcius%100);
+			display_print_lower(buff);
 			break;
 		default:
 			sprintf(buff, "%02d-%02d-%02d",
