@@ -183,7 +183,9 @@ int radio_init(bsradio_instance_t *bsradio) {
 	bsradio_rfconfig_t *rfconfig = rfconfig_buffer
 			+ sizeof(bscp_protocol_header_t);
 	i2c_eeprom_read(&i2c_eeprom_config, 0x14, rfconfig_buffer, 0x23);
-	if (header->size
+
+	// temp disbale
+	if (false && header->size
 			== sizeof(bscp_protocol_header_t) + sizeof(bsradio_rfconfig_t)) {
 		bsradio->rfconfig = *rfconfig;
 		puts("rfconfig loaded");
@@ -435,6 +437,53 @@ bscp_handler_status_t sensordata_handler(bscp_protocol_packet_t *packet,
 	return 0;
 }
 
+
+void deviceinfo_send(void) {
+	bsradio_packet_t request = { }, response = { };
+	request.from = gp_radio->rfconfig.node_id; //0x03;
+	request.to = 0x00;
+#pragma pack (push,1)
+	struct sensor_data_packet {
+		bscp_protocol_header_t head;
+		bscp_protocol_info_t info[3];
+	} deviceinfo_packet;
+#pragma pack(pop)
+	bscp_protocol_packet_t *packet = &deviceinfo_packet;
+	deviceinfo_packet.head.size = sizeof(deviceinfo_packet);
+	deviceinfo_packet.head.cmd = BSCP_CMD_INFO;
+	deviceinfo_packet.head.sub = BSCP_SUB_SDAT;
+
+	deviceinfo_packet.info[0].cmd = BSCP_CMD_SENSOR_ENVIOREMENTAL_VALUE;
+	deviceinfo_packet.info[0].flags = 1 << bsprot_sensor_enviromental_temperature;
+	deviceinfo_packet.info[0].index = 0;
+
+	deviceinfo_packet.info[1].cmd = BSCP_CMD_SENSOR_ENVIOREMENTAL_VALUE;
+	deviceinfo_packet.info[1].flags = 1 << bsprot_sensor_enviromental_illuminance;
+	deviceinfo_packet.info[1].index = 1;
+
+	deviceinfo_packet.info[2].cmd = BSCP_CMD_SWITCH;
+	deviceinfo_packet.info[2].flags = 1 << bsprot_switch_onoff;
+	deviceinfo_packet.info[2].index = 0;
+
+
+	// That's all, send remaining
+	 protocol_packet_merge(request.payload, sizeof(request.payload),
+			packet);
+	 request.length = 4 + protocol_merged_packet_size(request.payload,
+	 					sizeof(request.payload));
+	bsradio_send_request(gp_radio, &request, &response);
+//	request.payload[0] = 0;
+	memset(request.payload, 0,sizeof(request.payload));
+}
+
+bscp_handler_status_t info_handler(bscp_protocol_packet_t *packet,
+		protocol_transport_t transport, uint32_t param) {
+	protocol_transport_header_t flags = { .as_uint32 = param };
+	if (packet->head.sub = BSCP_SUB_QGET)
+		deviceinfo_send();
+	return 0;
+}
+
 void gpio_init() {
 	// int bshal_gpio_cfg_in(uint8_t bshal_pin, gpio_drive_type_t drive_type, bool init_val){
 	bshal_gpio_cfg_in(0, opendrain, 1);
@@ -467,7 +516,7 @@ bscp_handler_status_t switch_onoff_handler(bscp_protocol_packet_t *packet,
 		return 0;
 	case BSCP_SUB_QSET:
 		light_switch_set(packet->data[0]);
-		// TODO confirmation
+		// TODO payload data with index
 		return 0;
 	}
 	// TODO send error
@@ -475,22 +524,25 @@ bscp_handler_status_t switch_onoff_handler(bscp_protocol_packet_t *packet,
 }
 
 void buttons_process(void) {
-	if (button1_get()) {
+	static bool btn1, btn2;
+
+	if (!btn1 && button1_get()) {
 		//light_switch_set(false);
 		display_set_key('*');
-
 	}
 
-	if (button2_get()) {
+	if (!btn2 && button2_get()) {
 		//light_switch_set(true);
 		display_set_key('#');
 	}
+
+	btn1 = button1_get();
+	btn2 = button2_get();
 }
 
 int main() {
 	ClockSetup_HSI_SYS48();
 	HAL_Init(); // gah
-
 
 	// Time zone on the microcontroller
 	// https://newlib.sourceware.narkive.com/fvlGlRPa/how-to-set-timezone-for-localtime
@@ -516,12 +568,9 @@ int main() {
 	gp_radio = &m_radio;
 	bsradio_set_mode(&m_radio, mode_receive);
 
-	protocol_register_command(sensordata_handler,
-	BSCP_CMD_SENSOR_ENVIOREMENTAL_VALUE);
-
-	protocol_register_command(switch_onoff_handler,
-	BSCP_CMD_SWITCH_ONOFF);
-
+	protocol_register_command(sensordata_handler, BSCP_CMD_SENSOR_ENVIOREMENTAL_VALUE);
+	protocol_register_command(switch_onoff_handler,	BSCP_CMD_SWITCH);
+	protocol_register_command(info_handler, BSCP_CMD_INFO);
 	protocol_register_command(unixtime_handler, BSCP_CMD_UNIXTIME);
 
 	while (1) {
