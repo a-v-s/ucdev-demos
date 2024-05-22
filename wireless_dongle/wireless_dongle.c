@@ -135,6 +135,9 @@ int radio_init(bsradio_instance_t *bsradio) {
 	header = (bscp_protocol_header_t*) (rfconfig_buffer);
 	spi_flash_read(&spi_flash_config, 0x100, rfconfig_buffer,
 			sizeof(rfconfig_buffer));
+
+
+	// temp disable
 	if (false && header->size
 			== sizeof(bscp_protocol_header_t) + sizeof(bsradio_rfconfig_t)) {
 		bsradio_rfconfig_t *rfconfig = rfconfig_buffer

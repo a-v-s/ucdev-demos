@@ -93,53 +93,39 @@ void display_process(void) {
 		case 0x20:
 			state = 0x21;
 			break;
+		case 0x24: {
+			int addr = addrentry[0] * 100 +
+					addrentry[1] * 10 +
+					addrentry[2];
+			if (addr == 0 || addr > 254) {
+				state = 0x2F;
+				break;
+			} else {
+				state = 0x25;
+//				gp_radio->rfconfig.node_id = addr;
+				break;
+			}
+		}
+
+			break;
 		}
 		break;
 	}
-	case '1': {
-		switch (state) {
-		case 0x10:
-			state = 0x20;
-			break;
-		case 0x22:
-			addrentry[0] = 1;
-			break;
-		case 0x23:
-			addrentry[1] = 1;
-			break;
-		case 0x24:
-			addrentry[2] = 1;
-			break;
-		default:
-			break;
-		}
-	}
-		break;
-	case '2':
 	case '0':
-		switch (state) {
-		case 0x21:
-			state++;
-			addrentry[0] = m_key - '0';
-			break;
-		case 0x22:
-			state++;
-			addrentry[1] = m_key - '0';
-			break;
-		case 0x23:
-			state++;
-			addrentry[2] = m_key - '0';
-			break;
-		}
-		break;
-		case '3':
-		case '4':
-		case '5':
-		case '6':
-		case '7':
-		case '8':
-		case '9':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+	case '8':
+	case '9':
 			switch (state) {
+			case 0x21:
+				state++;
+				addrentry[0] = m_key - '0';
+				break;
 			case 0x22:
 				state++;
 				addrentry[1] = m_key - '0';
@@ -149,6 +135,8 @@ void display_process(void) {
 				addrentry[2] = m_key - '0';
 				break;
 			}
+
+			if (state == 0x10 && m_key == '1') state = 0x20;
 			break;
 	}
 	display_print_large(buff);
@@ -187,7 +175,22 @@ void display_process(void) {
 		snprintf(buff, sizeof buff, " %02X hex", gp_radio->rfconfig.node_id);
 		display_print_lower(buff);
 		break;
-
+	case 0x25: {
+		int addr = addrentry[0] * 100 +
+				addrentry[1] * 10 +
+				addrentry[2];
+		display_print_upper("opslaan?");
+		snprintf(buff, sizeof buff, "%3d dec", addr);
+		display_print_middle(buff);
+		snprintf(buff, sizeof buff, " %02X hex", addr);
+		display_print_lower(buff);
+	}
+		break;
+	case 0x2F:
+		display_print_upper("foutief");
+		display_print_middle("adres");
+		display_print_lower("1-254");
+		break;
 	case 0x21:
 		display_print_upper(" nieuw");
 		buff[0] = buff[1] = ' ';
