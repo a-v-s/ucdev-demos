@@ -143,10 +143,15 @@ void print(char *str, int line);
 void bshal_delay_us(uint32_t us) {
 	ets_delay_us(us);
 }
+/*
 void bshal_delay_ms(uint32_t ms) {
 	bshal_delay_us(ms * 1000);
 }
+*/
 //--
+void bshal_delay_ms(uint32_t ms) {
+	vTaskDelay(ms);
+}
 
 uint32_t get_time_us(void) {
 	return esp_timer_get_time();
@@ -165,6 +170,7 @@ void delay_time_ms(uint32_t ms) {
 }
 
 void rfid5_spi_init(rc52x_t *rc52x) {
+	puts("rfid5_spi_init");
 	static bshal_spim_instance_t rfid_spi_config;
 	rfid_spi_config.frequency = 1000000; // SPI speed for MFRC522 = 10 MHz
 	rfid_spi_config.bit_order = 0; //MSB
@@ -185,8 +191,8 @@ void rfid5_spi_init(rc52x_t *rc52x) {
 	rc52x->transport_instance.spim = &rfid_spi_config;
 }
 
-
 void rfid6_spi_init(rc52x_t *rc66x) {
+	puts("rfid6_spi_init");
 	static bshal_spim_instance_t rfid_spi_config;
 	rfid_spi_config.frequency = 1000000; // SPI speed for MFRC522 = 10 MHz
 	rfid_spi_config.bit_order = 0; //MSB
@@ -208,6 +214,7 @@ void rfid6_spi_init(rc52x_t *rc66x) {
 }
 
 void rfid5_i2c_init(rc52x_t *rc52x) {
+	puts("rfid5_i2c_init");
 	rc52x->delay_ms = delay_time_ms;
 	rc52x->get_time_ms = get_time_ms;
 	rc52x->transport_type = bshal_transport_i2c;

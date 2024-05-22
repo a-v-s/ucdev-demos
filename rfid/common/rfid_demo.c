@@ -38,6 +38,7 @@ void framebuffer_apply();
 void draw_plain_background();
 void display_init(void);
 void print(char* str, int line);
+void bshal_delay_ms(uint32_t);
 
 int find_card(bs_pdc_t *pdc, picc_t *picc) {
 	rc52x_result_t status = 0;
@@ -70,7 +71,7 @@ void demo_loop(bs_pdc_t *pdcs, size_t size) {
 
 		framebuffer_apply();
 		draw_plain_background();
-		HAL_Delay(1000);
+		bshal_delay_ms(1000);
 
 	}
 }
