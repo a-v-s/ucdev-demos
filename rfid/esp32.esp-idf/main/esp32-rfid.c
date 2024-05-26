@@ -221,6 +221,9 @@ void rfid5_i2c_init(rc52x_t *rc52x) {
 	rc52x->transport_instance.i2cm = gp_i2c;
 }
 
+void mfrc630_ISO15693_init(rc66x_t *rc66x);
+uint16_t mfrc630_ISO15693_readTag(rc66x_t *rc66x, uint8_t* uid, int colpos);
+
 void app_main(void) {
 
 	i2c_init(I2C_SDA, I2C_SCL);
@@ -247,7 +250,8 @@ void app_main(void) {
 	version = -1;
 	rc52x_get_chip_version(&rc52x_i2c, &version);
 	sprintf(str, "VERSION %02X", version);
-	if (version != 0xFF) {
+	if (version != 0xFF  && version != 0x00) {
+		puts("rc52x_i2c");
 		rc52x_init(&rc52x_i2c);
 		pdcs[pdc_count] = rc52x_i2c;
 		pdc_count++;
@@ -257,7 +261,8 @@ void app_main(void) {
 	version = -1;
 	rc52x_get_chip_version(&rc52x_spi, &version);
 	sprintf(str, "VERSION %02X", version);
-	if (version != 0xFF) {
+	if (version != 0xFF  && version != 0x00) {
+		puts("rc52x_spi");
 		rc52x_init(&rc52x_spi);
 		pdcs[pdc_count] = rc52x_spi;
 		pdc_count++;
@@ -269,15 +274,34 @@ void app_main(void) {
 	rc66x_get_chip_version(&rc66x_spi, &version);
 	sprintf(str, "VERSION %02X", version);
 	print(str, 3);
-	if (version != 0xFF) {
+	if (version != 0xFF  && version != 0x00) {
+		puts("rc66x_spi");
 		rc66x_init(&rc66x_spi);
 		pdcs[pdc_count] = rc66x_spi;
 		pdc_count++;
+
+//		rc66x_test(&rc66x_spi);
+		mfrc630_ISO15693_init(&rc66x_spi);
+
+//		rc66x_test(&rc66x_spi);
+		uint8_t buffer[16];
+		mfrc630_ISO15693_readTag(&rc66x_spi,buffer, 0);
+
+//		extern void test_read_block(rc66x_t *rc66x, uint8_t* instruction, int instr_len);
+//		uint8_t read_instr[] = {0x02,0x20,0x00};
+////		uint8_t read_instr[] = {0x36,0x01,0x00, 0x00};
+//		test_read_block(&rc66x_spi, read_instr, sizeof(read_instr) );
+
+		rc66x_init(&rc66x_spi);
+
 	}
 #endif
 	print("PDCs:", 0);
 
 	framebuffer_apply();
+
+	puts("----");
+	bshal_delay_ms(1000);
 
 	demo_loop(pdcs, pdc_count);
 
