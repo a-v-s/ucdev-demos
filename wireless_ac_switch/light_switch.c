@@ -7,6 +7,8 @@
 
 #include "light_switch.h"
 
+#include <bshal_gpio.h>
+
 void light_switch_set(bool value) {
 	bshal_gpio_write_pin(1, value);
 }

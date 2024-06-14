@@ -24,6 +24,7 @@
 extern bsradio_instance_t *gp_radio;
 
 #include <stdint.h>
+#include <string.h>
 
 lm75b_t lm75b = { };
 bh1750_t bh1750 = { };
@@ -46,7 +47,7 @@ void sensors_send(void) {
 		bscp_protocol_header_t head;
 		bsprot_sensor_enviromental_data_t data;
 	} sensor_data_packet;
-	bscp_protocol_packet_t *packet = &sensor_data_packet;
+	bscp_protocol_packet_t *packet = (bscp_protocol_packet_t *)(&sensor_data_packet);
 	sensor_data_packet.head.size = sizeof(sensor_data_packet);
 	sensor_data_packet.head.cmd = BSCP_CMD_SENSOR_ENVIOREMENTAL_VALUE;
 	sensor_data_packet.head.sub = BSCP_SUB_SDAT;

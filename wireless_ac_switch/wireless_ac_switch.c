@@ -31,6 +31,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <time.h>
+#include <stdio.h>
 
 #include "system.h"
 
@@ -63,12 +64,22 @@
 #include "switch_protocol.h"
 #include "time_protocol.h"
 
-#include "bshal_i2cm.h"
+#include <bshal_i2cm.h>
+#include <bshal_gpio_stm32.h>
+#include <bshal_i2cm_stm32.h>
 
 //#include "spi_flash.h"
 #include "i2c_eeprom.h"
 
 #include "sunrise.h"
+#include "sensors.h"
+#include "rtc.h"
+#include "light_switch.h"
+#include "display.h"
+#include "timer.h"
+#include "ir.h"
+#include "sensors.h"
+#include <SEGGER_RTT.h>
 
 static bshal_i2cm_instance_t m_i2c;
 bshal_i2cm_instance_t *gp_i2c = NULL;
@@ -133,8 +144,8 @@ int radio_init(bsradio_instance_t *bsradio) {
 
 	uint8_t hwconfig_buffer[0x14] = { };
 	bscp_protocol_header_t *header = (bscp_protocol_header_t*) (hwconfig_buffer);
-	bsradio_hwconfig_t *hwconfig = hwconfig_buffer
-			+ sizeof(bscp_protocol_header_t);
+	bsradio_hwconfig_t *hwconfig = (bsradio_hwconfig_t *)(hwconfig_buffer
+			+ sizeof(bscp_protocol_header_t));
 
 	//spi_flash_read(&spi_flash_config, 0x000, hwconfig_buffer, sizeof(hwconfig_buffer));
 	i2c_eeprom_read(&i2c_eeprom_config, 0x00, hwconfig_buffer,
@@ -180,8 +191,8 @@ int radio_init(bsradio_instance_t *bsradio) {
 	// Need to write this first
 	uint8_t rfconfig_buffer[0x23] = { };
 	header = (bscp_protocol_header_t*) (rfconfig_buffer);
-	bsradio_rfconfig_t *rfconfig = rfconfig_buffer
-			+ sizeof(bscp_protocol_header_t);
+	bsradio_rfconfig_t *rfconfig = (bsradio_rfconfig_t *)(rfconfig_buffer
+			+ sizeof(bscp_protocol_header_t));
 	i2c_eeprom_read(&i2c_eeprom_config, 0x14, rfconfig_buffer, 0x23);
 
 	// temp disbale
@@ -448,7 +459,7 @@ void deviceinfo_send(void) {
 		bscp_protocol_info_t info[3];
 	} deviceinfo_packet;
 #pragma pack(pop)
-	bscp_protocol_packet_t *packet = &deviceinfo_packet;
+	bscp_protocol_packet_t *packet = (bscp_protocol_packet_t *)&deviceinfo_packet;
 	deviceinfo_packet.head.size = sizeof(deviceinfo_packet);
 	deviceinfo_packet.head.cmd = BSCP_CMD_INFO;
 	deviceinfo_packet.head.sub = BSCP_SUB_SDAT;
@@ -541,6 +552,7 @@ void buttons_process(void) {
 }
 
 int main() {
+	extern void ClockSetup_HSI_SYS48(void); // TODO
 	ClockSetup_HSI_SYS48();
 	HAL_Init(); // gah
 

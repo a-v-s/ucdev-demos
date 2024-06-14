@@ -9,7 +9,7 @@ void RTC_IRQHandler(void) {
 }
 
 void Error_Handler(void) {
-	puts("Error!");
+//	puts("Error!");
 }
 
 /**
@@ -120,7 +120,7 @@ void time_set(time_t new_time) {
 	RTC_WriteTimeCounter(&RtcHandle, new_time);
 }
 
-void rtc_init() {
+void rtc_init(void) {
 
 	RCC_OscInitTypeDef RCC_OscInitStruct;
 	RCC_PeriphCLKInitTypeDef PeriphClkInitStruct;

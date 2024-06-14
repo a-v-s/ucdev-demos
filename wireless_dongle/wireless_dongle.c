@@ -60,7 +60,13 @@
 #include "sensor_protocol.h"
 
 #include "bshal_i2cm.h"
+#include "bshal_gpio_stm32.h"
+#include "bshal_i2cm_stm32.h"
+#include "spi_flash.h"
 #include "usbd.h"
+#include <stdio.h>
+#include "timer.h"
+#include "SEGGER_RTT.h"
 
 static bshal_i2cm_instance_t m_i2c;
 bshal_spim_instance_t spi_flash_config;
@@ -121,7 +127,7 @@ int radio_init(bsradio_instance_t *bsradio) {
 		//		header->cmd == 0x02;
 		//		header->sub == 0x20;
 		//		header->res == 'R';
-		bsradio_hwconfig_t *hwconfig = hwconfig_buffer
+		bsradio_hwconfig_t *hwconfig = (bsradio_hwconfig_t *)hwconfig_buffer
 				+ sizeof(bscp_protocol_header_t);
 		bsradio->hwconfig = *hwconfig;
 		puts("hwconfig loaded");
@@ -140,7 +146,7 @@ int radio_init(bsradio_instance_t *bsradio) {
 	// temp disable
 	if (false && header->size
 			== sizeof(bscp_protocol_header_t) + sizeof(bsradio_rfconfig_t)) {
-		bsradio_rfconfig_t *rfconfig = rfconfig_buffer
+		bsradio_rfconfig_t *rfconfig = (bsradio_rfconfig_t *)rfconfig_buffer
 				+ sizeof(bscp_protocol_header_t);
 		bsradio->rfconfig = *rfconfig;
 		puts("rfconfig loaded");
@@ -205,9 +211,9 @@ int radio_init(bsradio_instance_t *bsradio) {
 		bool update_flash = false;
 		if (update_flash) {
 			uint8_t buffer[256];
-			bscp_protocol_header_t *header = buffer;
-			bsradio_rfconfig_t *rfconfig = buffer
-					+ sizeof(bscp_protocol_header_t);
+			bscp_protocol_header_t *header = (bscp_protocol_header_t *)buffer;
+			bsradio_rfconfig_t *rfconfig = (bsradio_rfconfig_t *)(buffer
+					+ sizeof(bscp_protocol_header_t));
 			header->size = sizeof(bscp_protocol_header_t)
 							+ sizeof(bsradio_rfconfig_t);
 			header->cmd = 0x02;
@@ -475,6 +481,13 @@ bscp_handler_status_t sensordata_handler(bscp_protocol_packet_t *packet,
 }
 
 int main() {
+
+	// New GCC versions are nit-picking.
+	// Put them here for now, make it neat later.
+	extern void ClockSetup_HSE8_SYS72(void);
+	extern void usbd_reenumerate(void);
+	extern void usbd_process(void);
+
 	ClockSetup_HSE8_SYS72();
 	SystemCoreClockUpdate();
 	SEGGER_RTT_Init();

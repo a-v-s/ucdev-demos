@@ -5,8 +5,11 @@
 #include "bshal_i2cm.h"
 
 #include <time.h>
+#include <string.h>
+#include <stdio.h>
 
 #include "bsradio.h"
+#include "light_switch.h"
 extern bsradio_instance_t *gp_radio;
 
 static u8g2_t m_u8g2;
@@ -60,7 +63,7 @@ void display_process(void) {
 	static int state = 1;
 	static bool light_status = false;
 	static bool display_status = true;
-	static addrentry[3];
+	static int addrentry[3];
 
 	memset(buff, 0x20, 8);
 

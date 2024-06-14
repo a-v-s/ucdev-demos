@@ -2,6 +2,10 @@
 
 #include <stdint.h>
 #include  <wctype.h>
+#include <stdio.h>
+
+#include "display.h"
+#include "timer.h"
 
 typedef enum {
 	ir_idle, ir_presync, ir_sync,
