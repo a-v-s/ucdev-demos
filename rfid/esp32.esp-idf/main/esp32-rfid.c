@@ -285,12 +285,11 @@ void app_main(void) {
 
 //		rc66x_test(&rc66x_spi);
 		uint8_t buffer[16];
+
+
 		mfrc630_ISO15693_readTag(&rc66x_spi,buffer, 0);
 
-//		extern void test_read_block(rc66x_t *rc66x, uint8_t* instruction, int instr_len);
-//		uint8_t read_instr[] = {0x02,0x20,0x00};
-////		uint8_t read_instr[] = {0x36,0x01,0x00, 0x00};
-//		test_read_block(&rc66x_spi, read_instr, sizeof(read_instr) );
+
 
 		rc66x_init(&rc66x_spi);
 

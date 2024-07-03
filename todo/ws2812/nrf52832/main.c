@@ -39,8 +39,10 @@ void delay_ms(uint32_t ms) {
 	nrfx_systick_delay_ms(ms);
 }
 
+void ws2812_demo(void);
+
 int main() {
-	nrfx_systick_init();
+	//nrfx_systick_init();
 
 	ws2812_demo();
 
