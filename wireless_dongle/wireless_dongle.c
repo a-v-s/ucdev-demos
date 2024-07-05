@@ -127,8 +127,8 @@ int radio_init(bsradio_instance_t *bsradio) {
 		//		header->cmd == 0x02;
 		//		header->sub == 0x20;
 		//		header->res == 'R';
-		bsradio_hwconfig_t *hwconfig = (bsradio_hwconfig_t *)hwconfig_buffer
-				+ sizeof(bscp_protocol_header_t);
+		bsradio_hwconfig_t *hwconfig = (bsradio_hwconfig_t *)(hwconfig_buffer
+				+ sizeof(bscp_protocol_header_t));
 		bsradio->hwconfig = *hwconfig;
 		puts("hwconfig loaded");
 	} else {

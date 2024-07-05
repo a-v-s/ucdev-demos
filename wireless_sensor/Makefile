@@ -8,6 +8,8 @@ MCU ?= STM32F103xB
 ################################################################################
 TARGET = wireless_sensor
 
+CFLAGS += -Wno-implicit-function-declaration -Wno-incompatible-pointer-types
+
 ################################################################################
 # Set the root directory of the ucdev enviorement 
 ################################################################################
