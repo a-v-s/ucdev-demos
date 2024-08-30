@@ -213,7 +213,7 @@ int radio_init(bsradio_instance_t *bsradio) {
 			break;
 		case 868:
 			bsradio->rfconfig.frequency_kHz = 869850;
-			//		bsradio->rfconfig.frequency_kHz = 870000;
+//					bsradio->rfconfig.frequency_kHz = 870000;
 			bsradio->rfconfig.tx_power_dBm = 0;
 			break;
 		case 915:
@@ -430,6 +430,9 @@ int radio_init(bsradio_instance_t *bsradio) {
 	 * What is the loss of the antenna? What is the directional gain?
 	 * In other words, what am I allowed to set?
 	 */
+
+	// Temp hack;
+	(*(uint32_t*)bsradio->rfconfig.network_id) = 0xD32A6E04;
 
 	return bsradio_init(bsradio);
 

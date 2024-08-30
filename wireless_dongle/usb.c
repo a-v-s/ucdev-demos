@@ -30,10 +30,20 @@ Copyright (c) 2018 - 2023 André van Schoubroeck <andre@blaatschaap.be>
 #include "usbd_descriptor_webusb.h"
 
 #include "ConvertUTF.h"
-
+#include "protocol.h"
 #include <system.h>
+#include <string.h>
 
-uint8_t temp_recv_buffer[256];
+
+uint8_t temp_recv_buffer[257];
+
+
+void usbd_process(void) {
+	if (temp_recv_buffer[256]) {
+		protocol_parse(temp_recv_buffer, temp_recv_buffer[256], 0x10, 0x00);
+		temp_recv_buffer[256] = 0;
+	}
+}
 void transfer_in_complete(bscp_usbd_handle_t *handle, uint8_t epnum, void *data,
 		size_t size) {
 	// Data sent!
@@ -42,13 +52,23 @@ void transfer_in_complete(bscp_usbd_handle_t *handle, uint8_t epnum, void *data,
 void transfer_out_complete(bscp_usbd_handle_t *handle, uint8_t epnum,
 		void *data, size_t size) {
 	//Data Received
+
+	 // quick and dirty for testing; we should implement a queue
+	// not process the data from the USB interrupt. But a quick test...
+	// Well... can't do SPI from interrupts... a quick and dirty buffer then
+
+	if (size <= 256) {
+		memcpy ( temp_recv_buffer, data, size);
+		temp_recv_buffer[256] = size;
+	}
+
 }
 
-
-bscp_usbd_handler_result_t bscp_usbd_handle_user_request(void *handle_,
-		usb_setuprequest_t *req, void **buf, size_t *len){
-	bscp_usbd_handle_t*handle=(bscp_usbd_handle_t*)(handle_);
-
+bscp_usbd_handler_result_t bscp_usbd_handle_user_request(
+		void *handle, usb_setuprequest_t *req, void **buf, size_t *len){
+//bscp_usbd_handler_result_t bscp_usbd_handle_user_request(
+//		bscp_usbd_handle_t *handle, usb_setuprequest_t *req, void **buf,
+//		size_t *len) {
 	if (req ->bRequest == USB_REQ_GET_DESCRIPTOR &&
 			(req->wValue >> 8) == USB_DT_BOS) {
 #pragma pack(push,1)
@@ -131,17 +151,17 @@ bscp_usbd_handler_result_t bscp_usbd_handle_user_request(void *handle_,
 		winusb_response.registery_property.wPropertyDataLength = 0x50;
 
 		uint8_t PropertyName[] = "DeviceInterfaceGUIDs";
-		const uint8_t *pni_begin = PropertyName;
+		uint8_t *pni_begin = PropertyName;
 		uint16_t *pno_begin = winusb_response.registery_property.PropertyName;
-		ConvertUTF8toUTF16(&pni_begin, PropertyName + sizeof(PropertyName),
+		ConvertUTF8toUTF16((const UTF8 **)&pni_begin, PropertyName + sizeof(PropertyName),
 				&pno_begin,
 				&winusb_response.registery_property.PropertyName[20], 0);
 
 		// NOTE: Generate a new GUID for a new project.
 		uint8_t PropertyData[39] = "{d9f1293f-2730-4dc0-bddb-472c052a42d3}";
-		const uint8_t *pdi_begin = PropertyData;
+		uint8_t *pdi_begin = PropertyData;
 		uint16_t *pdo_begin = winusb_response.registery_property.PropertyData;
-		ConvertUTF8toUTF16(&pdi_begin, PropertyData + sizeof(PropertyData),
+		ConvertUTF8toUTF16((const UTF8 **)&pdi_begin, PropertyData + sizeof(PropertyData),
 				&pdo_begin,
 				&winusb_response.registery_property.PropertyData[40], 0);
 
@@ -218,10 +238,9 @@ void bscp_usbd_demo_setup_descriptors(bscp_usbd_handle_t *handle) {
 //	GetSerialStringUTF16(serial_number, 8);
 //	handle->descriptor_string[3] = add_string_descriptor_utf16(handle,
 //			serial_number);
-	extern uint8_t * get_serial_string(void);
-	handle->descriptor_string[3] = add_string_descriptor_utf8(handle,
-			get_serial_string());
 
+	extern char * get_serial_string(void);
+	handle->descriptor_string[3] = add_string_descriptor_utf8(handle,get_serial_string());
 
 	bscp_usbd_request_handler_add(handle, bscp_usbd_handle_user_request);
 
