@@ -35,6 +35,8 @@
 #include <stdint.h>
 #include "ws2812.h"
 
+#include "bshal_delay.h"
+
 #pragma pack 1
 typedef struct {
 	uint8_t g;
@@ -51,22 +53,58 @@ typedef struct {
 #define PURPLE (rgb_t){0,32,32}
 #define WHITE (rgb_t){16,16,16}
 
+#define LED_COUNT (19)
+
+
 void ws2812_demo() {
-	rgb_t colours[8]  = {RED,ORANGE,YELLOW,GREEN,CYAN,BLUE,PURPLE,WHITE};
+//	rgb_t colours[LED_COUNT]  = {
+//		RED,ORANGE,YELLOW,   // 3
+//		GREEN,CYAN,BLUE,     // 6
+//		PURPLE,RED, ORANGE,  // 9
+//		YELLOW, GREEN,CYAN, // 12
+//		BLUE, PURPLE, RED,  // 15
+//		YELLOW, GREEN, BLUE, // 18
+//		PURPLE, // 19
+//		};
+
+	rgb_t colours[LED_COUNT]  = {
+			{ 0x3F, 0x00, 0x00},
+			{ 0x3F, 0x00, 0x14},
+			{ 0x3F, 0x00, 0x28},
+			{ 0x3F, 0x00, 0x3C},
+			{ 0x2E, 0x00, 0x3F},
+			{ 0x1A, 0x00, 0x3F},
+			{ 0x06, 0x00, 0x3F},
+			{ 0x00, 0x0D, 0x3F},
+			{ 0x00, 0x21, 0x3F},
+			{ 0x00, 0x35, 0x3F},
+			{ 0x00, 0x3F, 0x35},
+			{ 0x00, 0x3F, 0x21},
+			{ 0x00, 0x3F, 0x0D},
+			{ 0x06, 0x3F, 0x00},
+			{ 0x1A, 0x3F, 0x00},
+			{ 0x2E, 0x3F, 0x00},
+			{ 0x3F, 0x3C, 0x00},
+			{ 0x3F, 0x28, 0x00},
+			{ 0x3F, 0x14, 0x00},
+
+	};
+
 	rgb_t temp;
 
-	ws2812_init();
+	bshal_delay_init();
+//	ws2812_init();
 
 	while (1) {
 		while (ws2812_is_busy());
-		ws2812_fill_buffer_decompress(0, sizeof(colours), &colours);
+		ws2812_fill_buffer_decompress(0, sizeof(colours), (uint8_t *)&colours);
 		ws2812_apply(sizeof(colours));
-		delay_ms(250);
+		bshal_delay_ms(100);
 		temp=colours[0];
-		for (int i = 0; i < 7; i++) {
+		for (int i = 0; i < (LED_COUNT-1); i++) {
 			colours[i]=colours[i+1];
 		}
-		colours[7]=temp;
+		colours[(LED_COUNT-1)]=temp;
 	}
 }
 
