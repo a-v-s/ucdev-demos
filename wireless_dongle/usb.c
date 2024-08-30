@@ -25,6 +25,7 @@ Copyright (c) 2018 - 2023 André van Schoubroeck <andre@blaatschaap.be>
 #include "usbd.h"
 #include "serialnumber.h"
 
+#include "usbd_descriptors.h"
 #include "usbd_descriptor_winusb.h"
 #include "usbd_descriptor_webusb.h"
 
@@ -43,9 +44,11 @@ void transfer_out_complete(bscp_usbd_handle_t *handle, uint8_t epnum,
 	//Data Received
 }
 
-bscp_usbd_handler_result_t bscp_usbd_handle_user_request(
-		bscp_usbd_handle_t *handle, usb_setuprequest_t *req, void **buf,
-		size_t *len) {
+
+bscp_usbd_handler_result_t bscp_usbd_handle_user_request(void *handle_,
+		usb_setuprequest_t *req, void **buf, size_t *len){
+	bscp_usbd_handle_t*handle=(bscp_usbd_handle_t*)(handle_);
+
 	if (req ->bRequest == USB_REQ_GET_DESCRIPTOR &&
 			(req->wValue >> 8) == USB_DT_BOS) {
 #pragma pack(push,1)
@@ -128,7 +131,7 @@ bscp_usbd_handler_result_t bscp_usbd_handle_user_request(
 		winusb_response.registery_property.wPropertyDataLength = 0x50;
 
 		uint8_t PropertyName[] = "DeviceInterfaceGUIDs";
-		uint8_t *pni_begin = PropertyName;
+		const uint8_t *pni_begin = PropertyName;
 		uint16_t *pno_begin = winusb_response.registery_property.PropertyName;
 		ConvertUTF8toUTF16(&pni_begin, PropertyName + sizeof(PropertyName),
 				&pno_begin,
@@ -136,7 +139,7 @@ bscp_usbd_handler_result_t bscp_usbd_handle_user_request(
 
 		// NOTE: Generate a new GUID for a new project.
 		uint8_t PropertyData[39] = "{d9f1293f-2730-4dc0-bddb-472c052a42d3}";
-		uint8_t *pdi_begin = PropertyData;
+		const uint8_t *pdi_begin = PropertyData;
 		uint16_t *pdo_begin = winusb_response.registery_property.PropertyData;
 		ConvertUTF8toUTF16(&pdi_begin, PropertyData + sizeof(PropertyData),
 				&pdo_begin,
@@ -211,10 +214,14 @@ void bscp_usbd_demo_setup_descriptors(bscp_usbd_handle_t *handle) {
 	handle->descriptor_string[2] = add_string_descriptor_utf16(handle, u"Wireless Sensor Receiver");
 	//handle->descriptor_string[2] = add_string_descriptor_utf16(handle, u"USB Device Demo");
 
-	uint16_t serial_number[9] = { 0 };
-	GetSerialStringUTF16(serial_number, 8);
-	handle->descriptor_string[3] = add_string_descriptor_utf16(handle,
-			serial_number);
+//	uint16_t serial_number[9] = { 0 };
+//	GetSerialStringUTF16(serial_number, 8);
+//	handle->descriptor_string[3] = add_string_descriptor_utf16(handle,
+//			serial_number);
+	extern uint8_t * get_serial_string(void);
+	handle->descriptor_string[3] = add_string_descriptor_utf8(handle,
+			get_serial_string());
+
 
 	bscp_usbd_request_handler_add(handle, bscp_usbd_handle_user_request);
 

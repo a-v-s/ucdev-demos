@@ -60,11 +60,20 @@
 #include "si4x3x.h"
 #include "si4x6x.h"
 
+#include "spi_flash.h"
+
 #include "protocol.h"
 #include "sensor_protocol.h"
 
 #include "bshal_i2cm.h"
+#include "bshal_gpio.h"
+#ifdef STM32
+#include "stm32/bshal_gpio_stm32.h"
+#include "stm32/bshal_i2cm_stm32.h"
+#endif
 #include "usbd.h"
+
+#include <stdio.h>
 
 static bshal_i2cm_instance_t m_i2c;
 bshal_spim_instance_t spi_flash_config;
@@ -117,15 +126,15 @@ void spi_flash_init(void) {
 int radio_init(bsradio_instance_t *bsradio) {
 	spi_flash_init();
 	uint8_t buffert[256] = { 0 };
-	protocol_header_t *header = (protocol_header_t *)(buffert);
+	bscp_protocol_header_t *header = (bscp_protocol_header_t *)(buffert);
 	spi_flash_read(&spi_flash_config, 0x000000, buffert, sizeof(buffert));
 	if (
-			header->size==  sizeof(protocol_header_t) + sizeof(bsradio_hwconfig_t)) {
+			header->size==  sizeof(bscp_protocol_header_t) + sizeof(bsradio_hwconfig_t)) {
 		// Should check the whole header, but for testing keep it like this
 		//		header->cmd == 0x02;
 		//		header->sub == 0x20;
 		//		header->res == 'R';
-		bsradio_hwconfig_t *config = buffert + sizeof(protocol_header_t);
+		bsradio_hwconfig_t *config = (bsradio_hwconfig_t *)(buffert + sizeof(bscp_protocol_header_t));
 		bsradio->hwconfig = *config;
 		puts("Config loaded");
 	} else {
@@ -343,8 +352,17 @@ int radio_init(bsradio_instance_t *bsradio) {
 	bsradio->rfconfig.modulation = modulation_2fsk;
 	//bsradio->rfconfig.modulation = modulation_ook;
 
-	char network_id[] = {0xDE, 0xAD, 0xBE, 0xEF};
-	bsradio_set_network_id(bsradio, network_id, sizeof(network_id));
+	//char network_id[] = {0xDE, 0xAD, 0xBE, 0xEF};
+	//bsradio_set_network_id(bsradio, network_id, sizeof(network_id));
+
+	extern uint32_t get_serial(void);
+	struct {
+		uint32_t as_32;
+		uint8_t as_8[4];
+	} serial;
+	serial.as_32 = get_serial();
+	bsradio_set_network_id(bsradio, serial.as_8, 4);
+
 	bsradio_set_node_id(bsradio,0x00);
 
 
@@ -396,6 +414,12 @@ bscp_handler_status_t sensordata_handler(bscp_protocol_packet_t *packet, protoco
 }
 
 
+
+void ClockSetup_HSE8_SYS72(void);
+void SEGGER_RTT_Init(void);
+void usbd_reenumerate(void);
+void timer_init(void);
+
 int main(){
 	ClockSetup_HSE8_SYS72();
 	SystemCoreClockUpdate();
@@ -442,10 +466,10 @@ int main(){
 			forward_packet->head.cmd = BSCP_CMD_FORWARD;
 			forward_packet->head.sub = BSCP_SUB_SDAT;
 
-			forward_data->transport = PROTOCOL_TRANSPORT_RF;
-			forward_data->from = request.from;
-			forward_data->to = request.to;
-			forward_data->rssi = request.rssi;
+			forward_data->head.transport = PROTOCOL_TRANSPORT_RF;
+			forward_data->head.from = request.from;
+			forward_data->head.to = request.to;
+			forward_data->head.rssi = request.rssi;
 
 //			if (request.from != 1)
 //				__BKPT(0);
