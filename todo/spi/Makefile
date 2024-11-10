@@ -22,7 +22,7 @@ U8G2_DIR = $(UCDEV_ROOT)/ext/u8g2/csrc
 ################################################################################
 C_SOURCES += main.c
 #C_SOURCES += dis.c
-#C_SOURCES += dis_u8g.c
+C_SOURCES += dis_u8g.c
 
 #C_SOURCES += radio/si443x.c
 #C_SOURCES += radio/si443x_transport.c

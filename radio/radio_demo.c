@@ -6,7 +6,7 @@
 #include "sxv1.h"
 #include "si4x3x.h"
 
-#include "radio.h"
+#include "bsradio.h"
 
 #include "spi_flash.h"
 
@@ -95,7 +95,7 @@ void SystemClock_Config(void) {
 
 void *gp_i2c = NULL;
 
-int sxv1_init(bsradio_instance_t *bsradio) {
+int demo_sxv1_init(bsradio_instance_t *bsradio) {
 
 	// reset is active high!!!!
 	bshal_gpio_write_pin(bsradio->spim.rs_pin, 1);
@@ -114,7 +114,10 @@ int sxv1_init(bsradio_instance_t *bsradio) {
 		sxv1_set_tx_power(bsradio, 0);
 		break;
 	case 868:
-		sxv1_set_frequency(bsradio, 869850);
+
+		//sxv1_set_frequency(bsradio, 869850);
+		sxv1_set_frequency(bsradio, 870000);
+
 //		sxv1_set_frequency(bsradio, 868000);
 //		sxv1_set_tx_power(bsradio, 7);
 		sxv1_set_tx_power(bsradio, 0);
@@ -161,9 +164,8 @@ int sxv1_init(bsradio_instance_t *bsradio) {
 
 	 */
 
-	sxv1_calibarte_rc(bsradio);
-	sxv1_write_reg(bsradio, SXV1_REG_RSSITHRESH, 0xC4);
-	sxv1_configure_packet(bsradio);
+
+	sxv1_init(bsradio);
 
 	sxv1_set_sync_word32(bsradio, 0xdeadbeef);
 
@@ -171,13 +173,7 @@ int sxv1_init(bsradio_instance_t *bsradio) {
 	sxv1_set_fdev(bsradio, 12500);
 	sxv1_set_bandwidth(bsradio, 25000);
 
-	/*
-	 The DAGC is enabled by setting RegTestDagc to 0x20 for low modulation index systems
-	 (i.e. when AfcLowBetaOn=1, refer to section 3.4.16), and 0x30 for other systems.
-	 It is recommended to always enable the DAGC.
-	 */
-	sxv1_write_reg(bsradio, SXV1_REG_AFCCTRL, 0x00);
-	sxv1_write_reg(bsradio, SXV1_REG_TESTDAGC, 0x30);
+
 
 	return 0;
 }
@@ -208,7 +204,7 @@ int si4x3x_init(bsradio_instance_t *bsradio) {
 	// So I have to trial and error to find the correct value,
 	// Tested various values, found 0x69 to give the correct frequency
 	// on the 868 MHz module. Need to repeat the test on 434 MHz modules
-	si4x3x_write_reg8(bsradio, 0x09, bsradio->hwconfig.xtal_tune);
+	si4x3x_write_reg8(bsradio, 0x09, bsradio->hwconfig.tune);
 
 	switch (bsradio->hwconfig.frequency_band) {
 	case 434:
@@ -216,10 +212,13 @@ int si4x3x_init(bsradio_instance_t *bsradio) {
 		si4x3x_set_tx_power(bsradio, 0);
 		break;
 	case 868:
-		si4x3x_set_frequency(bsradio, 869850);
+		//si4x3x_set_frequency(bsradio, 869850);
+		si4x3x_set_frequency(bsradio, 870000);
+
+
 //		si4x3x_set_frequency(bsradio, 868000);
-//		si4x3x_set_tx_power(bsradio, 7);
-		si4x3x_set_tx_power(bsradio, 0);
+		si4x3x_set_tx_power(bsradio, 18);
+//		si4x3x_set_tx_power(bsradio, 0);
 		break;
 	case 915:
 		si4x3x_set_frequency(bsradio, 915000);
@@ -247,6 +246,8 @@ void si4x3x_recv_test(bsradio_instance_t *bsradio) {
 	print("RX Si4x3x", 5);
 	framebuffer_apply();
 	si4x3x_configure_packet(bsradio);
+	si4x3x_clear_rx_fifo(bsradio);
+	si4x3x_set_mode(bsradio, si4x3x_mode_reveive);
 
 	while (1) {
 
@@ -331,23 +332,90 @@ void unsupported(void) {
 }
 
 void sxv1_send_test(bsradio_instance_t *bsradio) {
-	sxv1_air_packet_t packet = { 0 };
+	bscp_protocol_packet_t  packet = { 0 };
 	char strbuff[32];
 
 	print("TX SX123x", 5);
+///---
+
+
+	switch (bsradio->hwconfig.frequency_band) {
+	case 434:
+		//		bsradio->driver.set_frequency(bsradio, 434000);
+		//		bsradio->driver.set_tx_power(bsradio, 10);
+		bsradio->rfconfig.frequency_kHz = 434000;
+		bsradio->rfconfig.tx_power_dBm = 10;
+
+		break;
+	case 868:
+//		bsradio->rfconfig.frequency_kHz = 869850;
+				bsradio->rfconfig.frequency_kHz = 870000;
+		bsradio->rfconfig.tx_power_dBm = 0;
+		break;
+	case 915:
+		// Sorry Americans... your FCC only allows very weak signals
+		//		bsradio->driver.set_frequency(bsradio, 915000);
+		//		bsradio->driver.set_tx_power(bsradio, -3);
+		bsradio->rfconfig.frequency_kHz = 915000;
+		bsradio->rfconfig.tx_power_dBm = -3;
+		break;
+	}
+
+	//	bsradio->rfconfig.modulation_shaping = 0;
+	bsradio->rfconfig.modulation_shaping = 5; // 0.5 gfsk
+	bsradio->rfconfig.modulation = modulation_2fsk;
+	//bsradio->rfconfig.modulation = modulation_ook;
+
+	// TODO --> update radio config
+	// and do all these calls in the init function
+	//sxv1_set_sync_word32(bsradio, 0xdeadbeef);
+	//	bsradio->driver.set_bitrate(bsradio, 12500);
+	//	bsradio->driver.set_fdev(bsradio, 12500);
+	//	bsradio->driver.set_bandwidth(bsradio, 25000);
+
+	bsradio->rfconfig.birrate_bps = 12500;
+	bsradio->rfconfig.freq_dev_hz = 12500;
+	bsradio->rfconfig.bandwidth_hz = 25000;
+
+	bsradio->rfconfig.network_id[0] = 0xDE;
+	bsradio->rfconfig.network_id[1] = 0xAD;
+	bsradio->rfconfig.network_id[2] = 0xBE;
+	bsradio->rfconfig.network_id[3] = 0xEF;
+	bsradio->rfconfig.network_id_size = 4;
+
+	bsradio->rfconfig.node_id = 0x00;
+	bsradio->rfconfig.broadcast_id = 0xFF;
+	///---
+
+	bsradio->driver.set_frequency = sxv1_set_frequency;
+	bsradio->driver.set_tx_power = sxv1_set_tx_power;
+	bsradio->driver.set_bitrate = sxv1_set_bitrate;
+	bsradio->driver.set_fdev = sxv1_set_fdev;
+	bsradio->driver.set_bandwidth = sxv1_set_bandwidth;
+	bsradio->driver.init = sxv1_init;
+	bsradio->driver.set_network_id = sxv1_set_network_id;
+	bsradio->driver.set_mode = sxv1_set_mode;
+	bsradio->driver.recv_packet = sxv1_recv_packet;
+	bsradio->driver.send_packet = sxv1_send_packet;
+
+
+	bshal_gpio_write_pin(bsradio->spim.rs_pin, 1);
+	bshal_delay_ms(5);
+	bshal_gpio_write_pin(bsradio->spim.rs_pin, 0);
+	bshal_delay_ms(50);
 
 	sxv1_init(bsradio);
 	framebuffer_apply();
 	while (1) {
 
 		bshal_delay_ms(1000);
-		packet.header.size = 9;
+		packet.head.size = 9;
 		packet.data[0] = 0xDE;
 		packet.data[1] = 0xAD;
 		packet.data[2] = 0xBE;
 		packet.data[3] = 0xEF;
 		packet.data[4]++;
-		sxv1_send_request(bsradio, &packet, &packet);
+		sxv1_send_packet(bsradio, &packet);
 		sprintf(strbuff, "TX %02X", packet.data[4]);
 		draw_plain_background();
 		print(strbuff, 1);
@@ -397,28 +465,33 @@ int main() {
 
 	bool write_to_flash = false;
 
-	protocol_header_t *header = buffert;
-	bsradio_hwconfig_t *config = buffert + sizeof(protocol_header_t);
+	bscp_protocol_header_t *header = buffert;
+	bsradio_hwconfig_t *config = buffert + sizeof(bscp_protocol_header_t);
 	if (write_to_flash) {
-		spi_flash_erase_page_256(&spi_flash_config, 0x000000);
-		memset(buffert, 0xFF, sizeof(buffert));
-		header->size = sizeof(protocol_header_t) + sizeof(bsradio_hwconfig_t);
+		spi_flash_read(&spi_flash_config, 0x000000, buffert, sizeof(buffert));
+
+
+
+		//		memset(buffert, 0xFF, sizeof(buffert));
+		header->size = sizeof(bscp_protocol_header_t) + sizeof(bsradio_hwconfig_t);
 		header->cmd = 0x02;
 		header->sub = 0x20;
 		header->res = 'R';
-		config->chip_brand = chip_brand_silabs;
 
-		config->chip_brand = chip_brand_silabs;
-		config->chip_type = 2;
-		config->chip_variant = 3;
+		config->chip_brand = chip_brand_semtech;
+		config->chip_type = 1;
+		config->chip_variant = -1;
+		config->module_brand = module_brand_hoperf;
+		config->module_variant = -1;
 		config->frequency_band = 868;
-		config->xtal_tune = 0x59;
-		config->xtal_freq = 30000000;
-		config->module_brand = module_brand_gnicerf;
-		config->module_variant = module_variant_rf4463pro;
+		config->tune = -10;
+		config->pa_config = 1;
+		config->antenna_type = -1;
+		config->xtal_freq = 32000000;
 
-
-		config->frequency_band = 868;
+		config->tune = 0;
+		__BKPT();
+		spi_flash_erase_page_256(&spi_flash_config, 0x000000);
 		spi_flash_program(&spi_flash_config, 0x000000, buffert, header->size);
 	} else {
 		spi_flash_read(&spi_flash_config, 0x000000, buffert, sizeof(buffert));
@@ -438,7 +511,7 @@ int main() {
 		bsradio.hwconfig.chip_type = 1;
 		bsradio.hwconfig.chip_variant = 2;
 		bsradio.hwconfig.frequency_band = 868;
-		bsradio.hwconfig.xtal_tune = 0x69;
+		bsradio.hwconfig.tune = 0x69;
 		bsradio.hwconfig.xtal_freq = 30000000;
 
 
@@ -456,42 +529,43 @@ int main() {
 	//si4x6x_test();
 //	while (1);
 
-	if (0x87141031 == SERIALNUMBER) {
-		switch (bsradio.hwconfig.chip_brand) {
-		case chip_brand_semtech:
-			switch (bsradio.hwconfig.chip_type) {
-			case 1:
-				sxv1_recv_test(&bsradio);
-				break;
-			case 2:
-				// TODO RFM9x
-				unsupported();
-				break;
-			default:
-				unsupported();
-				break;
-			}
-			break;
-		case chip_brand_silabs:
-			switch (bsradio.hwconfig.chip_type) {
-			case 1:
-				si4x3x_recv_test(&bsradio);
-				break;
-			case 2:
-				si4x6x_recv_test(&bsradio);
-				break;
-			default:
-				unsupported();
-				break;
-			}
-			break;
-
-		default:
-			unsupported();
-			break;
-		}
-
-	} else {
+//	if (0x87141031 != SERIALNUMBER) {
+////	if (false) {
+//		switch (bsradio.hwconfig.chip_brand) {
+//		case chip_brand_semtech:
+//			switch (bsradio.hwconfig.chip_type) {
+//			case 1:
+//				sxv1_recv_test(&bsradio);
+//				break;
+//			case 2:
+//				// TODO RFM9x
+//				unsupported();
+//				break;
+//			default:
+//				unsupported();
+//				break;
+//			}
+//			break;
+//		case chip_brand_silabs:
+//			switch (bsradio.hwconfig.chip_type) {
+//			case 1:
+//				si4x3x_recv_test(&bsradio);
+//				break;
+//			case 2:
+//				si4x6x_recv_test(&bsradio);
+//				break;
+//			default:
+//				unsupported();
+//				break;
+//			}
+//			break;
+//
+//		default:
+//			unsupported();
+//			break;
+//		}
+//
+//	} else {
 		switch (bsradio.hwconfig.chip_brand) {
 		case chip_brand_semtech:
 			switch (bsradio.hwconfig.chip_type) {
@@ -525,6 +599,6 @@ int main() {
 			unsupported();
 			break;
 		}
-
-	}
+//
+//	}
 }

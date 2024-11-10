@@ -2,50 +2,32 @@
 # Set the MCU
 ################################################################################
 MCU?=STM32F103xB
+#MCU?=STM32F411xE
 
+DIS?=ST7735
+
+OPT = -O1 -g3
 
 ################################################################################
 # Set Output Filename 
 ################################################################################
-TARGET = radio_demo
+TARGET = dsmr
 
 ################################################################################
 # Set the root directory of the ucdev enviorement 
 ################################################################################
 UCDEV_ROOT=../../ucdev
-U8G2_DIR = $(UCDEV_ROOT)/ext/u8g2/csrc
 
-BSRADIO_DIR = $(UCDEV_ROOT)/lib/bsradio
+
+U8G2_DIR = $(UCDEV_ROOT)/ext/u8g2/csrc
+UCG_DIR = $(UCDEV_ROOT)/ext/ucglib/csrc
 
 ################################################################################
 # Sources
 ################################################################################
 
-C_SOURCES += radio_demo.c
-
-C_SOURCES += $(BSRADIO_DIR)/bsradio.c
-
-C_SOURCES += $(BSRADIO_DIR)/sxv1.c
-
-C_SOURCES += $(BSRADIO_DIR)/si4x3x.c
-C_SOURCES += $(BSRADIO_DIR)/si4x6x.c
-
-C_SOURCES += $(BSRADIO_DIR)/magic.c
-
-C_INCLUDES += $(BSRADIO_DIR)
-C_INCLUDES += $(U8G2_DIR) 
-C_INCLUDES += .
-
-CFLAGS += -DU8X8_WITH_USER_PTR
-C_SOURCES += dis2.c
-C_SOURCES += i2c.c
-C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/extlib/u8x8_i2c.c
-C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/extlib/u8x8_gpio_delay.c
-
-
-
-
-
+C_SOURCES += ucglib_demo.c
+C_SOURCES += dsmr.c
 
 
 ifneq (,$(findstring RV32,$(MCU)))
@@ -55,6 +37,8 @@ ifneq (,$(findstring RV32,$(MCU)))
 	C_SOURCES += $(LIBHALGLUE_ROOT)/hal/stm32f1/clocksetup.c		
 	C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/stm32/bshal_spim_stm32f1.c
 	C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/stm32/bshal_i2cm_stm32f1.c
+	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/u8g2/release_speed/riscv_rv32imac
+	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/ucg/release_speed/riscv_rv32imac
 
 endif 
 
@@ -69,17 +53,27 @@ ifneq (,$(findstring STM32,$(MCU)))
 		C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/stm32/bshal_spim_stm32f1.c
 		C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/stm32/bshal_i2cm_stm32f1.c
 		
+		LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/u8g2/release_speed/arm_m3
+		LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/ucg/release_speed/arm_m3
+		
+		#LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/u8g2/debug/arm_m3
+		#LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/ucg/debug/arm_m3
 	endif
 
 	ifneq (,$(findstring F4,$(MCU)))
 		C_SOURCES += $(LIBHALGLUE_ROOT)/hal/stm32f4/clocksetup.c		
 		C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/stm32/bshal_spim_stm32f4.c
 		C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/stm32/bshal_i2cm_stm32f4.c
+		LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/u8g2/debug/arm_m4f
+		LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/ucg/debug/arm_m4f
 	endif
 
 endif
 
-
+	C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/extlib/ucg_spi.c
+	C_INCLUDES += $(UCG_DIR)
+	CFLAGS += -DWITH_USER_PTR
+	LDFLAGS +=  -lucg
 
 
 
@@ -101,47 +95,15 @@ C_INCLUDES += $(LIBHALGLUE_ROOT)/bshal/extlib/
 C_INCLUDES += $(LIBHALGLUE_ROOT)/common/
 C_INCLUDES += $(LIBHALGLUE_ROOT)/bshal/
 
-C_INCLUDES += $(UCDEV_ROOT)/lib/bsprot
-C_INCLUDES += $(UCDEV_ROOT)/lib/spi_flash
-C_SOURCES += $(UCDEV_ROOT)/lib/spi_flash/spi_flash.c
 
-
-LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/rtt/debug/arm_m3  -lrtt
-C_SOURCES +=  $(UCDEV_ROOT)/ext/RTT/Syscalls/SEGGER_RTT_Syscalls_GCC.c
-C_INCLUDES += $(UCDEV_ROOT)/ext/RTT//Syscalls/
-C_INCLUDES += $(UCDEV_ROOT)/ext/RTT//RTT/
-C_INCLUDES += $(UCDEV_ROOT)/ext/RTT//Config/
 # link script
 LDSCRIPT = $(shell tr '[:upper:]' '[:lower:]' <<< $(MCU)).ld
 
 
 
+LDFLAGS += -u _printf_float
+
+
 MK_DIR=$(UCDEV_ROOT)/build/make
 include $(MK_DIR)/all.mk
   
-  
-  ifeq ($(SUBARCH), M0)
-	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/u8g2/debug/arm_m0  -lu8g2
-	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/rtt/debug/arm_m0  -lrtt
-
-endif
-
-ifeq ($(SUBARCH), M0P)
-	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/u8g2/debug/arm_m0p  -lu8g2
-	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/rtt/debug/arm_m0p  -lrtt
-endif
-
-ifeq ($(SUBARCH), M3)
-	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/u8g2/debug/arm_m3  -lu8g2
-	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/rtt/debug/arm_m3  -lrtt
-endif
-
-ifeq ($(SUBARCH), M4F)
-	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/u8g2/debug/arm_m4f  -lu8g2
-	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/rtt/debug/arm_m4f  -lrtt
-endif
-
-ifeq ($(SUBARCH), RV32IMAC)
-	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/u8g2/debug/riscv_rv32imac  -lu8g2
-	LDFLAGS +=  -L$(UCDEV_ROOT)/build/staticlib/rtt/debug/riscv_rv32imac  -lrtt
-endif

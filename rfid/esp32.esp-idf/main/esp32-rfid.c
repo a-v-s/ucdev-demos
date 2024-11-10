@@ -143,10 +143,15 @@ void print(char *str, int line);
 void bshal_delay_us(uint32_t us) {
 	ets_delay_us(us);
 }
+/*
 void bshal_delay_ms(uint32_t ms) {
 	bshal_delay_us(ms * 1000);
 }
+*/
 //--
+void bshal_delay_ms(uint32_t ms) {
+	vTaskDelay(ms);
+}
 
 uint32_t get_time_us(void) {
 	return esp_timer_get_time();
@@ -165,6 +170,7 @@ void delay_time_ms(uint32_t ms) {
 }
 
 void rfid5_spi_init(rc52x_t *rc52x) {
+	puts("rfid5_spi_init");
 	static bshal_spim_instance_t rfid_spi_config;
 	rfid_spi_config.frequency = 1000000; // SPI speed for MFRC522 = 10 MHz
 	rfid_spi_config.bit_order = 0; //MSB
@@ -185,8 +191,8 @@ void rfid5_spi_init(rc52x_t *rc52x) {
 	rc52x->transport_instance.spim = &rfid_spi_config;
 }
 
-
 void rfid6_spi_init(rc52x_t *rc66x) {
+	puts("rfid6_spi_init");
 	static bshal_spim_instance_t rfid_spi_config;
 	rfid_spi_config.frequency = 1000000; // SPI speed for MFRC522 = 10 MHz
 	rfid_spi_config.bit_order = 0; //MSB
@@ -208,11 +214,15 @@ void rfid6_spi_init(rc52x_t *rc66x) {
 }
 
 void rfid5_i2c_init(rc52x_t *rc52x) {
+	puts("rfid5_i2c_init");
 	rc52x->delay_ms = delay_time_ms;
 	rc52x->get_time_ms = get_time_ms;
 	rc52x->transport_type = bshal_transport_i2c;
 	rc52x->transport_instance.i2cm = gp_i2c;
 }
+
+void mfrc630_ISO15693_init(rc66x_t *rc66x);
+uint16_t mfrc630_ISO15693_readTag(rc66x_t *rc66x, uint8_t* uid, int colpos);
 
 void app_main(void) {
 
@@ -240,7 +250,8 @@ void app_main(void) {
 	version = -1;
 	rc52x_get_chip_version(&rc52x_i2c, &version);
 	sprintf(str, "VERSION %02X", version);
-	if (version != 0xFF) {
+	if (version != 0xFF  && version != 0x00) {
+		puts("rc52x_i2c");
 		rc52x_init(&rc52x_i2c);
 		pdcs[pdc_count] = rc52x_i2c;
 		pdc_count++;
@@ -250,7 +261,8 @@ void app_main(void) {
 	version = -1;
 	rc52x_get_chip_version(&rc52x_spi, &version);
 	sprintf(str, "VERSION %02X", version);
-	if (version != 0xFF) {
+	if (version != 0xFF  && version != 0x00) {
+		puts("rc52x_spi");
 		rc52x_init(&rc52x_spi);
 		pdcs[pdc_count] = rc52x_spi;
 		pdc_count++;
@@ -262,15 +274,33 @@ void app_main(void) {
 	rc66x_get_chip_version(&rc66x_spi, &version);
 	sprintf(str, "VERSION %02X", version);
 	print(str, 3);
-	if (version != 0xFF) {
+	if (version != 0xFF  && version != 0x00) {
+		puts("rc66x_spi");
 		rc66x_init(&rc66x_spi);
 		pdcs[pdc_count] = rc66x_spi;
 		pdc_count++;
+
+//		rc66x_test(&rc66x_spi);
+		mfrc630_ISO15693_init(&rc66x_spi);
+
+//		rc66x_test(&rc66x_spi);
+		uint8_t buffer[16];
+
+
+		mfrc630_ISO15693_readTag(&rc66x_spi,buffer, 0);
+
+
+
+		rc66x_init(&rc66x_spi);
+
 	}
 #endif
 	print("PDCs:", 0);
 
 	framebuffer_apply();
+
+	puts("----");
+	bshal_delay_ms(1000);
 
 	demo_loop(pdcs, pdc_count);
 

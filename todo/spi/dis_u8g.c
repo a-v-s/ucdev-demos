@@ -6,12 +6,19 @@
  */
 
 #include "bshal_u8x8.h"
+#include "u8x8_spi.h"
 
 #include "u8g2.h"
 #include "u8x8.h"
 
-static bshal_u8x8_t m_bshal_st7920, m_bshal_ssd1306;
-static u8g2_t m_u8g2_ssd1306, m_u8g2_st7920;
+#include "bshal_gpio.h"
+
+//static bshal_u8x8_t m_bshal_st7920, m_bshal_ssd1306;
+//static u8g2_t m_u8g2_ssd1306, m_u8g2_st7920;
+
+static bshal_u8x8_t m_bshal_ssd1306;
+static u8g2_t m_u8g2_ssd1306;
+
 
 void blokje(u8g2_t * dis) {
 	//static int x=0,y=0;
@@ -94,55 +101,41 @@ void u8g2_test() {
 	// no longer mirrored (which would be caused by data intended for the other display I presume)
 
 
-	m_bshal_st7920.spim.instance.hw_nr = 2; // SPI2
-	m_bshal_st7920.spim.instance.miso_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_14);
-	m_bshal_st7920.spim.instance.mosi_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_15);
-	m_bshal_st7920.spim.instance.sck_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_13);
-
-	m_bshal_st7920.spim.instance.cs_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_0);
-	m_bshal_st7920.spim.ncd_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_1);
+	bshal_gpio_cfg_out(16,pushpull, true);
+	bshal_gpio_cfg_out(26,pushpull, true);
 
 
 
 
-	m_bshal_ssd1306 = m_bshal_st7920;
-	m_bshal_ssd1306.spim.ncd_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_9);
-	m_bshal_ssd1306.spim.instance.cs_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_8);
+
+	m_bshal_ssd1306.spim.instance.hw_nr = 1; // SPI1
+	m_bshal_ssd1306.spim.instance.frequency = 1000000;
+
+
+	m_bshal_ssd1306.spim.instance.cs_pin = 4;
+	m_bshal_ssd1306.spim.instance.mosi_pin = 7;
+	m_bshal_ssd1306.spim.instance.miso_pin = 6;
+	m_bshal_ssd1306.spim.instance.sck_pin = 5;
+
+	m_bshal_ssd1306.spim.ncd_pin =  17;
 
 	u8g2_SetUserPtr(&m_u8g2_ssd1306, &m_bshal_ssd1306);
-	u8g2_Setup_ssd1306_128x64_noname_f(&m_u8g2_ssd1306, U8G2_R2, bshal_u8x8_byte_spi, bshal_u8x8_gpio_and_delay);
+	u8g2_Setup_ssd1306_128x64_noname_f(&m_u8g2_ssd1306, U8G2_R0, bshal_u8x8_byte_spi, bshal_u8x8_gpio_and_delay);
+//	u8g2_Setup_st7920_s_128x64_f(&m_u8g2_ssd1306, U8G2_R2, bshal_u8x8_byte_spi, bshal_u8x8_gpio_and_delay);
 	static uint8_t ssd1306_buf[1024];
 	m_u8g2_ssd1306.tile_buf_ptr=ssd1306_buf;
+
+
 	u8g2_InitDisplay(&m_u8g2_ssd1306);
 	u8g2_SetPowerSave(&m_u8g2_ssd1306, 0);
 
-	u8g2_SetUserPtr(&m_u8g2_st7920, &m_bshal_st7920);
-	u8g2_Setup_st7920_s_128x64_f(&m_u8g2_st7920, U8G2_R2, bshal_u8x8_byte_spi, bshal_u8x8_gpio_and_delay);
-	static uint8_t st7920_buf[1024];
-	m_u8g2_st7920.tile_buf_ptr=st7920_buf;
-	u8g2_InitDisplay(&m_u8g2_st7920);
-	u8g2_SetPowerSave(&m_u8g2_st7920, 0);
-
-
-
-
-//	u8g2_ClearBuffer(&m_u8g2_st7920);
-//	u8g2_SetFont(&m_u8g2_st7920, u8g2_font_5x8_tf);
-//	u8g2_DrawUTF8(&m_u8g2_st7920, 8, 8, "Hello World" );
-//	u8g2_DrawUTF8(&m_u8g2_st7920, 8, 16, "Hello World" );
-// 	u8g2_DrawUTF8(&m_u8g2_st7920, 8, 24, "Hello World" );
-//	u8g2_DrawUTF8(&m_u8g2_st7920,  8, 32, "Hello World" );
-//	u8g2_DrawUTF8(&m_u8g2_st7920,  8, 40, "Hello World" );
-//	u8g2_UpdateDisplay(&m_u8g2_st7920);
-
-
-//
 
 
 	while (1) {
 
-		blokje(&m_u8g2_st7920);
+//		blokje(&m_u8g2_st7920);
 		blokje(&m_u8g2_ssd1306);
 	}
 
 }
+

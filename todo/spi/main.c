@@ -635,13 +635,14 @@ int main() {
 	bshal_delay_us(10);
 
 
-	char str[32];
-//
-	uint32_t flash_id = test_flash_spi_read_id();
-	sprintf(str, "FLASH  %08X", flash_id);
-//	print(str, 4);
-//
+//	char str[32];
+////
+//	uint32_t flash_id = test_flash_spi_read_id();
+//	sprintf(str, "FLASH  %08X", flash_id);
+////	print(str, 4);
+////
 
+	u8g2_test();
 //
 	while (1) {
 

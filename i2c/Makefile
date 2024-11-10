@@ -35,6 +35,8 @@ UCDEV_ROOT=../../ucdev
 
 U8G2_DIR = $(UCDEV_ROOT)/ext/u8g2/csrc
 
+BSSENSOR_DIR = $(UCDEV_ROOT)/lib/bssensor
+
 ################################################################################
 # Sources
 ################################################################################
@@ -44,17 +46,17 @@ C_SOURCES += identify.c
 C_SOURCES += dis2.c
 C_SOURCES += i2c.c
 
-C_SOURCES += lm75b.c
-C_SOURCES += sht3x.c
-C_SOURCES += bh1750.c
-C_SOURCES += pcf8563.c
-C_SOURCES += pcf8574.c
-C_SOURCES += si70xx.c
-C_SOURCES += hcd1080.c
-C_SOURCES += ccs811.c
+C_SOURCES += $(BSSENSOR_DIR)/lm75b.c
+C_SOURCES += $(BSSENSOR_DIR)/sht3x.c
+C_SOURCES += $(BSSENSOR_DIR)/bh1750.c
+C_SOURCES += $(BSSENSOR_DIR)/pcf8563.c
+C_SOURCES += $(BSSENSOR_DIR)/pcf8574.c
+C_SOURCES += $(BSSENSOR_DIR)/si70xx.c
+C_SOURCES += $(BSSENSOR_DIR)/hcd1080.c
+C_SOURCES += $(BSSENSOR_DIR)/ccs811.c
 
-C_SOURCES += bmp280.c
-C_SOURCES += scd4x.c
+C_SOURCES += $(BSSENSOR_DIR)/bmp280.c
+C_SOURCES += $(BSSENSOR_DIR)/scd4x.c
 
 C_SOURCES += kt0803.c
 C_SOURCES += rda5807.c
@@ -150,6 +152,7 @@ C_SOURCES += $(LIBHALGLUE_ROOT)/bshal/extlib/u8x8_gpio_delay.c
 # Includes
 ################################################################################
 C_INCLUDES += $(U8G2_DIR) 
+C_INCLUDES += $(BSSENSOR_DIR)
 
 C_INCLUDES += $(LIBHALGLUE_ROOT)/bshal/extlib/
 C_INCLUDES += $(LIBHALGLUE_ROOT)/common/

@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdfix.h>
+#include <stdio.h>
 
 #include "system.h"
 
@@ -19,10 +20,12 @@ void SysTick_Handler(void) {
 void SystemClock_Config(void) {
 
 #ifdef STM32F1
+	extern void ClockSetup_HSE8_SYS72();
 	ClockSetup_HSE8_SYS72();
 #endif
 
 #ifdef STM32F4
+	extern void SystemClock_HSE25_SYS84();
 	SystemClock_HSE25_SYS84();
 #endif
 }
@@ -34,17 +37,19 @@ void at_command_send(char *cmd) {
 	if (strlen(cmd) > 60)
 		return;
 	sprintf(buffer, "%s\r\n", cmd);
+	extern void test_uart_send(char*, int);
 	test_uart_send(buffer, strlen(buffer));
 }
 
-typedef struct {
+typedef struct at_command_t {
 	char command[64];
 	char responses[5][64];
 	char status_string[16];
 	int status;
 	int state;
-	void (*cb)(void*); // cannot refer to itself yet
+	void (*cb)(struct at_command_t*);
 } at_command_t;
+;
 
 typedef void (*at_command_cb_f)(at_command_t*);
 typedef void (*at_unsolicited_cb_f)(char*);
@@ -106,7 +111,8 @@ void at_command_queue_process(void) {
 	}
 }
 
-void uart_at_cb(char *data, size_t size) {
+void uart_at_cb(void *d, size_t size) {
+	char *data = d;
 //	printf("%s:%s\n", __FUNCTION__, data);
 	if (!size)
 		return;
@@ -140,7 +146,8 @@ void uart_at_cb(char *data, size_t size) {
 	case 5:
 	case 6:
 		// "Err:" is a non-compliant response used by FS800E
-		if (!strcmp(data, "OK") || strstr(data, "ERROR") || strstr(data, "Err:")) {
+		if (!strcmp(data, "OK") || strstr(data, "ERROR")
+				|| strstr(data, "Err:")) {
 			at_command.state = 7;
 			//			printf("\t\t\tEarly Status is %s\n", data);
 		[[fallthrough]];
@@ -196,10 +203,9 @@ void uart_init(void) {
 	bshal_uart_at_async.preprocess_buffer = preprocess_buffer;
 	bshal_uart_at_async.preprocess_buffer_len = sizeof(preprocess_buffer);
 
-	bshal_uart_instance.async = &bshal_uart_at_async; // Asign the async handler to the uart instance
+	bshal_uart_instance.async = (void*) &bshal_uart_at_async; // Asign the async handler to the uart instance
 
-
-	bshal_uart_instance.bps = 115200;	// most modems default at 115200,8,N,1 or auto detect
+	bshal_uart_instance.bps = 115200; // most modems default at 115200,8,N,1 or auto detect
 //	bshal_uart_instance.bps = 38400; // Sinowell G590E defaults at 38400,N,1
 	bshal_uart_instance.data_bits = 8;
 	bshal_uart_instance.parity = bshal_uart_parity_none;
@@ -210,14 +216,17 @@ void uart_init(void) {
 	bshal_uart_instance.hw_nr = 2;  // UASRT 2
 	bshal_uart_instance.cts_pin = -1; // No flow control
 	bshal_uart_instance.rts_pin = -1; // No flow control
+	extern int bshal_gpio_encode_pin();
+
 	bshal_uart_instance.rxd_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_3); // PA3
 	bshal_uart_instance.txd_pin = bshal_gpio_encode_pin(GPIOA, GPIO_PIN_2); // PA2
 
+	extern void bshal_stm32_uart_init();
 	bshal_stm32_uart_init(&bshal_uart_instance);
 
 }
 
-char* at_modem_stat2str( stat) {
+char* at_modem_stat2str(int stat) {
 	switch (stat) {
 	case 0:
 		return "not registered, MT is not currently searching an operator to register to";
@@ -248,7 +257,7 @@ char* at_modem_stat2str( stat) {
 	}
 }
 
-char* at_modem_act2str( act) {
+char* at_modem_act2str(int act) {
 	switch (act) {
 	case 0:
 		return "GSM";
@@ -350,8 +359,7 @@ void at_cgdcontQ_cb(at_command_t *cmd) {
 			if (((strlen(str_apn) == (strlen(APN) + 2)
 					|| (strlen(str_apn) > (strlen(APN) + 2)
 							&& ('.' == *(str_apn + strlen(APN) + 1))))
-					&& (!strncasecmp(APN, str_apn + 1, strlen(APN))))
-			) {
+					&& (!strncasecmp(APN, str_apn + 1, strlen(APN))))) {
 				puts("Current APN is correct");
 			} else {
 
@@ -374,8 +382,7 @@ void at_cgact01_cb(at_command_t *cmd) {
 	if (cmd->status) {
 		// On a Quectel EC600N, we see an active
 	} else {
-		at_command_enqueue("AT+CGDCONT=1,\"IP\",\""APN"\"",
-				at_cgdcont_cb);
+		at_command_enqueue("AT+CGDCONT=1,\"IP\",\""APN"\"", at_cgdcont_cb);
 	}
 }
 
@@ -423,7 +430,7 @@ void at_cgactQ_cb(at_command_t *cmd) {
 }
 
 void at_cgatt1_cb(at_command_t *cmd) {
-	if(cmd->status) {
+	if (cmd->status) {
 		// error
 	} else {
 		at_command_enqueue("AT+CGACT?", at_cgactQ_cb);
@@ -482,14 +489,14 @@ void at_c5gregQ_cb(at_command_t *cmd) {
 		at_modem_info.c5greg.act = strtol(str_act, NULL, 10);
 	}
 
-	//print_registration_status();
+	print_registration_status();
 
 }
 void at_c5greg2_cb(at_command_t *cmd) {
 	if (cmd->status) {
 		puts("AT+C5GREG=2 failed");
 		at_modem_info.c5greg = (at_modem_registration_status_t ) { -2 };
-		//print_registration_status();
+		print_registration_status();
 
 	} else {
 		at_command_enqueue("AT+C5GREG?", at_c5gregQ_cb);
@@ -510,6 +517,8 @@ void at_ceregQ_cb(at_command_t *cmd) {
 		at_modem_info.cereg.tac = strtol(str_tac + 1, NULL, 16);
 		at_modem_info.cereg.ci = strtol(str_ci + 1, NULL, 16);
 		at_modem_info.cereg.act = strtol(str_act, NULL, 10);
+
+		print_registration_status();
 	}
 
 }
@@ -548,11 +557,14 @@ void at_cgregQ_cb(at_command_t *cmd) {
 				at_modem_act2str(at_modem_info.cgreg.act));
 		bshal_delay_ms(100);
 
+		// uBlox R5 series register as "SMS only"
 		if (at_modem_info.cgreg.stat == 1 || at_modem_info.cgreg.stat == 5) {
 			puts("Registered to a packet service");
 			at_command_enqueue("AT+CGACT?", at_cgactQ_cb);
-		} else if ((at_modem_info.creg.stat == 1 || at_modem_info.creg.stat == 5)) {
-			puts("Circuit registration but no Packer registration? Not attached?");
+		} else if ((at_modem_info.creg.stat == 1 || at_modem_info.creg.stat == 5
+				|| at_modem_info.creg.stat == 6 || at_modem_info.creg.stat == 7)) {
+			puts(
+					"Circuit registration but no Packet registration? Not attached?");
 			at_command_enqueue("AT+CGATT=1", at_cgatt1_cb);
 		}
 
@@ -641,6 +653,11 @@ void at_gcap_cb(at_command_t *cmd) {
 void ati_cb(at_command_t *cmd) {
 	if (cmd->status) {
 		puts("ATI failed");
+
+		// Some modems may output more lines then we expect
+		// At the moment this causes faillure
+		at_command_enqueue("AT+GCAP", at_gcap_cb);
+
 	} else {
 		puts("ATI succeeded");
 		for (int i = 0; i < 5; i++) {
@@ -839,6 +856,5 @@ int main() {
 		bshal_uart_at_recv_process(&bshal_uart_at_async);
 		at_command_queue_process();
 	}
-
 
 }
