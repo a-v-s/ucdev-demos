@@ -29,9 +29,8 @@
  */
 
 #include <stdbool.h>
+#include <stdio.h>
 #include <string.h>
-
-
 
 #include "system.h"
 
@@ -44,8 +43,6 @@
 #include "bshal_spim.h"
 #include "bshal_delay.h"
 #include "bshal_i2cm.h"
-
-
 
 #include "i2c.h"
 #include "lm75b.h"
@@ -64,12 +61,17 @@
 #include "rc52x_transport.h"
 #include "rc52x.h"
 
-
+void print(char *str, int line);
+void display_init(void);
+void draw_background();
+void framebuffer_apply();
+void draw_plain_background();
 
 bshal_i2cm_instance_t *gp_i2c = NULL;
 
 void HardFault_Handler(void) {
-	while(1);
+	while (1)
+		;
 }
 #ifdef STM32
 void SysTick_Handler(void) {
@@ -80,26 +82,32 @@ void SysTick_Handler(void) {
 void SystemClock_Config(void) {
 
 #ifdef STM32F0
+	extern void ClockSetup_HSE8_SYS48();
 	ClockSetup_HSE8_SYS48();
 #endif
 
 #ifdef STM32F1
+	extern void ClockSetup_HSE8_SYS72();
 	ClockSetup_HSE8_SYS72();
 #endif
 
 #ifdef STM32F3
+	extern void ClockSetup_HSE8_SYS72();
 	ClockSetup_HSE8_SYS72();
 #endif
 
 #ifdef STM32F4
+	extern void SystemClock_HSE25_SYS84();
 	SystemClock_HSE25_SYS84();
 #endif
 
 #ifdef STM32L0
+	extern void SystemClock_HSE8_SYS32();
 	SystemClock_HSE8_SYS32();
 #endif
 
 #ifdef STM32L1
+	extern void SystemClock_HSE8_SYS48();
 	SystemClock_HSE8_SYS48();
 #endif
 }
@@ -153,9 +161,6 @@ int main__(void) {
 	NVIC_SystemReset();
 
 }
-
-
-
 
 int main() {
 #ifdef SEMI
@@ -218,8 +223,7 @@ int main() {
 
 	}
 
-	rda5807_t rda5807 = {};
-
+	rda5807_t rda5807 = { };
 
 	if (0 == bshal_i2cm_isok(gp_i2c, RDA5807_I2C_ADDR)) {
 		rda5807.addr = RDA5807_I2C_ADDR;
@@ -230,19 +234,16 @@ int main() {
 
 	}
 
-
-
 	if (0 == bshal_i2cm_isok(gp_i2c, SCD4X_I2C_ADDR)) {
 		scd4x.addr = SCD4X_I2C_ADDR;
 		scd4x.p_i2c = gp_i2c;
 
-		char serial [6] = {0};
+		char serial[6] = { 0 };
 		scd4x_get_serial(&scd4x, serial);
 
-		char strserial [ 24];
-		sprintf(strserial, "%02X%02X%02X%02X%02X%02X" ,
-				serial[0],serial[1], serial[2],
-				serial[3], serial[4], serial[5]);
+		char strserial[24];
+		sprintf(strserial, "%02X%02X%02X%02X%02X%02X", serial[0], serial[1],
+				serial[2], serial[3], serial[4], serial[5]);
 
 //		scd4x_selftest(&scd4x);
 
@@ -250,7 +251,6 @@ int main() {
 
 		scd4x_start(&scd4x);
 	}
-
 
 	if (0 == bshal_i2cm_isok(gp_i2c, BMP280_I2C_ADDR)) {
 		bmp280.addr = BMP280_I2C_ADDR;
@@ -289,25 +289,21 @@ int main() {
 
 	if (0 == bshal_i2cm_isok(gp_i2c, SI7021_ADDR)) {
 		// either si7021 or hcd1080
-		bool identify;
+
 		si70xx.addr = SI7021_ADDR;
 		si70xx.p_i2c = gp_i2c;
-		si70xx_identify(&si70xx, &identify);
-		if (!identify) {
+		if (si70xx_init(&si70xx)) {
 			si70xx.addr = 0;
 		}
 		// Makes GD32VF103 CLK line stay low after first access
 		hcd1080.addr = SI7021_ADDR;
 		hcd1080.p_i2c = gp_i2c;
-		hcd1080_identify(&hcd1080, &identify);
-		if (!identify) {
+		if (hcd1080_init(&hcd1080)) {
 			hcd1080.addr = 0;
 		}
 	}
 
 	char str[32];
-
-
 
 	if (ccs811.addr) {
 
@@ -329,10 +325,8 @@ int main() {
 //		}
 //	}
 
-
-
 	//int state ='*';
-	int state =2;
+	int state = 2;
 
 	while (1) {
 		int line = 0;
@@ -342,12 +336,13 @@ int main() {
 		switch (state) {
 		case 3:
 			__NOP();
-			static float temp_C=0;
-			static uint16_t  co2_ppm=0,humidity_percent=0;
+			//static float temp_C = 0;
+			static uint16_t co2_ppm = 0;	//, humidity_percent = 0;
+			static float temp_C, humidity_percent;
 			if (scd4x.addr) {
 
-				if (!scd4x_get_result_float(&scd4x, &co2_ppm, &temp_C,&humidity_percent)) {
-
+				if (!scd4x_get_result_float(&scd4x, &co2_ppm, &temp_C,
+						&humidity_percent)) {
 
 				} else {
 					//sprintf(buff,"CO2: no data");
@@ -356,7 +351,6 @@ int main() {
 				print(buff, line);
 				line++;
 			}
-
 
 			if (pcf8563.addr) {
 				pcf8563_time_t time = { 0 };
@@ -386,15 +380,14 @@ int main() {
 				line++;
 			}
 
-
-
 			if (lm75b.addr) {
 				//accum temperature_a;
 				float temperature_f;
 				//lm75b_get_temperature_C_accum(&lm75b, &temperature_a);
-				lm75b_get_temperature_C_float(&lm75b,  &temperature_f);
+				lm75b_get_temperature_C_float(&lm75b, &temperature_f);
 				//sprintf(buff, "LM75B:  %3d.%02d°C  ", (int) temperature_a, (int) (100 * temperature_a) % 100);
-				sprintf(buff, "LM75B:  %3d.%02d°C  ", (int) temperature_f, (int) (100 * temperature_f) % 100);
+				sprintf(buff, "LM75B:  %3d.%02d°C  ", (int) temperature_f,
+						(int) (100 * temperature_f) % 100);
 				print(buff, line);
 				line++;
 			}
@@ -412,8 +405,6 @@ int main() {
 //				print(buff, line);
 //				line++;
 //			}
-
-
 
 			if (hcd1080.addr) {
 //				accum temperature_a = -99.99;
@@ -451,15 +442,13 @@ int main() {
 				si70xx_get_humidity_float(&si70xx, &huminity_f);
 
 				sprintf(buff, "SI70XX: %3d.%02d°C %3d.%02d%%  ",
-						(int) temperature_f %999,
+						(int) temperature_f % 999,
 						abs((int) (100 * temperature_f)) % 100,
 						(int) huminity_f, abs((int) (100 * huminity_f)) % 100);
 				print(buff, line);
 				line++;
 
 			}
-
-
 
 			if (sht3x.addr) {
 //				accum temperature_a;
@@ -472,7 +461,7 @@ int main() {
 				sht3x_get_humidity_float(&sht3x, &huminity_f);
 				sht3x_get_temperature_C_float(&sht3x, &temperature_f);
 				sprintf(buff, "SHT3X:  %3d.%02d°C %3d.%02d%%  ",
-						(int) temperature_f %999,
+						(int) temperature_f % 999,
 						abs((int) (100 * temperature_f)) % 100,
 						(int) huminity_f, abs((int) (100 * huminity_f)) % 100);
 
@@ -503,7 +492,6 @@ int main() {
 				line++;
 			}
 
-
 			if (bmp280.addr) {
 
 				float temperature_f;
@@ -518,8 +506,6 @@ int main() {
 				line++;
 
 			}
-
-
 
 //			if (rc52x_version) {
 //				// When either SHT3x or HCD1080 are being read,
@@ -556,7 +542,6 @@ int main() {
 //				}
 //			}
 
-
 			break;
 		case '*':
 			print("MENU", line++);
@@ -581,101 +566,106 @@ int main() {
 				break;
 			}
 			break;
-			case 0xa:
-				print("FM RADIO", line++);
-				break;
+		case 0xa:
+			print("FM RADIO", line++);
+			break;
 
-			case 1:
-				print("1: SET TIME", line++);
-				static char datetimestring[20];
-				int cpos;
-				cpos = count + 2;
-				if (count > 1) cpos++;
-				if (count > 3) cpos++;
-				if (count > 5) cpos++;
-				if (count > 7) cpos++;
-				if (count > 9) cpos++;
+		case 1:
+			print("1: SET TIME", line++);
+			static char datetimestring[20];
+			int cpos;
+			cpos = count + 2;
+			if (count > 1)
+				cpos++;
+			if (count > 3)
+				cpos++;
+			if (count > 5)
+				cpos++;
+			if (count > 7)
+				cpos++;
+			if (count > 9)
+				cpos++;
 
-				for (int i = 0 ; i < 20 ; i++)
-					buff[i] = cpos == i ? '^' : ' ';
-				buff[20] = 0;
+			for (int i = 0; i < 20; i++)
+				buff[i] = cpos == i ? '^' : ' ';
+			buff[20] = 0;
 
-				if (!count) strcpy(datetimestring, "20yy-mm-dd HH:MM:SS");
-				if (key_pressed) {
+			if (!count)
+				strcpy(datetimestring, "20yy-mm-dd HH:MM:SS");
+			if (key_pressed) {
 
-					// We've got the millenium bug here.
-					// Don't blaim me, it's a hardware problem.
-					// The DS1307 only supports a 2 digit year
-					// However, the PCF8563 got a century bit.
-					// This needs some investigation what its influence is\
+				// We've got the millenium bug here.
+				// Don't blaim me, it's a hardware problem.
+				// The DS1307 only supports a 2 digit year
+				// However, the PCF8563 got a century bit.
+				// This needs some investigation what its influence is\
 					// on the leap year. 2000 was a leap year, 2100 will not be.
-					// So... unless the century bit toggles this, for which I
-					// have not (yet) found any clues in the datasheet, we
-					// can only support this century out of the box.
+				// So... unless the century bit toggles this, for which I
+				// have not (yet) found any clues in the datasheet, we
+				// can only support this century out of the box.
 
-					if (key_pressed == 'D') {
-						count--;
-					}
-
-					switch (count) {
-					case 0:
-						if (key_pressed >= '0' && key_pressed <= '9') {
-							datetimestring[cpos] = key_pressed;
-							count++;
-						}
-						break;
-					case 1:
-						if (key_pressed >= '0' && key_pressed <= '9') {
-							datetimestring[cpos] = key_pressed;
-							count++;
-						}
-						break;
-					case 2:
-						if (key_pressed >= '0' && key_pressed <= '1') {
-							datetimestring[cpos] = key_pressed;
-							count++;
-						}
-						break;
-					case 3:
-						if ((datetimestring[5] == '1' && key_pressed >= '0'
-								&& key_pressed <= '2')
-								|| (datetimestring[5] == '0' && key_pressed >= '1'
-										&& key_pressed <= '9')) {
-							datetimestring[cpos] = key_pressed;
-							count++;
-						}
-						break;
-					case 4:
-						if ((key_pressed != '3' || !
-								(datetimestring[5] == '0' && datetimestring[6] == '2')
-								 )
-								&& (key_pressed >= '0' && key_pressed <= '3'))
-						 {
-							datetimestring[cpos] = key_pressed;
-							count++;
-						}
-						break;
-					case 5:
-						// TODO got to check the number of days in the month
-
-						if (key_pressed >= '0' && key_pressed <= '9') {
-							{
-								datetimestring[cpos] = key_pressed;
-								count++;
-							}
-							break;
-
-						}
-						break;
-					}
+				if (key_pressed == 'D') {
+					count--;
 				}
-				print(datetimestring, 3);
-				print(buff, 4);
-				break;
-			case 2:
-				print("I²C BUS SCAN",0);
-				scan_i2c();
-				break;
+
+				switch (count) {
+				case 0:
+					if (key_pressed >= '0' && key_pressed <= '9') {
+						datetimestring[cpos] = key_pressed;
+						count++;
+					}
+					break;
+				case 1:
+					if (key_pressed >= '0' && key_pressed <= '9') {
+						datetimestring[cpos] = key_pressed;
+						count++;
+					}
+					break;
+				case 2:
+					if (key_pressed >= '0' && key_pressed <= '1') {
+						datetimestring[cpos] = key_pressed;
+						count++;
+					}
+					break;
+				case 3:
+					if ((datetimestring[5] == '1' && key_pressed >= '0'
+							&& key_pressed <= '2')
+							|| (datetimestring[5] == '0' && key_pressed >= '1'
+									&& key_pressed <= '9')) {
+						datetimestring[cpos] = key_pressed;
+						count++;
+					}
+					break;
+				case 4:
+					if ((key_pressed != '3'
+							|| !(datetimestring[5] == '0'
+									&& datetimestring[6] == '2'))
+							&& (key_pressed >= '0' && key_pressed <= '3')) {
+						datetimestring[cpos] = key_pressed;
+						count++;
+					}
+					break;
+				case 5:
+					// TODO got to check the number of days in the month
+
+					if (key_pressed >= '0' && key_pressed <= '9') {
+						{
+							datetimestring[cpos] = key_pressed;
+							count++;
+						}
+						break;
+
+					}
+					break;
+				}
+			}
+			print(datetimestring, 3);
+			print(buff, 4);
+			break;
+		case 2:
+			print("I²C BUS SCAN", 0);
+			scan_i2c();
+			break;
 
 		}
 		sprintf(buff, "Keypad:  ");

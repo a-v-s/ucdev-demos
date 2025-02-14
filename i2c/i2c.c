@@ -5,12 +5,18 @@
  *      Author: andre
  */
 
-#include "system.h"
-#include "bshal_i2cm.h"
+#include "i2c.h"
 
 static bshal_i2cm_instance_t m_i2c;
 
-bshal_i2cm_instance_t * i2c_init(void) {
+#ifdef STM32
+#include "stm32/bshal_gpio_stm32.h"
+#include "stm32/bshal_i2cm_stm32.h"
+#endif
+
+// TODO something about GECKO include
+
+bshal_i2cm_instance_t* i2c_init(void) {
 #ifdef STM32
 	m_i2c.sda_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_7);
 	m_i2c.scl_pin = bshal_gpio_encode_pin(GPIOB, GPIO_PIN_6);

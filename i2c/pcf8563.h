@@ -45,7 +45,7 @@ typedef union {
 		unsigned int bcd :5;
 		unsigned int :2;
 		unsigned int century :1;
-	}
+	};
 } pcf8563_months_century_t;
 
 typedef struct {
@@ -64,5 +64,8 @@ typedef struct {
 } pcf8563_t;
 
 #pragma pack(pop)
+
+int pcf8563_get_time(pcf8563_t *pcf8563, pcf8563_time_t *time);
+int pcf8563_set_time(pcf8563_t *pcf8563, pcf8563_time_t *time);
 
 #endif /* PCF8563_H_ */
